@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Read the Room — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #00205B;
+    --navy-tint: #EEF0F6;
+    --gold: #A88B3D;
+    --gold-tint: #FBF6EA;
+    --grey: #58595B;
+    --light: #F7F7F9;
+    --border: #DEDFE5;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 24px 16px 40px;
+    background: var(--light);
+    font-family: 'EB Garamond', Garamond, Baskerville, 'Times New Roman', serif;
+    color: #232326;
+    font-size: 19px;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3, .heading-font {
+    font-family: 'Cambria', Georgia, 'Times New Roman', serif;
+  }
+
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  /* ---- Header ---- */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 3px solid var(--gold);
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+  }
+  .topbar .brand {
+    font-family: 'Cambria', Georgia, serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .topbar .progress-label {
+    font-family: 'Cambria', Georgia, serif;
+    font-size: 14px;
+    color: var(--grey);
+  }
+
+  /* ---- Progress dots ---- */
+  .dots {
+    display: flex;
+    gap: 7px;
+    justify-content: center;
+    margin-bottom: 22px;
+  }
+  .dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #D6D8E0;
+    border: none;
+    padding: 0;
+    cursor: default;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .dot.visited {
+    background: var(--navy);
+    cursor: pointer;
+  }
+  .dot.current {
+    background: var(--gold);
+    transform: scale(1.25);
+    cursor: pointer;
+  }
+
+  /* ---- Card ---- */
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 30px 30px 26px;
+    box-shadow: 0 2px 10px rgba(0,32,91,0.06);
+    min-height: 300px;
+    animation: fadeIn 0.35s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .scenario {
+    margin: 0 0 18px;
+    font-size: 19px;
+  }
+
+  .prompt {
+    font-family: 'Cambria', Georgia, serif;
+    font-weight: 700;
+    color: var(--navy);
+    font-size: 18px;
+    margin: 0 0 16px;
+  }
+
+  /* ---- Options ---- */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    text-align: left;
+    width: 100%;
+    padding: 13px 16px;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 18px;
+    color: #232326;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, opacity 0.15s;
+  }
+  .option:hover:not(.locked) {
+    border-color: var(--navy);
+    border-left-color: var(--navy);
+  }
+  .option .tag {
+    font-family: 'Cambria', Georgia, serif;
+    font-weight: 700;
+    color: var(--grey);
+    flex-shrink: 0;
+  }
+
+  .option.selected.correct {
+    border-left-color: var(--gold);
+    background: var(--gold-tint);
+  }
+  .option.selected.incorrect {
+    border-left-color: var(--navy);
+    background: var(--navy-tint);
+  }
+  .option.selected.neutral {
+    border-left-color: var(--grey);
+    background: var(--light);
+  }
+  .option.dimmed {
+    opacity: 0.55;
+  }
+
+  .marker {
+    margin-left: auto;
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+    padding-left: 10px;
+  }
+  .marker.correct { color: var(--gold); }
+  .marker.incorrect { color: var(--navy); }
+
+  /* ---- Feedback ---- */
+  .feedback {
+    margin-top: 8px;
+    padding: 16px 18px;
+    border-radius: 6px;
+    font-size: 18px;
+    line-height: 1.6;
+    animation: fadeIn 0.3s ease;
+  }
+  .feedback.correct { background: var(--gold-tint); border: 1px solid #E9DDBE; }
+  .feedback.incorrect { background: var(--navy-tint); border: 1px solid #D3D8E8; }
+  .feedback.neutral { background: var(--light); border: 1px solid var(--border); }
+  .feedback .label {
+    font-family: 'Cambria', Georgia, serif;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .feedback.correct .label { color: var(--gold); }
+  .feedback.incorrect .label { color: var(--navy); }
+  .feedback.neutral .label { color: var(--grey); }
+
+  /* ---- Nav ---- */
+  .nav {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 22px;
+  }
+  .btn-next {
+    font-family: 'Cambria', Georgia, serif;
+    font-weight: 700;
+    font-size: 16px;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 26px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .btn-next.shown {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .btn-next:hover { background: #001642; }
+
+  /* ---- Intro / completion screens ---- */
+  .screen-title {
+    font-size: 24px;
+    color: var(--navy);
+    margin: 0 0 10px;
+  }
+  .screen-body p { margin: 0 0 14px; }
+  .btn-start, .btn-restart {
+    font-family: 'Cambria', Georgia, serif;
+    font-weight: 700;
+    font-size: 16px;
+    background: var(--gold);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 13px 28px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  .btn-restart {
+    background: #fff;
+    color: var(--navy);
+    border: 1px solid var(--navy);
+  }
+
+  .footnote {
+    text-align: center;
+    color: var(--grey);
+    font-size: 13.5px;
+    margin-top: 22px;
+    font-family: 'Cambria', Georgia, serif;
+  }
+
+  @media (max-width: 520px) {
+    body { font-size: 17px; padding: 16px 10px 32px; }
+    .card { padding: 22px 18px 20px; }
+    .option { font-size: 16px; padding: 12px 13px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">MBA@Rice 511 &middot; Session 1</span>
+    <span class="progress-label" id="progressLabel"></span>
+  </div>
+
+  <div class="dots" id="dots"></div>
+
+  <div class="card" id="card"></div>
+
+  <div class="footnote">This page collects no data and requires no login. Nothing you click here is recorded or shared.</div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    scenario: "Dana runs a product team. A launch date slips. In the next standup, Dana stops asking for updates, starts working the problem alone in the evenings, and answers Slack more slowly than usual. Two weeks later, a team member says they had no idea the launch was in trouble.",
+    prompt: "What is Dana doing?",
+    options: [
+      { label: "A", text: "Losing interest in the project", correct: false,
+        feedback: "Nothing here suggests disengagement &mdash; Dana is working harder than ever. Look again at what changed: not effort, but communication." },
+      { label: "B", text: "Protecting the team from pressure", correct: false,
+        feedback: "That's how Dana would probably describe it. But look at the last sentence &mdash; nobody knew. Whatever Dana was protecting the team from, one thing they were also protected from was the truth." },
+      { label: "C", text: "Creating distance", correct: true,
+        feedback: "Dana is moving <em>away</em>. Notice what makes it hard to see: from the inside it feels like focus and self-reliance, and both are strengths. Dana isn't disengaged &mdash; Dana is working harder than anyone. But the effect on the team is that information stopped flowing at exactly the moment it mattered most. This is the pattern the research calls &ldquo;cold and aloof,&rdquo; and it almost never feels that way to the person doing it." },
+      { label: "D", text: "Micromanaging the recovery", correct: false,
+        feedback: "The opposite is happening &mdash; Dana has pulled away from the team, not moved closer to their work." }
+    ]
+  },
+  {
+    scenario: "Priya's team has been through a rough quarter. In the last two team meetings, she has stuck strictly to the agenda, stopped opening with the usual small talk, and left immediately after each call instead of staying to chat like she normally does. When a colleague asks if everything's okay, she says &ldquo;Fine &mdash; just busy&rdquo; and changes the subject.",
+    prompt: "What is Priya doing?",
+    options: [
+      { label: "A", text: "Being appropriately professional under pressure", correct: false,
+        feedback: "There's a version of this that would be true &mdash; staying focused during a hard quarter is reasonable. What tips it over is the pattern: cutting warmth specifically, and deflecting a direct, caring question." },
+      { label: "B", text: "Creating distance", correct: true,
+        feedback: "The same direction as Dana, wearing different clothes. Formality is one of the quieter forms of <em>away</em>. It's easy to miss because nothing looks wrong &mdash; the work is still getting done. What's disappearing is access: the informal moments where people would normally raise a concern, or where Priya would normally notice one." },
+      { label: "C", text: "Setting a healthy boundary", correct: false,
+        feedback: "Boundaries are usually specific and named. This is a general withdrawal with no explanation, and a deflected question, which is a different thing." },
+      { label: "D", text: "Being pushed toward the team, not away", correct: false,
+        feedback: "The behavior is moving in the opposite direction &mdash; less contact, less warmth, less availability." }
+    ]
+  },
+  {
+    scenario: "In a planning meeting, Marcus proposes a timeline. A colleague raises a concern about resourcing. Marcus cuts in before she finishes, says &ldquo;that's not going to be a problem,&rdquo; and moves on. She tries once more later in the meeting; he talks over her again, more firmly. Nobody else raises a concern for the rest of the meeting.",
+    prompt: "What is Marcus doing?",
+    options: [
+      { label: "A", text: "Keeping the meeting efficient", correct: false,
+        feedback: "Efficient looks like acknowledging a concern and moving on. This is different &mdash; the concern isn't addressed, it's overridden, twice." },
+      { label: "B", text: "Pressing forward", correct: true,
+        feedback: "This is <em>against</em>. At its best this is decisiveness &mdash; someone willing to make the call and keep things moving. Overused, it looks like this: talking over a legitimate concern until it stops being raised. Notice the last line. It's not that the room agreed with Marcus. It's that the room stopped disagreeing with him, which is a very different thing and much harder to detect from the inside." },
+      { label: "C", text: "Being appropriately confident", correct: false,
+        feedback: "Confidence doesn't require silencing the person raising the concern twice in one meeting." },
+      { label: "D", text: "Delegating the resourcing question", correct: false,
+        feedback: "Nothing here is being handed off &mdash; it's being dismissed." }
+    ]
+  },
+  {
+    scenario: "Facing a tight deadline, Ellen starts making calls that used to go through the team &mdash; reassigning tasks, changing a vendor, shifting a deliverable date &mdash; without telling anyone why or asking first. When a team member asks about one of the changes afterward, Ellen says &ldquo;I didn't have time to explain, I just needed it done.&rdquo;",
+    prompt: "What is Ellen doing?",
+    options: [
+      { label: "A", text: "Appropriately taking charge in a crisis", correct: false,
+        feedback: "There's a real version of this that's appropriate &mdash; but it usually comes with at least a quick explanation. The absence of any communication is the tell." },
+      { label: "B", text: "Pressing forward", correct: true,
+        feedback: "Same direction as Marcus, different shape &mdash; here it's decisions made unilaterally rather than an argument won by volume. At its best, this is bias to action under pressure, and businesses need people who can do this. Overused, it looks like a team that finds out about decisions after the fact and stops being consulted on anything, which quietly trains them to stop offering input at all." },
+      { label: "C", text: "Delegating effectively", correct: false,
+        feedback: "This is the reverse of delegation &mdash; Ellen is pulling decisions in rather than pushing them out." },
+      { label: "D", text: "Creating distance from the team", correct: false,
+        feedback: "Ellen is very much in the middle of everything here &mdash; the issue is control, not withdrawal." }
+    ]
+  },
+  {
+    scenario: "Tom's plate is already full. This week he's said yes to covering a colleague's presentation, joining a task force he wasn't asked to prioritize, and taking on a client call that isn't really his account. He hasn't mentioned to his manager that anything is tight. Two of his own deliverables are now going to be late.",
+    prompt: "What is Tom doing?",
+    options: [
+      { label: "A", text: "Being a strong team player", correct: false,
+        feedback: "There's a generous read here, and it's not wrong exactly &mdash; but watch what it's costing. His own work is now late, and nobody who could help knows that yet." },
+      { label: "B", text: "Over-accommodating", correct: true,
+        feedback: "This is <em>toward</em>. At its best this looks like reliability and a genuine willingness to help. Overused, it looks like exactly this: taking on more than can be carried, without ever saying so, until something breaks quietly rather than loudly. This is often the hardest direction to catch, because nothing about it looks like a problem until the deadlines start slipping." },
+      { label: "C", text: "Poor time management", correct: false,
+        feedback: "Time management is a skill gap. This is a pattern of saying yes under pressure specifically &mdash; the trigger is the pressure, not a scheduling error." },
+      { label: "D", text: "Pressing forward", correct: false,
+        feedback: "Pressing forward looks like taking control. This is closer to the opposite &mdash; deferring to whatever's asked, rather than asserting a position." }
+    ]
+  },
+  {
+    scenario: "Two colleagues on Sarah's team, who happen to be close friends of hers, have been consistently missing deadlines for a month. She's mentioned it once, gently, in a group message: &ldquo;let's all try to stay on top of deadlines this month!&rdquo; Nothing has changed. When her own manager asks how the team's doing, Sarah says &ldquo;pretty good, actually.&rdquo;",
+    prompt: "What is Sarah doing?",
+    options: [
+      { label: "A", text: "Being diplomatic", correct: false,
+        feedback: "Diplomacy is choosing how to say something hard. This is choosing not to say it at all, and then reporting upward that there's nothing to say." },
+      { label: "B", text: "Over-accommodating", correct: true,
+        feedback: "This is <em>toward</em> again, in its most costly form &mdash; avoiding a necessary conflict, especially with people she's close to, and letting the avoidance become a small dishonesty upward as well. At its best, this instinct protects relationships and keeps a team functioning smoothly. Overused, it lets real problems go unaddressed specifically because addressing them would be uncomfortable." },
+      { label: "C", text: "Managing up appropriately", correct: false,
+        feedback: "Managing up well means giving an accurate picture, even a hard one. This is giving a comfortable one instead." },
+      { label: "D", text: "Pressing forward", correct: false,
+        feedback: "Nothing here is being pushed or forced &mdash; the opposite is happening. The problem is what isn't being said." }
+    ]
+  },
+  {
+    scenario: "Raj has a reputation as extremely thorough. Before a big client meeting, he reworks the deck four times, asks two colleagues to double-check numbers that have already been checked, and delays sending the final version until an hour before the meeting because he &ldquo;wants one more pass.&rdquo; His colleagues have started building extra time into the schedule whenever Raj is involved, because his materials are reliably late &mdash; even though they're also reliably excellent.",
+    prompt: "This looks like carefulness. Which direction is it actually?",
+    options: [
+      { label: "A", text: "Away &mdash; he's disappearing into the work", correct: false,
+        feedback: "Raj isn't hard to reach or withdrawn &mdash; if anything he's pulling colleagues in constantly to double-check things. That's not the signature of <em>away</em>." },
+      { label: "B", text: "Toward &mdash; overused as perfectionism and delay", correct: true,
+        feedback: "Correct, and this is the trickiest one on purpose. Raj isn't withdrawing and he isn't pushing anyone around &mdash; on the surface this looks like nothing but diligence. But look at the effect: colleagues have quietly changed how they plan around him. That's the tell. <em>Toward</em>, overused, doesn't always look like saying yes to other people. Sometimes it looks like never being able to say &ldquo;this is good enough,&rdquo; which is its own form of over-commitment &mdash; to the work itself." },
+      { label: "C", text: "Against &mdash; he's pushing for perfection", correct: false,
+        feedback: "Against looks like overriding other people. Raj isn't overriding anyone; if anything he's deferring to an impossibly high standard he's set for himself." },
+      { label: "D", text: "This is just a strength, not an overuse pattern", correct: false,
+        feedback: "Look at the second-to-last sentence again. When colleagues change their own planning to route around your behavior, that's the signature of overuse, however good the output is." }
+    ]
+  }
+];
+
+const SELF_QUESTION = {
+  scenario: "Go back to what you wrote in the Pressure Incident Inventory, item 1.2 &mdash; the observable behavior, no motives, no justification.",
+  prompt: "Which of these three is it?",
+  options: [
+    { label: "A", text: "Away" },
+    { label: "B", text: "Against" },
+    { label: "C", text: "Toward" }
+  ],
+  sharedFeedback: "There's no right answer to this one &mdash; you're the only person who can check it against what you actually wrote. If you're not sure, that's worth sitting with rather than resolving quickly. The value here isn't the label. It's noticing."
+};
+
+const ALL = QUESTIONS.concat([SELF_QUESTION]);
+const TOTAL = ALL.length;
+
+let current = -1;          // -1 = intro screen
+let furthest = -1;
+let answeredCurrent = false;
+
+const card = document.getElementById('card');
+const dotsEl = document.getElementById('dots');
+const progressLabel = document.getElementById('progressLabel');
+
+function renderDots() {
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('button');
+    d.className = 'dot';
+    if (i === current) d.className += ' current';
+    else if (i <= furthest) d.className += ' visited';
+    d.setAttribute('aria-label', 'Question ' + (i + 1));
+    if (i <= furthest) {
+      d.addEventListener('click', () => goTo(i));
+    }
+    dotsEl.appendChild(d);
+  }
+}
+
+function goTo(index) {
+  current = index;
+  answeredCurrent = false;
+  if (index > furthest) furthest = index;
+  if (index < 0) {
+    progressLabel.textContent = '';
+  } else if (index >= TOTAL) {
+    progressLabel.textContent = 'Complete';
+  } else {
+    progressLabel.textContent = 'Question ' + (index + 1) + ' of ' + TOTAL;
+  }
+  renderDots();
+  if (index === -1) renderIntro();
+  else if (index >= TOTAL) renderComplete();
+  else renderQuestion(ALL[index]);
+}
+
+function renderIntro() {
+  card.innerHTML = `
+    <h2 class="screen-title">Read the Room</h2>
+    <div class="screen-body">
+      <p>Seven short scenarios. For each one, decide what the person is doing &mdash; then a self-check at the end.</p>
+      <p>There's no grade here. Read the feedback even when you get it right &mdash; especially then. You can revisit any question you've already seen using the dots above.</p>
+    </div>
+    <button class="btn-start" onclick="goTo(0)">Begin</button>
+  `;
+}
+
+function renderQuestion(q, isSelf) {
+  isSelf = !!q.sharedFeedback;
+  let optionsHtml = q.options.map(opt => `
+    <button class="option" data-label="${opt.label}">
+      <span class="tag">${opt.label}.</span>
+      <span>${opt.text}</span>
+      <span class="marker"></span>
+    </button>
+  `).join('');
+
+  card.innerHTML = `
+    <p class="scenario">${q.scenario}</p>
+    <p class="prompt">${q.prompt}</p>
+    <div class="options" id="optionsList">${optionsHtml}</div>
+    <div id="feedbackZone"></div>
+    <div class="nav"><button class="btn-next" id="nextBtn">Next &rarr;</button></div>
+  `;
+
+  const optionEls = card.querySelectorAll('.option');
+  optionEls.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const label = btn.getAttribute('data-label');
+      const opt = q.options.find(o => o.label === label);
+      handleAnswer(q, opt, optionEls, isSelf);
+    });
+  });
+}
+
+function handleAnswer(q, opt, optionEls, isSelf) {
+  answeredCurrent = true;
+
+  optionEls.forEach(el => {
+    const label = el.getAttribute('data-label');
+    const markerEl = el.querySelector('.marker');
+    el.classList.remove('selected', 'correct', 'incorrect', 'neutral', 'dimmed');
+    markerEl.className = 'marker';
+    markerEl.textContent = '';
+
+    if (label === opt.label) {
+      el.classList.add('selected');
+      if (isSelf) {
+        el.classList.add('neutral');
+      } else if (opt.correct) {
+        el.classList.add('correct');
+        markerEl.classList.add('correct');
+        markerEl.innerHTML = '&#10003; Correct';
+      } else {
+        el.classList.add('incorrect');
+        markerEl.classList.add('incorrect');
+        markerEl.textContent = 'Not quite';
+      }
+    } else {
+      el.classList.add('dimmed');
+    }
+  });
+
+  const zone = document.getElementById('feedbackZone');
+  let cls, label, text;
+  if (isSelf) {
+    cls = 'neutral';
+    label = 'You said: ' + opt.text;
+    text = q.sharedFeedback;
+  } else if (opt.correct) {
+    cls = 'correct';
+    label = 'Correct';
+    text = opt.feedback;
+  } else {
+    cls = 'incorrect';
+    label = 'Not quite &mdash; but read on';
+    text = opt.feedback;
+  }
+  zone.innerHTML = `
+    <div class="feedback ${cls}">
+      <span class="label">${label}</span>
+      ${text}
+    </div>
+  `;
+
+  document.getElementById('nextBtn').classList.add('shown');
+}
+
+function renderComplete() {
+  card.innerHTML = `
+    <h2 class="screen-title">That's all seven, plus your own.</h2>
+    <div class="screen-body">
+      <p>You've now practiced spotting away, against, and toward in other people &mdash; including in a case designed to be genuinely hard to read.</p>
+      <p>Next: the narrative page, if you haven't read it yet, and then the mapping exercise, which goes further into your own pattern.</p>
+    </div>
+    <button class="btn-restart" onclick="goTo(-1)">Go through it again</button>
+  `;
+}
+
+// wire the Next button via delegation since it's re-rendered each time
+document.getElementById('card').addEventListener('click', (e) => {
+  if (e.target && e.target.id === 'nextBtn' && answeredCurrent) {
+    goTo(current + 1);
+  }
+});
+
+goTo(-1);
+</script>
+
+</body>
+</html>

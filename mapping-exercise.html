@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapping Your Pattern — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #00205B; --navy-tint: #EEF0F6;
+    --gold: #A88B3D; --gold-tint: #FBF6EA;
+    --grey: #58595B; --light: #F7F7F9; --border: #DEDFE5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px 40px; background: var(--light);
+    font-family: 'EB Garamond', Garamond, Baskerville, 'Times New Roman', serif;
+    color: #232326; font-size: 19px; line-height: 1.55;
+  }
+  h1, h2, h3, .heading-font { font-family: 'Cambria', Georgia, 'Times New Roman', serif; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+
+  .topbar { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px solid var(--gold); padding-bottom: 10px; margin-bottom: 18px; }
+  .topbar .brand { font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 13px; letter-spacing: 1.5px; color: var(--gold); text-transform: uppercase; }
+  .topbar .progress-label { font-family: 'Cambria', Georgia, serif; font-size: 14px; color: var(--grey); }
+
+  .dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 22px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #D6D8E0; border: none; padding: 0; cursor: default; transition: background 0.2s, transform 0.15s; }
+  .dot.visited { background: var(--navy); cursor: pointer; }
+  .dot.current { background: var(--gold); transform: scale(1.3); cursor: pointer; }
+
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 30px 30px 26px; box-shadow: 0 2px 10px rgba(0,32,91,0.06); min-height: 280px; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .step-number { font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--gold); font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase; margin: 0 0 6px; }
+  .step-title { font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--navy); font-size: 21px; margin: 0 0 14px; }
+  .step-prompt { margin: 0 0 16px; }
+  .step-prompt em { color: var(--grey); }
+
+  textarea.answer { width: 100%; min-height: 150px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 18px; line-height: 1.5; color: #232326; resize: vertical; transition: border-color 0.15s; }
+  textarea.answer:focus { outline: none; border-color: var(--navy); }
+
+  .counter { display: flex; justify-content: flex-end; margin-top: 6px; font-family: 'Cambria', Georgia, serif; font-size: 14px; color: var(--grey); }
+  .counter.met { color: var(--gold); font-weight: 700; }
+
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+  .btn-next, .btn-start, .btn-restart, .btn-copy, .btn-download, .btn-resume, .btn-fresh {
+    font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 16px; border: none; border-radius: 6px; padding: 12px 26px; cursor: pointer; transition: opacity 0.2s, background 0.15s;
+  }
+  .btn-next { background: var(--navy); color: #fff; }
+  .btn-next:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-next:not(:disabled):hover { background: #001642; }
+  .btn-start, .btn-copy { background: var(--gold); color: #fff; }
+  .btn-restart, .btn-fresh { background: #fff; color: var(--navy); border: 1px solid var(--navy); }
+  .btn-resume { background: var(--navy); color: #fff; }
+  .btn-download { background: #fff; color: var(--grey); border: 1px solid var(--border); font-size: 14px; padding: 9px 18px; }
+
+  .screen-title { font-size: 24px; color: var(--navy); margin: 0 0 10px; }
+  .screen-body p { margin: 0 0 14px; }
+
+  .prereq-box { background: var(--gold-tint); border: 1px solid #E9DDBE; border-radius: 6px; padding: 16px 18px; margin: 0 0 16px; }
+  .prereq-box p { margin: 0 0 8px; }
+  .prereq-box p:last-child { margin-bottom: 0; }
+
+  .resume-banner { background: var(--navy-tint); border: 1px solid #D3D8E8; border-radius: 6px; padding: 16px 18px; margin-bottom: 18px; }
+  .resume-banner p { margin: 0 0 12px; font-size: 17px; }
+  .resume-actions { display: flex; gap: 10px; }
+
+  .output-box { width: 100%; min-height: 300px; padding: 16px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Courier New', monospace; font-size: 14.5px; line-height: 1.5; color: #232326; background: var(--light); white-space: pre-wrap; resize: vertical; }
+  .copy-row { display: flex; align-items: center; gap: 12px; margin: 14px 0 6px; flex-wrap: wrap; }
+  .copy-confirm { color: var(--gold); font-weight: 700; font-family: 'Cambria', Georgia, serif; font-size: 15px; opacity: 0; transition: opacity 0.2s; }
+  .copy-confirm.shown { opacity: 1; }
+
+  .footnote { text-align: center; color: var(--grey); font-size: 13.5px; margin-top: 22px; font-family: 'Cambria', Georgia, serif; }
+
+  @media (max-width: 520px) {
+    body { font-size: 17px; padding: 16px 10px 32px; }
+    .card { padding: 22px 18px 20px; }
+    textarea.answer { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">MBA@Rice 511 &middot; Session 1</span>
+    <span class="progress-label" id="progressLabel"></span>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="card" id="card"></div>
+  <div class="footnote">This page collects no data and requires no login. Everything you write stays in this browser until you copy or download it yourself.</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'rice511_mapping_exercise_v1';
+
+const STEPS = [
+  {
+    tag: 'direction_check', number: '3.1', title: 'Direction, checked against your own words', minChars: 150,
+    prompt: "Look at what you wrote for &ldquo;what you did&rdquo; in each incident, in your Pressure Incident Inventory submission.<br><br>Which of the three directions &mdash; away, against, or toward &mdash; does each behavior belong to?<br><br>Is it the same direction both times, or did your response change with the situation? If it changed, what was different about the two situations?"
+  },
+  {
+    tag: 'compared_ranking', number: '3.2', title: 'Compared to your ranking', minChars: 100,
+    prompt: "Compare what you just found in 3.1 to how you ranked yourself in the Pressure Incident Inventory, item 1.5.<br><br>Do they agree? If they don't &mdash; if your incidents point one direction but your ranking put something else first &mdash; which do you trust more, and why?"
+  },
+  {
+    tag: 'own_list', number: '3.3', title: 'Your own list, turned around', minChars: 100,
+    prompt: "Open your Derailment Characteristics submission. Read your list again.<br><br><strong>Which two have you done?</strong> Not could do. Not might do under sufficient provocation. Have done, in the last two years.<br><br>Name them, and name the occasion."
+  },
+  {
+    tag: 'conditions', number: '3.4', title: 'Conditions', minChars: 100,
+    prompt: "For whichever direction is most true of you: what are the conditions that reliably bring it out?<br><br>Be specific enough that you could recognize those conditions assembling next time, before you're already in the middle of them."
+  }
+];
+
+const TOTAL = STEPS.length;
+let current = -1;
+let furthest = -1;
+let answers = {};
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, furthest })); } catch (e) {}
+}
+function loadState() {
+  try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+}
+function clearState() { try { localStorage.removeItem(STORAGE_KEY); } catch (e) {} }
+
+const card = document.getElementById('card');
+const dotsEl = document.getElementById('dots');
+const progressLabel = document.getElementById('progressLabel');
+
+function renderDots() {
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('button');
+    d.className = 'dot';
+    if (i === current) d.className += ' current';
+    else if (i <= furthest) d.className += ' visited';
+    d.setAttribute('aria-label', 'Step ' + (i + 1));
+    if (i <= furthest) d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  }
+}
+function updateProgressLabel() {
+  if (current < 0) progressLabel.textContent = '';
+  else if (current >= TOTAL) progressLabel.textContent = 'Complete';
+  else progressLabel.textContent = 'Step ' + (current + 1) + ' of ' + TOTAL;
+}
+function isStepComplete(step) {
+  return (answers[step.tag] || '').trim().length >= step.minChars;
+}
+function goTo(index) {
+  current = index;
+  if (index > furthest) furthest = index;
+  updateProgressLabel();
+  renderDots();
+  if (index === -1) renderIntro();
+  else if (index >= TOTAL) renderComplete();
+  else renderStep(STEPS[index]);
+}
+
+function renderIntro() {
+  const saved = loadState();
+  const hasSaved = saved && Object.keys(saved.answers || {}).length > 0;
+
+  let resumeHtml = '';
+  if (hasSaved) {
+    resumeHtml = `
+      <div class="resume-banner">
+        <p><strong>We found saved progress in this browser from a previous session.</strong></p>
+        <div class="resume-actions">
+          <button class="btn-resume" id="resumeBtn">Resume where I left off</button>
+          <button class="btn-fresh" id="freshBtn">Start fresh</button>
+        </div>
+      </div>
+    `;
+  }
+
+  card.innerHTML = `
+    <h2 class="screen-title">Mapping Your Pattern</h2>
+    <div class="screen-body">
+      ${resumeHtml}
+      <div class="prereq-box">
+        <p><strong>Open two tabs before you start:</strong></p>
+        <p>1. Your <strong>Pressure Incident Inventory</strong> submission in Canvas &mdash; go to Grades, click the assignment, and you'll see what you submitted.</p>
+        <p>2. Your <strong>Derailment Characteristics</strong> submission, the same way.</p>
+      </div>
+      <p>This builds directly on both. You'll be referring back to your own words throughout &mdash; not summarizing them from memory.</p>
+      <p>Your progress here is saved automatically in this browser as you go. Nothing is sent anywhere until you copy or download it at the end.</p>
+    </div>
+    <button class="btn-start" id="beginBtn">${hasSaved ? 'Start fresh instead' : 'Begin'}</button>
+  `;
+
+  if (hasSaved) {
+    document.getElementById('resumeBtn').addEventListener('click', () => {
+      answers = saved.answers || {};
+      furthest = typeof saved.furthest === 'number' ? saved.furthest : -1;
+      const firstIncomplete = STEPS.findIndex((s) => !isStepComplete(s));
+      goTo(firstIncomplete === -1 ? TOTAL : firstIncomplete);
+    });
+    document.getElementById('freshBtn').addEventListener('click', startFresh);
+    document.getElementById('beginBtn').addEventListener('click', startFresh);
+  } else {
+    document.getElementById('beginBtn').addEventListener('click', () => goTo(0));
+  }
+}
+
+function startFresh() {
+  answers = {};
+  furthest = -1;
+  clearState();
+  goTo(0);
+}
+
+function renderStep(step) {
+  const existing = answers[step.tag] || '';
+  card.innerHTML = `
+    <p class="step-number">${step.number}</p>
+    <h3 class="step-title">${step.title}</h3>
+    <p class="step-prompt">${step.prompt}</p>
+    <textarea class="answer" id="answerBox" placeholder="Start typing...">${escapeHtml(existing)}</textarea>
+    <div class="counter" id="counter"></div>
+    <div class="nav"><span></span><button class="btn-next" id="nextBtn" disabled>Next &rarr;</button></div>
+  `;
+  const box = document.getElementById('answerBox');
+  const counter = document.getElementById('counter');
+  const nextBtn = document.getElementById('nextBtn');
+
+  function refresh() {
+    const len = box.value.trim().length;
+    const met = len >= step.minChars;
+    counter.textContent = len + ' / ' + step.minChars + ' characters minimum';
+    counter.className = 'counter' + (met ? ' met' : '');
+    nextBtn.disabled = !met;
+    answers[step.tag] = box.value;
+    saveState();
+  }
+  box.addEventListener('input', refresh);
+  refresh();
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+}
+
+function renderComplete() {
+  const text = compileOutput();
+  card.innerHTML = `
+    <h2 class="screen-title">You're done.</h2>
+    <div class="screen-body">
+      <p>Copy everything below and paste it as your submission for the <strong>Mapping Your Pattern</strong> assignment in Canvas.</p>
+    </div>
+    <div class="copy-row">
+      <button class="btn-copy" id="copyBtn">Copy everything</button>
+      <button class="btn-download" id="downloadBtn">Download a copy for yourself</button>
+      <span class="copy-confirm" id="copyConfirm">Copied &mdash; now paste it into Canvas</span>
+    </div>
+    <textarea class="output-box" id="outputBox" readonly>${escapeHtml(text)}</textarea>
+    <div class="nav"><button class="btn-restart" id="restartBtn">Go back and edit</button><span></span></div>
+  `;
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const box = document.getElementById('outputBox');
+    let copied = false;
+    try { await navigator.clipboard.writeText(text); copied = true; }
+    catch (e) {
+      try { box.focus(); box.select(); document.execCommand('copy'); copied = true; }
+      catch (e2) {}
+    }
+    if (copied) {
+      const c = document.getElementById('copyConfirm');
+      c.classList.add('shown');
+      setTimeout(() => c.classList.remove('shown'), 3000);
+    } else { box.focus(); box.select(); }
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'mapping-your-pattern.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('restartBtn').addEventListener('click', () => goTo(TOTAL - 1));
+}
+
+function compileOutput() {
+  const get = (tag) => (answers[tag] || '').trim();
+  return [
+    'MAPPING YOUR PATTERN',
+    '',
+    '3.1 Direction, checked against your own words',
+    get('direction_check'),
+    '',
+    '3.2 Compared to your ranking',
+    get('compared_ranking'),
+    '',
+    '3.3 Your own list, turned around',
+    get('own_list'),
+    '',
+    '3.4 Conditions',
+    get('conditions')
+  ].join('\n');
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+goTo(-1);
+</script>
+</body>
+</html>

@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pressure Incident Inventory — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #00205B;
+    --navy-tint: #EEF0F6;
+    --gold: #A88B3D;
+    --gold-tint: #FBF6EA;
+    --grey: #58595B;
+    --light: #F7F7F9;
+    --border: #DEDFE5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 40px;
+    background: var(--light);
+    font-family: 'EB Garamond', Garamond, Baskerville, 'Times New Roman', serif;
+    color: #232326;
+    font-size: 19px;
+    line-height: 1.55;
+  }
+  h1, h2, h3, .heading-font { font-family: 'Cambria', Georgia, 'Times New Roman', serif; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 3px solid var(--gold);
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+  }
+  .topbar .brand {
+    font-family: 'Cambria', Georgia, serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .topbar .progress-label { font-family: 'Cambria', Georgia, serif; font-size: 14px; color: var(--grey); }
+
+  .dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 22px; flex-wrap: wrap; }
+  .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #D6D8E0; border: none; padding: 0; cursor: default;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .dot.visited { background: var(--navy); cursor: pointer; }
+  .dot.current { background: var(--gold); transform: scale(1.3); cursor: pointer; }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 30px 30px 26px;
+    box-shadow: 0 2px 10px rgba(0,32,91,0.06);
+    min-height: 280px;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .step-number {
+    font-family: 'Cambria', Georgia, serif;
+    font-weight: 700;
+    color: var(--gold);
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin: 0 0 6px;
+  }
+  .step-title { font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--navy); font-size: 21px; margin: 0 0 14px; }
+  .step-prompt { margin: 0 0 16px; }
+  .step-prompt em { color: var(--grey); }
+
+  textarea.answer {
+    width: 100%;
+    min-height: 150px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 18px;
+    line-height: 1.5;
+    color: #232326;
+    resize: vertical;
+    transition: border-color 0.15s;
+  }
+  textarea.answer:focus { outline: none; border-color: var(--navy); }
+
+  .counter {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 6px;
+    font-family: 'Cambria', Georgia, serif;
+    font-size: 14px;
+    color: var(--grey);
+  }
+  .counter.met { color: var(--gold); font-weight: 700; }
+
+  /* ranking */
+  .rank-options { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .rank-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 18px;
+    color: #232326;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .rank-option:hover { border-color: var(--navy); }
+  .rank-option.ranked { border-color: var(--gold); background: var(--gold-tint); }
+  .rank-badge {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cambria', Georgia, serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--grey);
+    background: #fff;
+  }
+  .rank-option.ranked .rank-badge { border-color: var(--gold); color: var(--gold); background: #fff; }
+  .rank-hint { font-size: 14px; color: var(--grey); margin-top: 10px; font-style: italic; }
+
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+  .btn-next, .btn-start, .btn-restart, .btn-copy, .btn-download, .btn-resume, .btn-fresh {
+    font-family: 'Cambria', Georgia, serif;
+    font-weight: 700;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 26px;
+    cursor: pointer;
+    transition: opacity 0.2s, background 0.15s;
+  }
+  .btn-next { background: var(--navy); color: #fff; }
+  .btn-next:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-next:not(:disabled):hover { background: #001642; }
+  .btn-start, .btn-copy { background: var(--gold); color: #fff; }
+  .btn-restart, .btn-fresh { background: #fff; color: var(--navy); border: 1px solid var(--navy); }
+  .btn-resume { background: var(--navy); color: #fff; }
+  .btn-download { background: #fff; color: var(--grey); border: 1px solid var(--border); font-size: 14px; padding: 9px 18px; }
+
+  .screen-title { font-size: 24px; color: var(--navy); margin: 0 0 10px; }
+  .screen-body p { margin: 0 0 14px; }
+
+  .resume-banner {
+    background: var(--navy-tint);
+    border: 1px solid #D3D8E8;
+    border-radius: 6px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+  }
+  .resume-banner p { margin: 0 0 12px; font-size: 17px; }
+  .resume-actions { display: flex; gap: 10px; }
+
+  .output-box {
+    width: 100%;
+    min-height: 320px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: #232326;
+    background: var(--light);
+    white-space: pre-wrap;
+    resize: vertical;
+  }
+  .copy-row { display: flex; align-items: center; gap: 12px; margin: 14px 0 6px; flex-wrap: wrap; }
+  .copy-confirm { color: var(--gold); font-weight: 700; font-family: 'Cambria', Georgia, serif; font-size: 15px; opacity: 0; transition: opacity 0.2s; }
+  .copy-confirm.shown { opacity: 1; }
+
+  .footnote { text-align: center; color: var(--grey); font-size: 13.5px; margin-top: 22px; font-family: 'Cambria', Georgia, serif; }
+
+  @media (max-width: 520px) {
+    body { font-size: 17px; padding: 16px 10px 32px; }
+    .card { padding: 22px 18px 20px; }
+    textarea.answer { font-size: 16px; }
+    .rank-option { font-size: 16px; padding: 12px 13px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">MBA@Rice 511 &middot; Session 1</span>
+    <span class="progress-label" id="progressLabel"></span>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="card" id="card"></div>
+  <div class="footnote">This page collects no data and requires no login. Everything you write stays in this browser until you copy or download it yourself.</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'rice511_pressure_inventory_v1';
+
+const STEPS = [
+  {
+    tag: 'I1_situation', number: '1.1', title: 'Incident One — The situation', minChars: 200,
+    prompt: "What was the pressure, and what was at stake for you personally?<br><br><em>3&ndash;5 sentences.</em>"
+  },
+  {
+    tag: 'I1_behavior', number: '1.2', title: 'Incident One — What you did', minChars: 250,
+    prompt: "Describe <strong>only observable behavior</strong>: what you said, your tone, what you sent, what you stopped doing, who you did or didn't talk to.<br><br>No feelings. No motives. No explanation of why it was reasonable.<br><br><em>If a camera had been running, what would it have recorded? 3&ndash;5 sentences.</em>"
+  },
+  {
+    tag: 'I1_other', number: '1.3', title: 'Incident One — The other account', minChars: 200,
+    prompt: "Pick the person most affected. In <strong>their</strong> words, not yours, how would they describe what it was like to be on the other side of that? Write it in first person, as them.<br><br><em>3&ndash;5 sentences.</em>"
+  },
+  {
+    tag: 'I2_situation', number: '2.1', title: 'Incident Two — The situation', minChars: 200,
+    prompt: "A different occasion. What was the pressure, and what was at stake for you personally?<br><br><em>3&ndash;5 sentences.</em>"
+  },
+  {
+    tag: 'I2_behavior', number: '2.2', title: 'Incident Two — What you did', minChars: 250,
+    prompt: "Observable behavior only. What you said, your tone, what you sent, what you stopped doing, who you did or didn't talk to.<br><br>No feelings, no motives, no justification. What would the camera have recorded?<br><br><em>3&ndash;5 sentences.</em>"
+  },
+  {
+    tag: 'I2_other', number: '2.3', title: 'Incident Two — The other account', minChars: 200,
+    prompt: "The person most affected. In their words, in first person, as them.<br><br><em>3&ndash;5 sentences.</em>"
+  },
+  {
+    tag: 'trigger', number: '1.4', title: 'Across both incidents — The trigger', minChars: 100,
+    prompt: "Look at both incidents together. What did the two situations have in common?<br><br><em>Consider: time pressure, public visibility, being challenged, ambiguity, loss of control, a specific type of person, being asked for something you couldn't deliver. 2&ndash;3 sentences.</em>"
+  },
+  {
+    tag: 'direction', number: '1.5', title: 'Direction', type: 'ranking',
+    prompt: "When you are under sustained pressure and <strong>not</strong> managing your impression, rank these from most to least characteristic of you.",
+    options: [
+      { key: 'away', text: "I create distance. I go quiet, withdraw, delay, work around people, become harder to read or reach." },
+      { key: 'against', text: "I press forward. I push harder, take over, argue, raise the temperature, make demands, cut people off." },
+      { key: 'toward', text: "I over-accommodate. I agree to things I shouldn't, over-prepare, chase approval, avoid the necessary conflict, take on more than I can carry." }
+    ]
+  },
+  {
+    tag: 'cost', number: '1.6', title: 'Cost', minChars: 100,
+    prompt: "Whichever direction you ranked first: what has it cost you, or the people around you, that you can actually name?<br><br><em>2&ndash;3 sentences.</em>"
+  }
+];
+
+const TOTAL = STEPS.length;
+
+let current = -1;      // -1 = intro, TOTAL = completion
+let furthest = -1;
+let answers = {};       // tag -> text
+let rankOrder = [];     // array of option keys, in ranked order
+
+// ---------- persistence ----------
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, rankOrder, furthest }));
+  } catch (e) { /* storage unavailable — degrade silently */ }
+}
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) { return null; }
+}
+function clearState() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+}
+
+// ---------- dom refs ----------
+const card = document.getElementById('card');
+const dotsEl = document.getElementById('dots');
+const progressLabel = document.getElementById('progressLabel');
+
+function renderDots() {
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('button');
+    d.className = 'dot';
+    if (i === current) d.className += ' current';
+    else if (i <= furthest) d.className += ' visited';
+    d.setAttribute('aria-label', 'Step ' + (i + 1));
+    if (i <= furthest) d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  }
+}
+
+function updateProgressLabel() {
+  if (current < 0) progressLabel.textContent = '';
+  else if (current >= TOTAL) progressLabel.textContent = 'Complete';
+  else progressLabel.textContent = 'Step ' + (current + 1) + ' of ' + TOTAL;
+}
+
+function isStepComplete(step) {
+  if (step.type === 'ranking') return rankOrder.length === step.options.length;
+  const val = (answers[step.tag] || '').trim();
+  return val.length >= step.minChars;
+}
+
+function goTo(index) {
+  current = index;
+  if (index > furthest) furthest = index;
+  updateProgressLabel();
+  renderDots();
+  if (index === -1) renderIntro();
+  else if (index >= TOTAL) renderComplete();
+  else renderStep(STEPS[index]);
+}
+
+// ---------- intro ----------
+function renderIntro() {
+  const saved = loadState();
+  const hasSaved = saved && (Object.keys(saved.answers || {}).length > 0 || (saved.rankOrder || []).length > 0);
+
+  let resumeHtml = '';
+  if (hasSaved) {
+    resumeHtml = `
+      <div class="resume-banner">
+        <p><strong>We found saved progress in this browser from a previous session.</strong></p>
+        <div class="resume-actions">
+          <button class="btn-resume" id="resumeBtn">Resume where I left off</button>
+          <button class="btn-fresh" id="freshBtn">Start fresh</button>
+        </div>
+      </div>
+    `;
+  }
+
+  card.innerHTML = `
+    <h2 class="screen-title">Leadership Under Pressure — Personal Inventory</h2>
+    <div class="screen-body">
+      ${resumeHtml}
+      <p>Leadership research distinguishes between how we behave when we are managing our impression &mdash; in an interview, presenting to the board, meeting a client &mdash; and how we behave when we are not. The second is where most of the interesting information is.</p>
+      <p>Recall <strong>two occasions in the past twelve months</strong> when you were under real pressure at work and, on reflection, are not satisfied with how you handled yourself. Not catastrophes. Ordinary moments: a meeting that went sideways, a deadline compressed, a decision you were overruled on, a colleague who wasn't delivering.</p>
+      <p>You'll write about each in three parts. Allow about 25 minutes &mdash; this doesn't work well in fragments.</p>
+      <p>Your progress is saved automatically in this browser as you go, so closing the tab by accident won't lose your work on this device. But nothing is sent anywhere until <strong>you</strong> copy or download it at the end.</p>
+    </div>
+    <button class="btn-start" id="beginBtn">${hasSaved ? 'Start fresh instead' : 'Begin'}</button>
+  `;
+
+  if (hasSaved) {
+    document.getElementById('resumeBtn').addEventListener('click', () => {
+      answers = saved.answers || {};
+      rankOrder = saved.rankOrder || [];
+      furthest = typeof saved.furthest === 'number' ? saved.furthest : -1;
+      const firstIncomplete = STEPS.findIndex((s) => !isStepComplete(s));
+      goTo(firstIncomplete === -1 ? TOTAL : firstIncomplete);
+    });
+    document.getElementById('freshBtn').addEventListener('click', startFresh);
+    document.getElementById('beginBtn').addEventListener('click', startFresh);
+  } else {
+    document.getElementById('beginBtn').addEventListener('click', () => goTo(0));
+  }
+}
+
+function startFresh() {
+  answers = {};
+  rankOrder = [];
+  furthest = -1;
+  clearState();
+  goTo(0);
+}
+
+// ---------- text step ----------
+function renderStep(step) {
+  if (step.type === 'ranking') { renderRankingStep(step); return; }
+
+  const existing = answers[step.tag] || '';
+  card.innerHTML = `
+    <p class="step-number">${step.number}</p>
+    <h3 class="step-title">${step.title}</h3>
+    <p class="step-prompt">${step.prompt}</p>
+    <textarea class="answer" id="answerBox" placeholder="Start typing...">${escapeHtml(existing)}</textarea>
+    <div class="counter" id="counter"></div>
+    <div class="nav">
+      <span></span>
+      <button class="btn-next" id="nextBtn" disabled>Next &rarr;</button>
+    </div>
+  `;
+
+  const box = document.getElementById('answerBox');
+  const counter = document.getElementById('counter');
+  const nextBtn = document.getElementById('nextBtn');
+
+  function refresh() {
+    const len = box.value.trim().length;
+    const met = len >= step.minChars;
+    counter.textContent = len + ' / ' + step.minChars + ' characters minimum';
+    counter.className = 'counter' + (met ? ' met' : '');
+    nextBtn.disabled = !met;
+    answers[step.tag] = box.value;
+    saveState();
+  }
+
+  box.addEventListener('input', refresh);
+  refresh();
+
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+}
+
+// ---------- ranking step ----------
+function renderRankingStep(step) {
+  let optsHtml = step.options.map((opt) => `
+    <button class="rank-option" data-key="${opt.key}">
+      <span class="rank-badge"></span>
+      <span>${opt.text}</span>
+    </button>
+  `).join('');
+
+  card.innerHTML = `
+    <p class="step-number">${step.number}</p>
+    <h3 class="step-title">${step.title}</h3>
+    <p class="step-prompt">${step.prompt}</p>
+    <div class="rank-options" id="rankList">${optsHtml}</div>
+    <p class="rank-hint">Click in order, most characteristic first. Click a ranked item again to undo it.</p>
+    <div class="nav">
+      <span></span>
+      <button class="btn-next" id="nextBtn">Next &rarr;</button>
+    </div>
+  `;
+
+  // Nodes are created once per step-entry. Clicks only mutate existing
+  // nodes (classes, badge text) rather than rebuilding the DOM, so rapid
+  // or repeated clicks can never land on an already-removed element.
+  const buttons = card.querySelectorAll('.rank-option');
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const key = btn.getAttribute('data-key');
+      const idx = rankOrder.indexOf(key);
+      if (idx !== -1) rankOrder.splice(idx, 1);
+      else rankOrder.push(key);
+      answers[step.tag] = rankOrder.join(',');
+      saveState();
+      updateRankingUI(step);
+    });
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => goTo(current + 1));
+  updateRankingUI(step);
+}
+
+function updateRankingUI(step) {
+  const buttons = card.querySelectorAll('.rank-option');
+  buttons.forEach((btn) => {
+    const key = btn.getAttribute('data-key');
+    const idx = rankOrder.indexOf(key);
+    const badge = btn.querySelector('.rank-badge');
+    if (idx !== -1) {
+      btn.classList.add('ranked');
+      badge.textContent = String(idx + 1);
+    } else {
+      btn.classList.remove('ranked');
+      badge.textContent = '';
+    }
+  });
+  const nextBtn = document.getElementById('nextBtn');
+  if (nextBtn) nextBtn.disabled = rankOrder.length !== step.options.length;
+}
+
+// ---------- completion ----------
+function renderComplete() {
+  const text = compileOutput();
+  card.innerHTML = `
+    <h2 class="screen-title">You're done writing.</h2>
+    <div class="screen-body">
+      <p>Copy everything below and paste it as your submission for the <strong>Pressure Incident Inventory</strong> assignment in Canvas.</p>
+    </div>
+    <div class="copy-row">
+      <button class="btn-copy" id="copyBtn">Copy everything</button>
+      <button class="btn-download" id="downloadBtn">Download a copy for yourself</button>
+      <span class="copy-confirm" id="copyConfirm">Copied &mdash; now paste it into Canvas</span>
+    </div>
+    <textarea class="output-box" id="outputBox" readonly>${escapeHtml(text)}</textarea>
+    <div class="nav">
+      <button class="btn-restart" id="restartBtn">Go back and edit</button>
+      <span></span>
+    </div>
+  `;
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const box = document.getElementById('outputBox');
+    let copied = false;
+    try {
+      await navigator.clipboard.writeText(text);
+      copied = true;
+    } catch (e) {
+      try {
+        box.focus();
+        box.select();
+        document.execCommand('copy');
+        copied = true;
+      } catch (e2) { /* fall through to manual select */ }
+    }
+    if (copied) {
+      const confirm = document.getElementById('copyConfirm');
+      confirm.classList.add('shown');
+      setTimeout(() => confirm.classList.remove('shown'), 3000);
+    } else {
+      box.focus();
+      box.select();
+    }
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pressure-incident-inventory.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('restartBtn').addEventListener('click', () => goTo(TOTAL - 1));
+}
+
+function compileOutput() {
+  const get = (tag) => (answers[tag] || '').trim();
+  const rankLabels = STEPS.find(s => s.type === 'ranking').options;
+  const rankedText = rankOrder.map((key, i) => {
+    const opt = rankLabels.find(o => o.key === key);
+    return (i + 1) + '. ' + opt.text;
+  }).join('\n');
+
+  return [
+    'LEADERSHIP UNDER PRESSURE — PERSONAL INVENTORY',
+    '',
+    'INCIDENT ONE',
+    '',
+    '1.1 The situation',
+    get('I1_situation'),
+    '',
+    '1.2 What I did',
+    get('I1_behavior'),
+    '',
+    '1.3 The other account',
+    get('I1_other'),
+    '',
+    'INCIDENT TWO',
+    '',
+    '2.1 The situation',
+    get('I2_situation'),
+    '',
+    '2.2 What I did',
+    get('I2_behavior'),
+    '',
+    '2.3 The other account',
+    get('I2_other'),
+    '',
+    'ACROSS BOTH INCIDENTS',
+    '',
+    '1.4 The trigger',
+    get('trigger'),
+    '',
+    '1.5 Direction (most to least characteristic)',
+    rankedText,
+    '',
+    '1.6 Cost',
+    get('cost')
+  ].join('\n');
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+goTo(-1);
+</script>
+</body>
+</html>

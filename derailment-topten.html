@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Derailment Characteristics — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #00205B; --navy-tint: #EEF0F6;
+    --gold: #A88B3D; --gold-tint: #FBF6EA;
+    --grey: #58595B; --light: #F7F7F9; --border: #DEDFE5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px 40px; background: var(--light);
+    font-family: 'EB Garamond', Garamond, Baskerville, 'Times New Roman', serif;
+    color: #232326; font-size: 19px; line-height: 1.55;
+  }
+  h1, h2, h3, .heading-font { font-family: 'Cambria', Georgia, 'Times New Roman', serif; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+
+  .topbar { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px solid var(--gold); padding-bottom: 10px; margin-bottom: 18px; }
+  .topbar .brand { font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 13px; letter-spacing: 1.5px; color: var(--gold); text-transform: uppercase; }
+  .topbar .progress-label { font-family: 'Cambria', Georgia, serif; font-size: 14px; color: var(--grey); }
+
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 30px 30px 26px; box-shadow: 0 2px 10px rgba(0,32,91,0.06); animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .screen-title { font-size: 24px; color: var(--navy); margin: 0 0 10px; }
+  .screen-body p { margin: 0 0 14px; }
+
+  .resume-banner { background: var(--navy-tint); border: 1px solid #D3D8E8; border-radius: 6px; padding: 16px 18px; margin-bottom: 18px; }
+  .resume-banner p { margin: 0 0 12px; font-size: 17px; }
+  .resume-actions { display: flex; gap: 10px; }
+
+  .btn-start, .btn-copy { background: var(--gold); color: #fff; }
+  .btn-restart, .btn-fresh { background: #fff; color: var(--navy); border: 1px solid var(--navy); }
+  .btn-resume { background: var(--navy); color: #fff; }
+  .btn-download { background: #fff; color: var(--grey); border: 1px solid var(--border); font-size: 14px; padding: 9px 18px; }
+  .btn-start, .btn-copy, .btn-restart, .btn-fresh, .btn-resume, .btn-download, .btn-next {
+    font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 16px; border: none; border-radius: 6px; padding: 12px 26px; cursor: pointer; transition: opacity 0.2s, background 0.15s;
+  }
+  .btn-next { background: var(--navy); color: #fff; }
+  .btn-next:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-next:not(:disabled):hover { background: #001642; }
+
+  .list-item { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .list-number {
+    flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 14px;
+    border: 2px solid var(--border); color: var(--grey); background: #fff;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .list-number.filled { border-color: var(--gold); color: var(--gold); }
+  input.list-input {
+    flex: 1; padding: 11px 14px; border: 1px solid var(--border); border-radius: 6px;
+    font-family: inherit; font-size: 17px; color: #232326; transition: border-color 0.15s;
+  }
+  input.list-input:focus { outline: none; border-color: var(--navy); }
+
+  .completion-row { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+  .completion-count { font-family: 'Cambria', Georgia, serif; color: var(--grey); font-size: 15px; }
+  .completion-count.met { color: var(--gold); font-weight: 700; }
+
+  .output-box { width: 100%; min-height: 260px; padding: 16px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Courier New', monospace; font-size: 14.5px; line-height: 1.5; color: #232326; background: var(--light); white-space: pre-wrap; resize: vertical; }
+  .copy-row { display: flex; align-items: center; gap: 12px; margin: 14px 0 6px; flex-wrap: wrap; }
+  .copy-confirm { color: var(--gold); font-weight: 700; font-family: 'Cambria', Georgia, serif; font-size: 15px; opacity: 0; transition: opacity 0.2s; }
+  .copy-confirm.shown { opacity: 1; }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+
+  .footnote { text-align: center; color: var(--grey); font-size: 13.5px; margin-top: 22px; font-family: 'Cambria', Georgia, serif; }
+
+  @media (max-width: 520px) {
+    body { font-size: 17px; padding: 16px 10px 32px; }
+    .card { padding: 22px 18px 20px; }
+    input.list-input { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">MBA@Rice 511 &middot; Session 1</span>
+    <span class="progress-label" id="progressLabel"></span>
+  </div>
+  <div class="card" id="card"></div>
+  <div class="footnote">This page collects no data and requires no login. Everything you write stays in this browser until you copy or download it yourself.</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'rice511_derailment_topten_v1';
+const MIN_CHARS = 4;
+const COUNT = 10;
+
+let screen = 'intro';  // intro | form | complete
+let items = new Array(COUNT).fill('');
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ items })); } catch (e) {}
+}
+function loadState() {
+  try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+}
+function clearState() { try { localStorage.removeItem(STORAGE_KEY); } catch (e) {} }
+
+const card = document.getElementById('card');
+const progressLabel = document.getElementById('progressLabel');
+
+function filledCount() {
+  return items.filter((v) => v.trim().length >= MIN_CHARS).length;
+}
+function allFilled() { return filledCount() === COUNT; }
+
+function updateLabel() {
+  if (screen === 'intro') progressLabel.textContent = '';
+  else if (screen === 'complete') progressLabel.textContent = 'Complete';
+  else progressLabel.textContent = filledCount() + ' of ' + COUNT + ' filled in';
+}
+
+function renderIntro() {
+  screen = 'intro';
+  updateLabel();
+  const saved = loadState();
+  const hasSaved = saved && (saved.items || []).some((v) => v && v.trim().length > 0);
+
+  let resumeHtml = '';
+  if (hasSaved) {
+    resumeHtml = `
+      <div class="resume-banner">
+        <p><strong>We found saved progress in this browser from a previous session.</strong></p>
+        <div class="resume-actions">
+          <button class="btn-resume" id="resumeBtn">Resume where I left off</button>
+          <button class="btn-fresh" id="freshBtn">Start fresh</button>
+        </div>
+      </div>
+    `;
+  }
+
+  card.innerHTML = `
+    <h2 class="screen-title">Derailment Characteristics</h2>
+    <div class="screen-body">
+      ${resumeHtml}
+      <p>Think across your career &mdash; not just one job, any manager you've worked for or under.</p>
+      <p>List <strong>ten characteristics</strong> that made the worst of them ineffective or difficult to work for. These don't have to come from a single person &mdash; pull from whoever comes to mind.</p>
+      <p><strong>A word or short phrase for each</strong> &mdash; &ldquo;took credit for others' work,&rdquo; &ldquo;impossible to reach,&rdquo; &ldquo;played favorites.&rdquo; Not a story, not a sentence.</p>
+      <p><strong>No names.</strong> Describe the behavior, not the person.</p>
+      <p>There's no wrong answer here. You're not being graded on how severe your list is.</p>
+    </div>
+    <button class="btn-start" id="beginBtn">${hasSaved ? 'Start fresh instead' : 'Begin'}</button>
+  `;
+
+  if (hasSaved) {
+    document.getElementById('resumeBtn').addEventListener('click', () => {
+      items = saved.items.slice(0, COUNT);
+      while (items.length < COUNT) items.push('');
+      renderForm();
+    });
+    document.getElementById('freshBtn').addEventListener('click', startFresh);
+    document.getElementById('beginBtn').addEventListener('click', startFresh);
+  } else {
+    document.getElementById('beginBtn').addEventListener('click', renderForm);
+  }
+}
+
+function startFresh() {
+  items = new Array(COUNT).fill('');
+  clearState();
+  renderForm();
+}
+
+function renderForm() {
+  screen = 'form';
+  updateLabel();
+
+  let rows = '';
+  for (let i = 0; i < COUNT; i++) {
+    rows += `
+      <div class="list-item">
+        <span class="list-number" id="num-${i}">${i + 1}</span>
+        <input class="list-input" type="text" id="item-${i}" placeholder="Characteristic ${i + 1}" value="${escapeAttr(items[i])}">
+      </div>
+    `;
+  }
+
+  card.innerHTML = `
+    <h3 class="step-title" style="font-family:'Cambria',Georgia,serif;font-weight:700;color:var(--navy);font-size:21px;margin:0 0 16px;">Your ten characteristics</h3>
+    ${rows}
+    <div class="completion-row">
+      <span class="completion-count" id="completionCount"></span>
+      <button class="btn-next" id="doneBtn" disabled>I'm done &rarr;</button>
+    </div>
+  `;
+
+  for (let i = 0; i < COUNT; i++) {
+    const input = document.getElementById('item-' + i);
+    input.addEventListener('input', () => {
+      items[i] = input.value;
+      updateItemState(i);
+      updateCompletion();
+      saveState();
+    });
+    updateItemState(i);
+  }
+  updateCompletion();
+
+  document.getElementById('doneBtn').addEventListener('click', renderComplete);
+}
+
+function updateItemState(i) {
+  const badge = document.getElementById('num-' + i);
+  const met = items[i].trim().length >= MIN_CHARS;
+  badge.classList.toggle('filled', met);
+}
+
+function updateCompletion() {
+  const n = filledCount();
+  const label = document.getElementById('completionCount');
+  const btn = document.getElementById('doneBtn');
+  label.textContent = n + ' of ' + COUNT + ' filled in';
+  label.className = 'completion-count' + (n === COUNT ? ' met' : '');
+  btn.disabled = n !== COUNT;
+  updateLabel();
+}
+
+function renderComplete() {
+  screen = 'complete';
+  updateLabel();
+  const text = compileOutput();
+  card.innerHTML = `
+    <h2 class="screen-title">You're done.</h2>
+    <div class="screen-body">
+      <p>Copy everything below and paste it as your submission for the <strong>Derailment Characteristics</strong> assignment in Canvas.</p>
+    </div>
+    <div class="copy-row">
+      <button class="btn-copy" id="copyBtn">Copy everything</button>
+      <button class="btn-download" id="downloadBtn">Download a copy for yourself</button>
+      <span class="copy-confirm" id="copyConfirm">Copied &mdash; now paste it into Canvas</span>
+    </div>
+    <textarea class="output-box" id="outputBox" readonly>${escapeHtml(text)}</textarea>
+    <div class="nav"><button class="btn-restart" id="restartBtn">Go back and edit</button><span></span></div>
+  `;
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const box = document.getElementById('outputBox');
+    let copied = false;
+    try { await navigator.clipboard.writeText(text); copied = true; }
+    catch (e) {
+      try { box.focus(); box.select(); document.execCommand('copy'); copied = true; }
+      catch (e2) {}
+    }
+    if (copied) {
+      const c = document.getElementById('copyConfirm');
+      c.classList.add('shown');
+      setTimeout(() => c.classList.remove('shown'), 3000);
+    } else { box.focus(); box.select(); }
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'derailment-characteristics.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('restartBtn').addEventListener('click', renderForm);
+}
+
+function compileOutput() {
+  const lines = ['DERAILMENT CHARACTERISTICS', ''];
+  for (let i = 0; i < COUNT; i++) {
+    lines.push((i + 1) + '. ' + items[i].trim());
+  }
+  return lines.join('\n');
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+function escapeAttr(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+renderIntro();
+</script>
+</body>
+</html>
