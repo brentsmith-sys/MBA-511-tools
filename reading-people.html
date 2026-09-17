@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reading People — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #00205B; --navy-tint: #EEF0F6;
+    --gold: #A88B3D; --gold-tint: #FBF6EA;
+    --grey: #58595B; --light: #F7F7F9; --border: #DEDFE5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px 40px; background: var(--light);
+    font-family: 'EB Garamond', Garamond, Baskerville, 'Times New Roman', serif;
+    color: #232326; font-size: 19px; line-height: 1.55;
+  }
+  h1, h2, h3 { font-family: 'Cambria', Georgia, 'Times New Roman', serif; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+
+  .topbar { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px solid var(--gold); padding-bottom: 10px; margin-bottom: 18px; }
+  .topbar .brand { font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 13px; letter-spacing: 1.5px; color: var(--gold); text-transform: uppercase; }
+  .topbar .progress-label { font-family: 'Cambria', Georgia, serif; font-size: 14px; color: var(--grey); }
+
+  .dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 22px; flex-wrap: wrap; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #D6D8E0; border: none; padding: 0; cursor: default; transition: background 0.2s, transform 0.15s; }
+  .dot.visited { background: var(--navy); cursor: pointer; }
+  .dot.current { background: var(--gold); transform: scale(1.3); cursor: pointer; }
+
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 30px 30px 26px; box-shadow: 0 2px 10px rgba(0,32,91,0.06); min-height: 300px; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .scenario { margin: 0 0 18px; font-size: 19px; }
+  .prompt { font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--navy); font-size: 18px; margin: 0 0 16px; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex; align-items: flex-start; gap: 12px; text-align: left; width: 100%;
+    padding: 13px 16px; border: 1px solid var(--border); border-left: 4px solid var(--border);
+    border-radius: 6px; background: #fff; font-family: inherit; font-size: 18px; color: #232326;
+    cursor: pointer; transition: border-color 0.15s, background 0.15s, opacity 0.15s;
+  }
+  .option:hover { border-color: var(--navy); border-left-color: var(--navy); }
+  .option .tag { font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--grey); flex-shrink: 0; }
+  .option.selected.correct { border-left-color: var(--gold); background: var(--gold-tint); }
+  .option.selected.incorrect { border-left-color: var(--navy); background: var(--navy-tint); }
+  .option.dimmed { opacity: 0.55; }
+  .marker { margin-left: auto; font-size: 15px; font-weight: 600; white-space: nowrap; padding-left: 10px; }
+  .marker.correct { color: var(--gold); }
+  .marker.incorrect { color: var(--navy); }
+
+  .feedback { margin-top: 8px; padding: 16px 18px; border-radius: 6px; font-size: 18px; line-height: 1.6; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--gold-tint); border: 1px solid #E9DDBE; }
+  .feedback.incorrect { background: var(--navy-tint); border: 1px solid #D3D8E8; }
+  .feedback .label { font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
+  .feedback.correct .label { color: var(--gold); }
+  .feedback.incorrect .label { color: var(--navy); }
+
+  .nav { display: flex; justify-content: flex-end; margin-top: 22px; }
+  .btn-next { font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 16px; background: var(--navy); color: #fff; border: none; border-radius: 6px; padding: 12px 26px; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .btn-next.shown { opacity: 1; pointer-events: auto; }
+  .btn-next:hover { background: #001642; }
+
+  .screen-title { font-size: 24px; color: var(--navy); margin: 0 0 10px; }
+  .screen-body p { margin: 0 0 14px; }
+  .btn-start, .btn-restart { font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 16px; border: none; border-radius: 6px; padding: 13px 28px; cursor: pointer; margin-top: 10px; }
+  .btn-start { background: var(--gold); color: #fff; }
+  .btn-restart { background: #fff; color: var(--navy); border: 1px solid var(--navy); }
+
+  .scorebox { background: var(--navy-tint); border: 1px solid #D3D8E8; border-radius: 8px; padding: 18px 20px; margin: 4px 0 18px; }
+  .scorebox .score { font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--navy); font-size: 28px; margin-bottom: 4px; }
+  .scorebox .sub { color: var(--grey); font-size: 16px; }
+
+
+  .output-box { width: 100%; min-height: 300px; padding: 16px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.5; color: #232326; background: var(--light); white-space: pre-wrap; resize: vertical; margin-top: 4px; }
+  .copy-row { display: flex; align-items: center; gap: 12px; margin: 16px 0 6px; flex-wrap: wrap; }
+  .copy-confirm { color: var(--gold); font-weight: 700; font-family: 'Cambria', Georgia, serif; font-size: 15px; opacity: 0; transition: opacity 0.2s; }
+  .copy-confirm.shown { opacity: 1; }
+  .btn-copy { font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 16px; background: var(--gold); color: #fff; border: none; border-radius: 6px; padding: 12px 26px; cursor: pointer; }
+  .btn-download { font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 14px; background: #fff; color: var(--grey); border: 1px solid var(--border); border-radius: 6px; padding: 9px 18px; cursor: pointer; }
+  .incomplete-note { background: var(--navy-tint); border: 1px solid #D3D8E8; border-radius: 6px; padding: 14px 16px; margin: 4px 0 16px; font-size: 17px; }
+  .footnote { text-align: center; color: var(--grey); font-size: 13.5px; margin-top: 22px; font-family: 'Cambria', Georgia, serif; }
+
+  @media (max-width: 520px) {
+    body { font-size: 17px; padding: 16px 10px 32px; }
+    .card { padding: 22px 18px 20px; }
+    .option { font-size: 16px; padding: 12px 13px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">MBA@Rice 511 &middot; Session 2</span>
+    <span class="progress-label" id="progressLabel"></span>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="card" id="card"></div>
+  <div class="footnote">This page collects no data and requires no login. Nothing you click here is recorded or shared.</div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    scenario: "Nadia arrives at a two-day industry conference. By lunch on the first day she has introduced herself to a dozen people she didn't know, set up three follow-up calls, and volunteered to moderate an unplanned breakout. At dinner she's running the table conversation. She describes the day afterward as the most energized she's felt in weeks.",
+    prompt: "Which dimension best explains this?",
+    options: [
+      { label: "A", text: "High extraversion", correct: true,
+        feedback: "Two signals together make this clear. The behavior itself &mdash; approaching strangers, seeking the center of groups &mdash; and, more diagnostically, <em>where the energy went</em>. She finished a demanding social day more energized, not less. That's the physiological piece: extraverts are somewhat understimulated at baseline and draw energy from external engagement. An introvert could execute this same day competently and would be depleted by it." },
+      { label: "B", text: "Low neuroticism", correct: false,
+        feedback: "Nothing here tells you how she handles stress or setbacks &mdash; a conference going well isn't a test of emotional stability. You're reading a trait that this scenario gives you no evidence about. Watch for that; it's the most common diagnostic error." },
+      { label: "C", text: "High openness", correct: false,
+        feedback: "Tempting, because conferences involve new ideas. But look at what she actually did: met people, built connections, ran conversations. None of that is about ideas, novelty, or abstraction. Openness would show up as interest in the <em>content</em>, not the networking." },
+      { label: "D", text: "High agreeableness", correct: false,
+        feedback: "Agreeableness is about warmth, accommodation, and avoiding conflict &mdash; not about sociability. Plenty of highly extraverted people are disagreeable. Volunteering to moderate and running the table is closer to dominance than to warmth." }
+    ]
+  },
+  {
+    scenario: "Marcus says almost nothing in team meetings of eight or more. In one-on-ones he's animated, opinionated, and full of well-developed ideas &mdash; colleagues who've only seen him in group settings are surprised. He declines most optional social events. He doesn't appear tense in meetings; he just doesn't speak.",
+    prompt: "Which dimension best explains this?",
+    options: [
+      { label: "A", text: "High neuroticism", correct: false,
+        feedback: "This is the single most common misread of introversion, and the scenario deliberately blocks it: <em>he doesn't appear tense</em>, and he's fluent one-on-one. Anxiety-driven silence looks different &mdash; it shows up in small groups too, and the person usually reports discomfort. Quiet is not the same as anxious." },
+      { label: "B", text: "Low extraversion", correct: true,
+        feedback: "The tell is the contrast between settings. He has ideas and can express them fluently &mdash; so this isn't a competence or confidence problem. What varies is the number of people. Introverts are closer to overstimulated at baseline, which is why smaller settings and solitude are where they operate best. Declining optional social events fits the same pattern." },
+      { label: "C", text: "Low agreeableness", correct: false,
+        feedback: "Disagreeable people are typically <em>more</em> willing to speak up in groups, not less &mdash; they're less concerned about the social cost of dissent. Silence isn't a marker of low agreeableness." },
+      { label: "D", text: "Low conscientiousness", correct: false,
+        feedback: "Nothing here concerns organization, follow-through, deadlines, or planning. His ideas are described as well-developed, which if anything points the other way." }
+    ]
+  },
+  {
+    scenario: "Tom has started four substantial side projects this year &mdash; a new analytics approach, a redesigned onboarding flow, a proposal for a different pricing model, and an internal newsletter. Each was genuinely original and generated real interest. None is finished. He's now talking vividly about a fifth.",
+    prompt: "Which dimension best explains this?",
+    options: [
+      { label: "A", text: "Low conscientiousness", correct: false,
+        feedback: "Genuinely defensible, and this is the hardest discrimination in the set &mdash; but look at what's consistent across all four projects. Each one was <em>original</em> and generated interest. Pure low conscientiousness produces unfinished work of ordinary quality. The pattern here is generative: he's repeatedly drawn to the new thing. That's openness. Worth noting these often co-occur, and disentangling them usually takes more evidence than one scenario gives you." },
+      { label: "B", text: "High openness", correct: true,
+        feedback: "The diagnostic detail is that every project was <em>original</em>, not just unfinished. High openness pulls attention toward novelty, abstraction, and possibility &mdash; and the same pull that generates the first idea pulls away from it once a fifth appears. The characteristic weakness of high openness isn't laziness, it's indifference to implementation. Note that low conscientiousness is a reasonable competing read; you'd distinguish them by looking at his handling of ordinary obligations too." },
+      { label: "C", text: "High extraversion", correct: false,
+        feedback: "Nothing here is about people or social energy. He's generating ideas, not building networks. Openness and extraversion are independent &mdash; a quiet person can be relentlessly generative." },
+      { label: "D", text: "High neuroticism", correct: false,
+        feedback: "No distress, no worry, no reactivity to setbacks. He seems entirely comfortable with four unfinished projects, which is closer to the opposite." }
+    ]
+  },
+  {
+    scenario: "When a client escalation lands on Elena's team, she is visibly tense for days. She checks Slack at 11pm, asks her team repeatedly whether things are on track, and apologizes for delays that weren't hers. The escalation resolves fine. Two weeks later a different issue arises and the pattern repeats.",
+    prompt: "Which dimension best explains this?",
+    options: [
+      { label: "A", text: "High conscientiousness", correct: false,
+        feedback: "A very reasonable read, and the behaviors overlap &mdash; but watch what's driving it. Conscientiousness produces <em>preparation</em>: checklists, early starts, systems. What's described here is worry: visible tension, late-night checking, apologizing for things she didn't cause. The mechanism is distress, not diligence, and the recurrence across unrelated issues confirms it's dispositional rather than situational." },
+      { label: "B", text: "High neuroticism", correct: true,
+        feedback: "Three markers together: the intensity of the reaction relative to the actual stakes, the physical and behavioral signs of distress, and &mdash; most diagnostically &mdash; that it repeats with a different trigger two weeks later. That recurrence is what makes it a trait rather than a bad week. Remember this is normal-range variation in how reactive someone is to stress, not anything clinical." },
+      { label: "C", text: "Low extraversion", correct: false,
+        feedback: "She's communicating constantly &mdash; checking in, asking her team, apologizing. That's not withdrawal. Anxiety and introversion are frequently confused, but they run in different directions here." },
+      { label: "D", text: "High agreeableness", correct: false,
+        feedback: "The apologizing hints this way, and there may be some of it. But agreeableness alone wouldn't produce the late-night checking or the visible tension. The core pattern is emotional reactivity to threat, not accommodation of others." }
+    ]
+  },
+  {
+    scenario: "Priya routinely pushes back in planning meetings. She'll tell a colleague directly that an estimate is unrealistic, point out the flaw in a proposal without softening it, and hold her position when challenged. She's usually right. Several colleagues describe her as difficult to work with; two describe her as the only honest person in the room.",
+    prompt: "Which dimension best explains this?",
+    options: [
+      { label: "A", text: "High conscientiousness", correct: false,
+        feedback: "Caring about accurate estimates could come from conscientiousness &mdash; but conscientiousness governs <em>your own</em> standards and follow-through, not how you handle other people. The distinguishing feature here is entirely interpersonal: the willingness to create friction. That's a different dimension." },
+      { label: "B", text: "High extraversion", correct: false,
+        feedback: "Speaking up in meetings has an extraversion flavor, and assertiveness genuinely is part of extraversion. But extraversion's assertiveness is about <em>taking the floor</em>; what's distinctive here is being willing to be disliked for the content. That's agreeableness territory." },
+      { label: "C", text: "Low agreeableness", correct: true,
+        feedback: "The diagnostic detail is the split in how colleagues describe her. Low agreeableness means placing lower weight on interpersonal harmony relative to other considerations &mdash; here, accuracy. Notice this isn't framed as a flaw: she's usually right, and some colleagues value exactly this. Low agreeableness is overrepresented in management populations for precisely this reason, which is worth sitting with rather than treating as a problem to fix." },
+      { label: "D", text: "Low neuroticism", correct: false,
+        feedback: "Holding a position under challenge does suggest she isn't easily rattled, and that may well be true. But it's a secondary inference &mdash; the primary, directly observed pattern is about her willingness to prioritize being right over being liked." }
+    ]
+  },
+  {
+    scenario: "Dana rereads the brief before every client call, verifies figures twice even when someone else has already checked them, and arrives ten minutes early with printed notes. In four years she has never missed a deadline. She is not visibly anxious about any of this &mdash; she describes it as simply how she works.",
+    prompt: "Which dimension best explains this?",
+    options: [
+      { label: "A", text: "High neuroticism", correct: false,
+        feedback: "This is the mirror image of the Elena scenario, and the discriminating detail is explicit: <em>she is not visibly anxious</em>, and she frames it as a working method rather than a worry. Same surface behaviors, different engine. When checking is driven by standards it's conscientiousness; when it's driven by dread it's neuroticism." },
+      { label: "B", text: "High conscientiousness", correct: true,
+        feedback: "Preparation, verification, punctuality, and a four-year record of follow-through &mdash; and crucially, no distress attached. That last part is what separates this from anxiety-driven checking. Conscientiousness is about organization, diligence, and dependability as a settled preference, not as a response to threat. The characteristic overuse risk here isn't burnout, it's inflexibility when conditions demand speed over thoroughness." },
+      { label: "C", text: "Low openness", correct: false,
+        feedback: "Nothing here is about resistance to new ideas or preference for the familiar. Following a rigorous process isn't the same as rejecting novelty &mdash; a highly open person can also be meticulous." },
+      { label: "D", text: "High agreeableness", correct: false,
+        feedback: "No interpersonal content in the scenario at all. Her preparation isn't described as being for anyone's benefit or as avoiding conflict &mdash; it's just her method." }
+    ]
+  },
+  {
+    scenario: "Raj's team proposed replacing the existing vendor management process with a new platform. Raj asked what specific problem it solves, noted the current process has run without failure for six years, and asked what evidence there was that the new system would be better. He wasn't hostile about it and said he'd support it if the case were made. The team found him frustrating.",
+    prompt: "Which dimension best explains this?",
+    options: [
+      { label: "A", text: "Low openness", correct: true,
+        feedback: "The signature of low openness is preference for the proven over the novel &mdash; and note that the scenario deliberately makes him <em>reasonable</em>: no hostility, an explicit willingness to be persuaded by evidence. Low openness isn't obstinacy, it's a genuinely different weighting of proven reliability against potential upside. This orientation is common and often valuable in operational roles; the team's frustration is a clash of dispositions, not evidence he's wrong." },
+      { label: "B", text: "Low agreeableness", correct: false,
+        feedback: "A defensible read, since he's creating friction &mdash; but look at how. He's not dismissive or combative, he explicitly offers to support it, and his objection is substantive rather than positional. Low agreeableness would look like Priya: direct interpersonal pushback. This is about the <em>content</em> of change, not about how he treats people." },
+      { label: "C", text: "High conscientiousness", correct: false,
+        feedback: "Reasonable, and they often co-occur &mdash; wanting evidence before changing a working system has a conscientious flavor. But conscientiousness is about your own diligence and follow-through. The distinctive thing here is specifically an orientation toward <em>novelty versus the established</em>, which is openness." },
+      { label: "D", text: "High neuroticism", correct: false,
+        feedback: "No distress, no anxiety, no threat response. He's calm and offers a clear condition under which he'd change his mind." }
+    ]
+  },
+  {
+    scenario: "Sam leads a team of six. Over four months he has agreed to every cross-departmental request that's come in, without negotiating scope or timeline on any of them. His team is now visibly overloaded and two people have raised it with him. He told them it's temporary and they'll manage. He has not raised the capacity issue with his own manager.",
+    prompt: "Which dimension best explains this?",
+    options: [
+      { label: "A", text: "High agreeableness", correct: true,
+        feedback: "The diagnostic detail is the full pattern: saying yes to outsiders, reassuring his own team rather than acting, and &mdash; most tellingly &mdash; not escalating upward. Every one of those avoids a confrontation. High agreeableness makes the immediate social cost of saying no feel larger than the delayed cost of overcommitment. It usually reads as cooperativeness right up until it produces exactly this." },
+      { label: "B", text: "Low conscientiousness", correct: false,
+        feedback: "Overcommitment can look like poor planning, but nothing suggests he's disorganized or unreliable &mdash; he's taking on <em>more</em> work, not dropping it. The failure is in declining, not in executing." },
+      { label: "C", text: "Low extraversion", correct: false,
+        feedback: "He's engaging with other departments constantly and having conversations with his team. This isn't withdrawal &mdash; it's a pattern in what he says when he does engage." },
+      { label: "D", text: "High neuroticism", correct: false,
+        feedback: "Possible as a secondary driver &mdash; anxiety about confrontation could contribute. But he's described as reassuring rather than distressed, and there's no sign of the emotional reactivity that defines neuroticism. The cleaner read is conflict avoidance." }
+    ]
+  },
+  {
+    scenario: "Chen's desk is chaos, he misses small commitments like sending the follow-up note he promised, and he's asked for a deadline extension twice this quarter. The work he eventually produces is consistently strong, and it's usually produced in a compressed burst right before it's due. He's genuinely apologetic each time but the pattern doesn't change.",
+    prompt: "Which dimension best explains this?",
+    options: [
+      { label: "A", text: "High openness", correct: false,
+        feedback: "This is the reverse of the Tom scenario and worth contrasting with it. Nothing here suggests Chen is drawn toward novelty or generating new ideas &mdash; he's doing assigned work, well, late. Openness explains what pulls someone's attention <em>toward</em> something new; it doesn't explain general disorganization." },
+      { label: "B", text: "Low conscientiousness", correct: true,
+        feedback: "The markers are disorganization, missed small commitments, and difficulty with self-imposed pacing &mdash; and critically, the pattern persists despite genuine regret. That's what makes it dispositional rather than a rough patch. Note what it is <em>not</em>: his work quality is strong. Conscientiousness governs organization and follow-through, not ability, and conflating the two is a common and costly managerial error." },
+      { label: "C", text: "High neuroticism", correct: false,
+        feedback: "He's apologetic, which hints at some distress, but the apology follows the behavior rather than driving it. There's no sign of the anticipatory worry or stress reactivity that characterizes neuroticism." },
+      { label: "D", text: "Low agreeableness", correct: false,
+        feedback: "He's apologetic and cooperative &mdash; if anything the opposite. Missing commitments can strain relationships without being about interpersonal orientation at all." }
+    ]
+  },
+  {
+    scenario: "Alex learns the firm has lost a major client. He runs the team meeting that afternoon without visible tension, acknowledges it's a setback, and moves the group to what's recoverable. A colleague asks the next day how he's holding up; he seems mildly puzzled by the question. He reports sleeping normally that week.",
+    prompt: "Which dimension best explains this?",
+    options: [
+      { label: "A", text: "Low neuroticism", correct: true,
+        feedback: "Emotional stability under genuine stress &mdash; a real setback, and his reaction is proportionate and brief. The puzzlement at being asked how he's coping is the nice detail: low-neuroticism individuals often don't recognize a situation as one requiring coping at all. Worth noting the flip side, though: very low neuroticism is associated with being <em>less</em> responsive to negative feedback and to warning signs, precisely because less registers as threatening." },
+      { label: "B", text: "High agreeableness", correct: false,
+        feedback: "Moving the group forward constructively could look accommodating, but nothing here is about warmth, harmony, or conflict avoidance. The scenario is entirely about his internal response to a stressor." },
+      { label: "C", text: "High extraversion", correct: false,
+        feedback: "He runs a meeting, which is mild evidence at best &mdash; it's his job. Nothing indicates he draws energy from people or seeks social stimulation. The distinctive content is his non-reaction to bad news." },
+      { label: "D", text: "High conscientiousness", correct: false,
+        feedback: "Moving to what's recoverable is task-focused, but that's a reasonable response from anyone in his role. What actually stands out is the <em>absence of distress</em>, which is the emotional stability dimension." }
+    ]
+  },
+  {
+    scenario: "Jordan reworked a board deck four times over two days, asked two colleagues to re-check numbers that had already been verified, stayed late both nights, and sent the final version an hour before the meeting. The deck was excellent. Colleagues now build buffer time into any schedule involving Jordan.",
+    prompt: "This one is genuinely ambiguous. What's the honest answer?",
+    options: [
+      { label: "A", text: "High conscientiousness", correct: false,
+        feedback: "Plausible &mdash; and it might be right. But you don't have enough to say so. The behavior is consistent with a high standards-driven process, and it's equally consistent with anxiety. Committing to this read on the evidence available is exactly the overconfident diagnosis the framework should make you slower to reach." },
+      { label: "B", text: "High neuroticism", correct: false,
+        feedback: "Also plausible &mdash; the repeated re-checking of already-verified work leans this way. But 'excellent deck, rechecked repeatedly' doesn't establish distress, and reading anxiety into diligence is its own error. You'd need to know what it felt like from the inside." },
+      { label: "C", text: "You can't tell from this &mdash; you'd need to know whether the checking is driven by standards or by worry", correct: true,
+        feedback: "Correct, and this is the most important item here. The Dana and Elena scenarios had the tell built in &mdash; Dana was explicitly not anxious, Elena was visibly tense. Jordan has neither. Same observable behavior can run on entirely different engines, and the framework's value is knowing <em>which question to ask next</em>, not producing a label from insufficient evidence. In practice you'd find out by asking what the experience was like, or by watching what happens when the standard genuinely can't be met.<br><br>Being able to say &ldquo;I don't have enough yet&rdquo; is a skill, not a failure to perform the diagnosis." },
+      { label: "D", text: "Low conscientiousness &mdash; the work was late", correct: false,
+        feedback: "It wasn't late; it arrived before the meeting. The buffer colleagues build in reflects unpredictability, not missed deadlines &mdash; and an excellent deck produced through obsessive revision is close to the opposite of low conscientiousness." }
+    ]
+  },
+  {
+    scenario: "You've watched a colleague for six months. She speaks rarely in large meetings but sends long, carefully argued written follow-ups afterward. She pushes back firmly on decisions she disagrees with &mdash; in writing. She never misses a commitment. She's proposed two significant process changes this year, both genuinely novel. Under a difficult quarter she remained steady.",
+    prompt: "What's the most defensible reading?",
+    options: [
+      { label: "A", text: "She's an introvert and therefore not assertive", correct: false,
+        feedback: "This is the error the whole exercise is built to prevent. Introversion is about where energy comes from and how much social stimulation someone prefers &mdash; it says nothing about assertiveness. She pushes back firmly; she just does it in writing. Conflating quiet with compliant is one of the most consequential misreads a manager makes." },
+      { label: "B", text: "Low extraversion, low agreeableness, high conscientiousness, high openness, low neuroticism &mdash; the dimensions are independent", correct: true,
+        feedback: "Correct, and this is the payoff of the whole set. Each dimension is doing separate work: quiet in groups (low extraversion), willing to disagree (low agreeableness), never misses commitments (high conscientiousness), generates novel proposals (high openness), steady under pressure (low neuroticism). None of those predicts any of the others. The reason the Five Factor Model is useful isn't that it sorts people into types &mdash; it's that it stops you collapsing five independent things into one impression." },
+      { label: "C", text: "She's disengaged &mdash; the silence in meetings is the main signal", correct: false,
+        feedback: "The evidence points hard the other way: long written arguments, two proposals, no missed commitments. Weighting one visible behavior over the accumulated record is the halo problem running in reverse, and meeting-room visibility is a notoriously poor proxy for contribution." },
+      { label: "D", text: "There isn't enough evidence to say anything", correct: false,
+        feedback: "Appropriate caution in the Jordan case, but not here. Six months of observation across five distinct behavioral domains is substantial evidence. Knowing when you <em>do</em> have enough matters as much as knowing when you don't." }
+    ]
+  }
+];
+
+const TOTAL = QUESTIONS.length;
+let current = -1;
+let furthest = -1;
+let answeredCurrent = false;
+let firstAttempts = {};
+let firstChoice = {};
+
+const card = document.getElementById('card');
+const dotsEl = document.getElementById('dots');
+const progressLabel = document.getElementById('progressLabel');
+
+function renderDots() {
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('button');
+    d.className = 'dot';
+    if (i === current) d.className += ' current';
+    else if (i <= furthest) d.className += ' visited';
+    d.setAttribute('aria-label', 'Question ' + (i + 1));
+    if (i <= furthest) d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  }
+}
+
+function goTo(index) {
+  current = index;
+  answeredCurrent = false;
+  if (index > furthest) furthest = index;
+  if (index < 0) progressLabel.textContent = '';
+  else if (index >= TOTAL) progressLabel.textContent = 'Complete';
+  else progressLabel.textContent = 'Scenario ' + (index + 1) + ' of ' + TOTAL;
+  renderDots();
+  if (index === -1) renderIntro();
+  else if (index >= TOTAL) renderComplete();
+  else renderQuestion(QUESTIONS[index]);
+}
+
+function renderIntro() {
+  card.innerHTML = `
+    <h2 class="screen-title">Reading People</h2>
+    <div class="screen-body">
+      <p>Twelve short scenarios. For each one, work out which of the five dimensions best explains what you're seeing.</p>
+      <p>The scenarios are mixed rather than grouped by trait, so the first task is always figuring out which dimension is even in play. Some are harder than they look, and at least one has no clean answer at all.</p>
+      <p>There's no grade here. You can explore more than one option on each scenario &mdash; the feedback on the wrong answers is where most of the teaching is, because those are the reads that feel plausible.</p>
+    </div>
+    <button class="btn-start" id="startBtn">Begin</button>
+  `;
+  document.getElementById('startBtn').addEventListener('click', () => goTo(0));
+}
+
+function renderQuestion(q) {
+  const optionsHtml = q.options.map(opt => `
+    <button class="option" data-label="${opt.label}">
+      <span class="tag">${opt.label}.</span>
+      <span>${opt.text}</span>
+      <span class="marker"></span>
+    </button>
+  `).join('');
+
+  card.innerHTML = `
+    <p class="scenario">${q.scenario}</p>
+    <p class="prompt">${q.prompt}</p>
+    <div class="options" id="optionsList">${optionsHtml}</div>
+    <div id="feedbackZone"></div>
+    <div class="nav"><button class="btn-next" id="nextBtn">Next &rarr;</button></div>
+  `;
+
+  const optionEls = card.querySelectorAll('.option');
+  optionEls.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const label = btn.getAttribute('data-label');
+      const opt = q.options.find(o => o.label === label);
+      if (firstAttempts[current] === undefined) {
+        firstAttempts[current] = !!opt.correct;
+        firstChoice[current] = opt.label;
+      }
+      handleAnswer(q, opt, optionEls);
+    });
+  });
+}
+
+function handleAnswer(q, opt, optionEls) {
+  answeredCurrent = true;
+  optionEls.forEach(el => {
+    const label = el.getAttribute('data-label');
+    const markerEl = el.querySelector('.marker');
+    el.classList.remove('selected', 'correct', 'incorrect', 'dimmed');
+    markerEl.className = 'marker';
+    markerEl.textContent = '';
+
+    if (label === opt.label) {
+      el.classList.add('selected');
+      if (opt.correct) {
+        el.classList.add('correct');
+        markerEl.classList.add('correct');
+        markerEl.innerHTML = '&#10003; Correct';
+      } else {
+        el.classList.add('incorrect');
+        markerEl.classList.add('incorrect');
+        markerEl.textContent = 'Not quite';
+      }
+    } else {
+      el.classList.add('dimmed');
+    }
+  });
+
+  const zone = document.getElementById('feedbackZone');
+  zone.innerHTML = `
+    <div class="feedback ${opt.correct ? 'correct' : 'incorrect'}">
+      <span class="label">${opt.correct ? 'Correct' : 'Not quite &mdash; but read on'}</span>
+      ${opt.feedback}
+    </div>
+  `;
+  document.getElementById('nextBtn').classList.add('shown');
+}
+
+function renderComplete() {
+  const answered = Object.keys(firstAttempts).length;
+  const rightFirst = Object.values(firstAttempts).filter(Boolean).length;
+  const allDone = answered === TOTAL;
+  const text = compileOutput();
+
+  const incompleteHtml = allDone ? '' : `
+    <div class="incomplete-note">
+      You've answered ${answered} of ${TOTAL}. You can submit this as it stands, but the dots above let you go back and finish any you skipped.
+    </div>
+  `;
+
+  card.innerHTML = `
+    <h2 class="screen-title">That's all twelve.</h2>
+    <div class="scorebox">
+      <div class="score">${rightFirst} of ${answered}</div>
+      <div class="sub">correct on your first attempt</div>
+    </div>
+    ${incompleteHtml}
+    <div class="screen-body">
+      <p>The score matters less than which ones you missed. If the misses clustered on the pairs that look alike &mdash; diligence against anxiety, novelty-seeking against disorganization, quiet against compliant &mdash; that's the useful finding, and it's the same confusion that produces bad management decisions about real people.</p>
+      <p>Copy everything below and paste it into the <strong>Reading People</strong> assignment in Canvas.</p>
+    </div>
+    <div class="copy-row">
+      <button class="btn-copy" id="copyBtn">Copy everything</button>
+      <button class="btn-download" id="downloadBtn">Download a copy</button>
+      <span class="copy-confirm" id="copyConfirm">Copied &mdash; now paste it into Canvas</span>
+    </div>
+    <textarea class="output-box" id="outputBox" readonly>${escapeHtmlRP(text)}</textarea>
+    <div class="nav" style="justify-content:flex-start;">
+      <button class="btn-restart" id="restartBtn">Start over</button>
+    </div>
+  `;
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const box = document.getElementById('outputBox');
+    let copied = false;
+    try { await navigator.clipboard.writeText(text); copied = true; }
+    catch (e) {
+      try { box.focus(); box.select(); document.execCommand('copy'); copied = true; } catch (e2) {}
+    }
+    if (copied) {
+      const c = document.getElementById('copyConfirm');
+      c.classList.add('shown');
+      setTimeout(() => c.classList.remove('shown'), 3000);
+    } else { box.focus(); box.select(); }
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'reading-people.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('restartBtn').addEventListener('click', () => {
+    firstAttempts = {};
+    firstChoice = {};
+    furthest = -1;
+    goTo(-1);
+  });
+}
+
+function decodeEntities(str) {
+  const t = document.createElement('textarea');
+  t.innerHTML = str;
+  return t.value;
+}
+
+function compileOutput() {
+  const answered = Object.keys(firstAttempts).length;
+  const rightFirst = Object.values(firstAttempts).filter(Boolean).length;
+  const lines = ['READING PEOPLE — FIVE FACTOR DIAGNOSIS', ''];
+  lines.push('Score on first attempt: ' + rightFirst + ' of ' + answered + ' answered (' + TOTAL + ' total)');
+  lines.push('');
+  lines.push('RESPONSES');
+  lines.push('');
+  for (let i = 0; i < TOTAL; i++) {
+    const q = QUESTIONS[i];
+    const chosen = firstChoice[i];
+    if (chosen === undefined) {
+      lines.push((i + 1) + '. (not answered)');
+      continue;
+    }
+    const opt = q.options.find(o => o.label === chosen);
+    const correctOpt = q.options.find(o => o.correct);
+    const mark = opt.correct ? 'correct' : 'incorrect';
+    lines.push((i + 1) + '. ' + decodeEntities(opt.text) + '  [' + mark + ']');
+    if (!opt.correct) {
+      lines.push('    correct answer: ' + decodeEntities(correctOpt.text));
+    }
+  }
+  const missed = [];
+  for (let i = 0; i < TOTAL; i++) {
+    if (firstChoice[i] !== undefined && !firstAttempts[i]) missed.push(i + 1);
+  }
+  lines.push('');
+  lines.push('Missed on first attempt: ' + (missed.length ? missed.join(', ') : 'none'));
+  return lines.join('\n');
+}
+
+function escapeHtmlRP(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+document.getElementById('card').addEventListener('click', (e) => {
+  if (e.target && e.target.id === 'nextBtn' && answeredCurrent) {
+    goTo(current + 1);
+  }
+});
+
+goTo(-1);
+</script>
+</body>
+</html>
