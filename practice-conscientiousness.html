@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practice: Conscientiousness — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #00205B; --navy-tint: #EEF0F6;
+    --gold: #A88B3D; --gold-tint: #FBF6EA;
+    --grey: #58595B; --light: #F7F7F9; --border: #DEDFE5;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 16px 40px; background: var(--light); font-family: 'EB Garamond', Garamond, Baskerville, 'Times New Roman', serif; color: #232326; font-size: 19px; line-height: 1.55; }
+  h1, h2, h3 { font-family: 'Cambria', Georgia, 'Times New Roman', serif; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+
+  .topbar { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px solid var(--gold); padding-bottom: 10px; margin-bottom: 18px; }
+  .topbar .brand { font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 13px; letter-spacing: 1.5px; color: var(--gold); text-transform: uppercase; }
+  .topbar .progress-label { font-family: 'Cambria', Georgia, serif; font-size: 14px; color: var(--grey); }
+
+  .dots { display: flex; gap: 7px; justify-content: center; margin-bottom: 22px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #D6D8E0; border: none; padding: 0; cursor: default; transition: background 0.2s, transform 0.15s; }
+  .dot.visited { background: var(--navy); cursor: pointer; }
+  .dot.current { background: var(--gold); transform: scale(1.3); cursor: pointer; }
+
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 30px 30px 26px; box-shadow: 0 2px 10px rgba(0,32,91,0.06); min-height: 280px; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .trait-tag { font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--gold); font-size: 13px; letter-spacing: 0.6px; text-transform: uppercase; margin: 0 0 6px; }
+  .scenario { margin: 0 0 18px; font-size: 19px; }
+  .prompt { font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--navy); font-size: 18px; margin: 0 0 16px; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option { display: flex; align-items: flex-start; gap: 12px; text-align: left; width: 100%; padding: 13px 16px; border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: 6px; background: #fff; font-family: inherit; font-size: 18px; color: #232326; cursor: pointer; transition: border-color 0.15s, background 0.15s, opacity 0.15s; }
+  .option:hover { border-color: var(--navy); border-left-color: var(--navy); }
+  .option .tag { font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--grey); flex-shrink: 0; }
+  .option.selected.correct { border-left-color: var(--gold); background: var(--gold-tint); }
+  .option.selected.incorrect { border-left-color: var(--navy); background: var(--navy-tint); }
+  .option.dimmed { opacity: 0.55; }
+  .marker { margin-left: auto; font-size: 15px; font-weight: 600; white-space: nowrap; padding-left: 10px; }
+  .marker.correct { color: var(--gold); }
+  .marker.incorrect { color: var(--navy); }
+
+  .feedback { margin-top: 8px; padding: 16px 18px; border-radius: 6px; font-size: 18px; line-height: 1.6; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: var(--gold-tint); border: 1px solid #E9DDBE; }
+  .feedback.incorrect { background: var(--navy-tint); border: 1px solid #D3D8E8; }
+  .feedback .label { font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
+  .feedback.correct .label { color: var(--gold); }
+  .feedback.incorrect .label { color: var(--navy); }
+
+  .nav { display: flex; justify-content: flex-end; margin-top: 22px; }
+  .btn-next { font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 16px; background: var(--navy); color: #fff; border: none; border-radius: 6px; padding: 12px 26px; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .btn-next.shown { opacity: 1; pointer-events: auto; }
+  .btn-next:hover { background: #001642; }
+
+  .screen-title { font-size: 24px; color: var(--navy); margin: 0 0 10px; }
+  .screen-body p { margin: 0 0 14px; }
+  .btn-start, .btn-restart { font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 16px; border: none; border-radius: 6px; padding: 13px 28px; cursor: pointer; margin-top: 10px; }
+  .btn-start { background: var(--gold); color: #fff; }
+  .btn-restart { background: #fff; color: var(--navy); border: 1px solid var(--navy); }
+
+  .menu-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+  .menu-item { display: block; padding: 14px 16px; border: 1px solid var(--border); border-radius: 6px; background: #fff; font-family: inherit; font-size: 18px; color: var(--navy); text-decoration: none; cursor: pointer; text-align: left; width: 100%; transition: border-color 0.15s; }
+  .menu-item:hover { border-color: var(--navy); }
+
+  .footnote { text-align: center; color: var(--grey); font-size: 13.5px; margin-top: 22px; font-family: 'Cambria', Georgia, serif; }
+
+  @media (max-width: 520px) {
+    body { font-size: 17px; padding: 16px 10px 32px; }
+    .card { padding: 22px 18px 20px; }
+    .option { font-size: 16px; padding: 12px 13px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">MBA@Rice 511 &middot; Session 2</span>
+    <span class="progress-label" id="progressLabel"></span>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="card" id="card"></div>
+  <div class="footnote">Practice only &mdash; nothing here is recorded or submitted. Work through it as many times as you like.</div>
+</div>
+
+<script>
+const SETS = {
+  e: {
+    name: 'Extraversion',
+    blurb: "Engagement with the external world &mdash; sociability, assertiveness in groups, and where a person's energy comes from.",
+    questions: [
+      {
+        scenario: "Beatriz volunteers to run the all-hands. She opens by working the room, calls on people by name, and keeps the discussion moving with visible enjoyment. Afterward she stays another forty minutes talking to whoever is left, and tells a colleague it was the best part of her week.",
+        options: [
+          { label: "A", text: "High extraversion", correct: true,
+            feedback: "Two things point the same way: she seeks out the social setting rather than accepting it, and she's energized afterward rather than depleted. That second detail is the more diagnostic one &mdash; anyone can run a meeting, but finishing an extended social stretch wanting more of it is the extravert's signature." },
+          { label: "B", text: "Low extraversion", correct: false,
+            feedback: "Nothing here fits. She volunteered for the exposure, sought out more of it afterward, and reported it as a high point. An introvert can do all of this competently &mdash; but the energy would run the other direction." },
+          { label: "C", text: "Not enough evidence", correct: false,
+            feedback: "There's plenty here. Volunteering for a high-visibility social role, prolonging the interaction voluntarily, and reporting genuine enjoyment is a consistent picture across three separate signals." }
+        ]
+      },
+      {
+        scenario: "Wei does his best work in a two-hour block with his door shut and notifications off. He contributes in meetings when he has something specific to say, then goes quiet. He turns down most after-work events, and when he does attend, he leaves early. He describes a full day of back-to-back meetings as &ldquo;survivable, but I'll need the next morning to recover.&rdquo;",
+        options: [
+          { label: "A", text: "High extraversion", correct: false,
+            feedback: "The opposite. Every detail points toward preferring less social stimulation rather than more &mdash; and the recovery comment is the clearest signal of all." },
+          { label: "B", text: "Low extraversion", correct: true,
+            feedback: "The recovery line does the work. He can handle a socially demanding day &mdash; he says so &mdash; but it costs him, and he needs solitude to replenish. That's the introvert pattern: capable in social settings, depleted by them. Note that nothing here suggests he's bad at the meetings, only that they're expensive." },
+          { label: "C", text: "Not enough evidence", correct: false,
+            feedback: "Four independent signals all point the same direction: preference for solitary deep work, selective contribution, declining optional events, and explicit depletion. That's a consistent picture." }
+        ]
+      },
+      {
+        scenario: "Amara is widely described as excellent with clients. She reads a room well, remembers personal details, and consistently gets warm feedback after presentations. She's told a close colleague that she finds it exhausting, blocks her calendar clear the day after any major client event, and would rather do the analysis than the meeting if she could choose.",
+        options: [
+          { label: "A", text: "High extraversion", correct: false,
+            feedback: "This is the read most people reach for, because the visible evidence is all social competence. But social <em>skill</em> and social <em>appetite</em> are different things. Watch what she says when nobody's evaluating her: she finds it exhausting and would choose the analysis. Skill is learned; the energy direction is the trait." },
+          { label: "B", text: "Low extraversion", correct: true,
+            feedback: "A well-developed introvert &mdash; genuinely good at the social side, and depleted by it. The tells are the cleared calendar afterward and the stated preference when given a free choice. This pattern is common in senior roles, and it's exactly why you can't read extraversion off competence. Plenty of skilled presenters are drained by presenting." },
+          { label: "C", text: "Not enough evidence", correct: false,
+            feedback: "Defensible caution, but you have the key piece: what she does when the performance isn't required. Blocking the following day and preferring the analysis are both revealed preferences, not impressions." }
+        ]
+      }
+    ]
+  },
+
+  c: {
+    name: 'Conscientiousness',
+    blurb: "Organization, dependability, planning, and follow-through on commitments.",
+    questions: [
+      {
+        scenario: "Hana keeps a running task list she reviews each morning. Her handoffs arrive a day early with a short summary of what changed. When a project kicked off last quarter she built the timeline backwards from the deadline and flagged two dependencies nobody else had spotted. In three years she's missed one deadline, and she gave two weeks' notice that it would slip.",
+        options: [
+          { label: "A", text: "High conscientiousness", correct: true,
+            feedback: "Organization, planning ahead, and dependability across a long stretch &mdash; and the last detail is the strongest. Flagging a slip two weeks out isn't just reliability, it's the planning orientation that lets her see it coming. One missed deadline in three years, pre-announced, is about as clean a signal as you get." },
+          { label: "B", text: "Low conscientiousness", correct: false,
+            feedback: "Nothing supports this. Every detail runs the other way." },
+          { label: "C", text: "Not enough evidence", correct: false,
+            feedback: "Three years of observed behavior across planning, delivery, and communication is substantial. Knowing when you <em>do</em> have enough matters as much as knowing when you don't." }
+        ]
+      },
+      {
+        scenario: "Diego's calendar has three overlapping meetings most days and he regularly joins late. He agreed to send a vendor comparison &ldquo;by Friday&rdquo; and sent it eleven days later, after two reminders. His desk has four coffee cups on it. The vendor comparison, when it arrived, was thorough and identified a cost saving nobody else had found.",
+        options: [
+          { label: "A", text: "High conscientiousness", correct: false,
+            feedback: "The quality of the eventual work makes this tempting &mdash; but conscientiousness isn't about how good your output is, it's about organization and reliability in producing it. A late, twice-chased deliverable is the pattern here, however good it turned out." },
+          { label: "B", text: "Low conscientiousness", correct: true,
+            feedback: "Disorganization, over-committed calendar, missed commitment requiring chasing. And note the deliberate complication: the work itself was excellent. Low conscientiousness says nothing about ability &mdash; conflating the two is a genuinely costly managerial error, because it leads people to write off capable colleagues as low performers when the actual issue is process." },
+          { label: "C", text: "Not enough evidence", correct: false,
+            feedback: "You have several independent indicators &mdash; scheduling, follow-through, physical environment &mdash; pointing consistently in one direction." }
+        ]
+      },
+      {
+        scenario: "Nikhil's client files are meticulous: naming conventions, version control, an index. Colleagues borrow his templates. His expense reports are submitted months late, he has never once completed the quarterly compliance training before the final reminder, and his own team's one-to-ones get rescheduled constantly.",
+        options: [
+          { label: "A", text: "High conscientiousness", correct: false,
+            feedback: "True for the client work, and not for anything else. Picking the domain that supports your read and ignoring the rest is exactly the selective attention this framework should slow down." },
+          { label: "B", text: "Low conscientiousness", correct: false,
+            feedback: "Also only half right. The client files are genuinely exemplary &mdash; colleagues borrow his system. A generally disorganized person doesn't build something others adopt." },
+          { label: "C", text: "Not enough evidence &mdash; it depends what's being measured", correct: true,
+            feedback: "Correct. The behavior is domain-specific: rigorous where the work matters to him, neglectful on administrative obligations. That could be genuinely high conscientiousness expressed selectively, or moderate conscientiousness plus high investment in one domain. You'd distinguish them by looking at whether the rigor extends to client work he finds boring.<br><br>Watch for this in practice. People are more consistent across situations than we intuitively expect, but 'more consistent than you'd think' isn't 'uniform.'" }
+        ]
+      }
+    ]
+  },
+
+  a: {
+    name: 'Agreeableness',
+    blurb: "Warmth, accommodation, and how a person weighs harmony against other considerations.",
+    questions: [
+      {
+        scenario: "Tomas covers for colleagues without being asked. When a decision goes against him in a meeting he says he can see both sides and moves on. He has never, in two years, been the person who raises the awkward point. A direct report who underperformed for six months received nothing but encouragement in their reviews.",
+        options: [
+          { label: "A", text: "High agreeableness", correct: true,
+            feedback: "Helpfulness, quick concession, and conflict avoidance across contexts. The review detail is the sharpest: six months of encouragement in the face of underperformance is accommodation overriding an obligation. High agreeableness at its best is genuinely valuable &mdash; and this is what it looks like when the weighting goes too far one way." },
+          { label: "B", text: "Low agreeableness", correct: false,
+            feedback: "Nothing fits. Every behavior described prioritizes harmony." },
+          { label: "C", text: "Not enough evidence", correct: false,
+            feedback: "Two years of consistent behavior across peer, meeting, and managerial contexts is a solid basis." }
+        ]
+      },
+      {
+        scenario: "Ingrid tells a colleague his analysis has a flaw, in front of the team, before he's finished presenting. She's right. When a proposal she opposed was adopted anyway, she sent a note listing the three risks she still thought were unaddressed. People describe her as hard work and as the person you want reviewing anything that matters.",
+        options: [
+          { label: "A", text: "High agreeableness", correct: false,
+            feedback: "The opposite. Public correction mid-presentation and a post-decision risk memo are both choices that prioritize being right over being comfortable to work with." },
+          { label: "B", text: "Low agreeableness", correct: true,
+            feedback: "Willingness to create friction in service of accuracy. Note the last line, which is doing important work: she's described both as hard work <em>and</em> as the person you want on anything important. Low agreeableness isn't a flaw and it isn't incompetence &mdash; it's a different weighting of harmony against other goods. It's also markedly overrepresented in management populations." },
+          { label: "C", text: "Not enough evidence", correct: false,
+            feedback: "Two distinct episodes plus a stable reputation among colleagues gives you a consistent read." }
+        ]
+      },
+      {
+        scenario: "Fen is unfailingly pleasant. She listens carefully, thanks people for their input, and has never raised her voice. She has also not moved from her position on the platform migration in four months, through three separate attempts by colleagues to change her mind, and the project is stalled.",
+        options: [
+          { label: "A", text: "High agreeableness", correct: false,
+            feedback: "The manner is agreeable; the behavior isn't. Warmth and immovability can coexist easily, and reading pleasantness as accommodation is one of the more common misjudgments managers make." },
+          { label: "B", text: "Low agreeableness", correct: false,
+            feedback: "Closer than it looks, but overstated on the evidence. Holding a position isn't the same as low agreeableness &mdash; she may be right, and she isn't creating interpersonal friction in the way low agreeableness typically does." },
+          { label: "C", text: "Not enough evidence &mdash; you'd need to know why she hasn't moved", correct: true,
+            feedback: "Correct. Everything turns on the reason, which the scenario withholds. If she's holding out on technical grounds she believes are sound, that's conviction and could sit at any point on agreeableness. If she's dug in because conceding would feel like losing, that's a different picture entirely.<br><br>The broader lesson: agreeableness is about <em>weighting</em>, not about tone of voice. The pleasant immovable colleague and the blunt flexible one are both common, and neither is what surface manner suggests." }
+        ]
+      }
+    ]
+  },
+
+  o: {
+    name: 'Openness to Experience',
+    blurb: "Orientation toward novelty, abstraction, and ideas &mdash; versus the proven, concrete, and practical.",
+    questions: [
+      {
+        scenario: "Kofi reads outside his field constantly and brings unrelated ideas into planning discussions &mdash; a logistics concept borrowed from hospital triage, a pricing idea from an airline. He redesigned the team's intake process around a model he found in a paper. He describes the part of his job he likes least as &ldquo;running the thing once it works.&rdquo;",
+        options: [
+          { label: "A", text: "High openness", correct: true,
+            feedback: "Cross-domain borrowing, attraction to abstraction, and the closing line &mdash; which is the most diagnostic part. Losing interest once something is working isn't laziness; it's what happens when novelty is the thing that holds your attention. The characteristic cost of high openness isn't poor execution, it's indifference to it." },
+          { label: "B", text: "Low openness", correct: false,
+            feedback: "Everything described runs the other way &mdash; he's actively seeking out unfamiliar material and importing it." },
+          { label: "C", text: "Not enough evidence", correct: false,
+            feedback: "Reading habits, behavior in meetings, a concrete redesign, and a stated preference all converge." }
+        ]
+      },
+      {
+        scenario: "Greta's answer to most proposals is to ask what's wrong with the current approach. She has used the same project template for eight years and it works well. When the team went to an offsite about emerging technology she asked, politely, which of it would be relevant within two years. She reads industry press and almost nothing else.",
+        options: [
+          { label: "A", text: "High openness", correct: false,
+            feedback: "Nothing fits. The consistent orientation is toward proven approaches and near-term applicability." },
+          { label: "B", text: "Low openness", correct: true,
+            feedback: "Preference for the established over the novel, a narrow and practical information diet, and impatience with the speculative. Note that none of this is framed as obstruction &mdash; she asks politely, her template genuinely works, and asking about a two-year horizon is a reasonable question. Low openness in operational roles is frequently an asset, and reading it as closed-mindedness is a mistake." },
+          { label: "C", text: "Not enough evidence", correct: false,
+            feedback: "Four behaviors across proposals, tools, events, and reading habits all point consistently." }
+        ]
+      },
+      {
+        scenario: "Sanjay argued hard against adopting the new CRM. He cited two failed implementations at previous employers, the six-month productivity dip both times, and the fact that the current system's known limitations were already worked around. He has separately championed three significant changes in his four years, all of which succeeded.",
+        options: [
+          { label: "A", text: "High openness", correct: false,
+            feedback: "The three successful changes support this, but the CRM opposition sits awkwardly with it. You're weighting the evidence that fits and discounting what doesn't." },
+          { label: "B", text: "Low openness", correct: false,
+            feedback: "This is the read the scenario is designed to bait, and the last sentence blocks it. Someone who championed three significant changes in four years is not change-averse. Opposing <em>this</em> change isn't the same as opposing change." },
+          { label: "C", text: "Not enough evidence &mdash; this is a judgment about one proposal, not a disposition", correct: true,
+            feedback: "Correct, and this is the most useful item in the set. A specific, evidence-based objection to a specific proposal tells you very little about someone's standing orientation toward novelty. He gave concrete reasons grounded in observed outcomes, and his track record actively contradicts the low-openness read.<br><br>The practical version: when someone resists a change you want, the question is whether they resist change generally or have a reason about this one. Those call for completely different responses, and conflating them is how good objections get dismissed as personality." }
+        ]
+      }
+    ]
+  },
+
+  n: {
+    name: 'Neuroticism',
+    blurb: "Reactivity to stress and setbacks. Normal-range variation in how strongly pressure registers &mdash; not anything clinical.",
+    questions: [
+      {
+        scenario: "When the quarterly numbers came in below target, Leila's team watched her read the email, pause, and then start listing what was recoverable. She slept normally that week. A month later, a major client threatened to leave; her response was to book the meeting and prepare for it. A colleague describes her as &ldquo;the person you want in the room when it's going badly.&rdquo;",
+        options: [
+          { label: "A", text: "High neuroticism", correct: false,
+            feedback: "Nothing fits. Two genuine stressors produced proportionate, brief responses." },
+          { label: "B", text: "Low neuroticism", correct: true,
+            feedback: "Emotional stability across two separate real stressors, with normal sleep and a fast move to action. Worth noting the other side, though: very low neuroticism is associated with being <em>less</em> responsive to warning signs and to negative feedback, precisely because less registers as threatening. The person who stays calm when things go badly is sometimes also the person who didn't notice they were going badly." },
+          { label: "C", text: "Not enough evidence", correct: false,
+            feedback: "Two independent stressful events a month apart, plus a colleague's characterization, is a reasonable basis." }
+        ]
+      },
+      {
+        scenario: "Omar rewrites emails to senior colleagues several times before sending. After a presentation that went fine, he asked three people separately whether it had gone badly. When a project timeline compressed, he was awake at 3am running scenarios and mentioned it to two colleagues. This pattern shows up whenever something has visibility.",
+        options: [
+          { label: "A", text: "High neuroticism", correct: true,
+            feedback: "Anticipatory worry, reassurance-seeking after a successful outcome, and physical signs of stress &mdash; and, critically, the recurrence whenever stakes are visible. That last clause is what makes it dispositional rather than a bad month. The reassurance-seeking after something went <em>well</em> is the most telling detail; the reaction isn't tracking the actual situation." },
+          { label: "B", text: "Low neuroticism", correct: false,
+            feedback: "Every detail runs the other way." },
+          { label: "C", text: "Not enough evidence", correct: false,
+            feedback: "The scenario explicitly tells you the pattern recurs. That's the piece that converts episodes into a trait read." }
+        ]
+      },
+      {
+        scenario: "In Thursday's steering meeting Priyanka was visibly short with two colleagues, interrupted the update twice, and left before the close. It was out of character and several people noticed. That afternoon she sent a brief apology to the group.",
+        options: [
+          { label: "A", text: "High neuroticism", correct: false,
+            feedback: "One episode, explicitly described as out of character. Reading a trait off a single incident is the most common diagnostic error there is &mdash; and the one with the worst consequences, because the impression tends to stick long after the day is forgotten." },
+          { label: "B", text: "Low neuroticism", correct: false,
+            feedback: "Nothing supports this either. She was visibly reactive &mdash; you just can't tell whether that's characteristic." },
+          { label: "C", text: "Not enough evidence &mdash; this is one episode", correct: true,
+            feedback: "Correct. &ldquo;Out of character,&rdquo; noticed as unusual, followed by an apology. You have no idea what else was happening that day, and a single observation can't distinguish a trait from a bad morning.<br><br>This matters more than it looks. First impressions form fast and revise slowly, so a single vivid episode can anchor how you read someone for years. If you'd watched Priyanka for six months you might see this constantly, or never again. One Thursday tells you nothing." }
+        ]
+      }
+    ]
+  }
+};
+
+const TRAIT_ORDER = ['e', 'c', 'a', 'o', 'n'];
+
+function getTraitKey() {
+  // Hardcoded for this file — no URL parameter needed.
+  return 'c';
+}
+
+let traitKey = getTraitKey();
+let SET = traitKey ? SETS[traitKey] : null;
+let QUESTIONS = SET ? SET.questions : [];
+let TOTAL = QUESTIONS.length;
+let current = -1;
+let furthest = -1;
+let answeredCurrent = false;
+
+const card = document.getElementById('card');
+const dotsEl = document.getElementById('dots');
+const progressLabel = document.getElementById('progressLabel');
+
+function renderDots() {
+  dotsEl.innerHTML = '';
+  if (!SET) return;
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('button');
+    d.className = 'dot';
+    if (i === current) d.className += ' current';
+    else if (i <= furthest) d.className += ' visited';
+    d.setAttribute('aria-label', 'Scenario ' + (i + 1));
+    if (i <= furthest) d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  }
+}
+
+function goTo(index) {
+  current = index;
+  answeredCurrent = false;
+  if (index > furthest) furthest = index;
+  if (index < 0) progressLabel.textContent = SET ? SET.name : '';
+  else if (index >= TOTAL) progressLabel.textContent = 'Done';
+  else progressLabel.textContent = SET.name + ' &middot; ' + (index + 1) + ' of ' + TOTAL;
+  progressLabel.innerHTML = progressLabel.textContent;
+  renderDots();
+  if (index === -1) renderIntro();
+  else if (index >= TOTAL) renderComplete();
+  else renderQuestion(QUESTIONS[index]);
+}
+
+function renderMenu() {
+  progressLabel.textContent = '';
+  dotsEl.innerHTML = '';
+  const items = TRAIT_ORDER.map(k => `
+    <button class="menu-item" data-trait="${k}">${SETS[k].name}</button>
+  `).join('');
+  card.innerHTML = `
+    <h2 class="screen-title">Trait Practice</h2>
+    <div class="screen-body">
+      <p>Three short scenarios per characteristic, with feedback after each answer. Practice only &mdash; nothing is recorded.</p>
+      <p>Pick the one you've just finished watching.</p>
+    </div>
+    <div class="menu-grid">${items}</div>
+  `;
+  card.querySelectorAll('.menu-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      traitKey = btn.getAttribute('data-trait');
+      SET = SETS[traitKey];
+      QUESTIONS = SET.questions;
+      TOTAL = QUESTIONS.length;
+      current = -1; furthest = -1;
+      goTo(-1);
+    });
+  });
+}
+
+function renderIntro() {
+  card.innerHTML = `
+    <p class="trait-tag">Practice</p>
+    <h2 class="screen-title">${SET.name}</h2>
+    <div class="screen-body">
+      <p>${SET.blurb}</p>
+      <p>Three short scenarios. For each one, decide where the person sits on this characteristic &mdash; or whether you actually have enough to say.</p>
+      <p>Not everything has a clean answer, and noticing that is part of the skill. Nothing here is recorded, and you can explore more than one option on each.</p>
+    </div>
+    <button class="btn-start" id="startBtn">Begin</button>
+  `;
+  document.getElementById('startBtn').addEventListener('click', () => goTo(0));
+}
+
+function renderQuestion(q) {
+  const optionsHtml = q.options.map(opt => `
+    <button class="option" data-label="${opt.label}">
+      <span class="tag">${opt.label}.</span>
+      <span>${opt.text}</span>
+      <span class="marker"></span>
+    </button>
+  `).join('');
+
+  card.innerHTML = `
+    <p class="trait-tag">${SET.name}</p>
+    <p class="scenario">${q.scenario}</p>
+    <p class="prompt">Where does this person sit?</p>
+    <div class="options" id="optionsList">${optionsHtml}</div>
+    <div id="feedbackZone"></div>
+    <div class="nav"><button class="btn-next" id="nextBtn">Next &rarr;</button></div>
+  `;
+
+  const optionEls = card.querySelectorAll('.option');
+  optionEls.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const label = btn.getAttribute('data-label');
+      const opt = q.options.find(o => o.label === label);
+      handleAnswer(opt, optionEls);
+    });
+  });
+}
+
+function handleAnswer(opt, optionEls) {
+  answeredCurrent = true;
+  optionEls.forEach(el => {
+    const label = el.getAttribute('data-label');
+    const markerEl = el.querySelector('.marker');
+    el.classList.remove('selected', 'correct', 'incorrect', 'dimmed');
+    markerEl.className = 'marker';
+    markerEl.textContent = '';
+    if (label === opt.label) {
+      el.classList.add('selected');
+      if (opt.correct) {
+        el.classList.add('correct');
+        markerEl.classList.add('correct');
+        markerEl.innerHTML = '&#10003; Correct';
+      } else {
+        el.classList.add('incorrect');
+        markerEl.classList.add('incorrect');
+        markerEl.textContent = 'Not quite';
+      }
+    } else {
+      el.classList.add('dimmed');
+    }
+  });
+
+  document.getElementById('feedbackZone').innerHTML = `
+    <div class="feedback ${opt.correct ? 'correct' : 'incorrect'}">
+      <span class="label">${opt.correct ? 'Correct' : 'Not quite &mdash; but read on'}</span>
+      ${opt.feedback}
+    </div>
+  `;
+  document.getElementById('nextBtn').classList.add('shown');
+}
+
+function renderComplete() {
+  card.innerHTML = `
+    <p class="trait-tag">${SET.name}</p>
+    <h2 class="screen-title">That's the practice set.</h2>
+    <div class="screen-body">
+      <p>You'll see all five characteristics mixed together at the end of this session, without being told which one is in play. That's considerably harder &mdash; and closer to what reading an actual colleague is like.</p>
+      <p>Carry on to the next video.</p>
+    </div>
+    <button class="btn-restart" id="restartBtn">Run through it again</button>
+  `;
+  document.getElementById('restartBtn').addEventListener('click', () => { furthest = -1; goTo(-1); });
+}
+
+document.getElementById('card').addEventListener('click', (e) => {
+  if (e.target && e.target.id === 'nextBtn' && answeredCurrent) goTo(current + 1);
+});
+
+if (SET) goTo(-1); else renderMenu();
+</script>
+</body>
+</html>
