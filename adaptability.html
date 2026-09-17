@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adaptability and Authenticity — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #00205B; --navy-tint: #EEF0F6;
+    --gold: #A88B3D; --gold-tint: #FBF6EA;
+    --grey: #58595B; --light: #F7F7F9; --border: #DEDFE5;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 16px 40px; background: var(--light); font-family: 'EB Garamond', Garamond, Baskerville, 'Times New Roman', serif; color: #232326; font-size: 19px; line-height: 1.55; }
+  h1, h2, h3 { font-family: 'Cambria', Georgia, 'Times New Roman', serif; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+
+  .topbar { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px solid var(--gold); padding-bottom: 10px; margin-bottom: 18px; }
+  .topbar .brand { font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 13px; letter-spacing: 1.5px; color: var(--gold); text-transform: uppercase; }
+  .topbar .progress-label { font-family: 'Cambria', Georgia, serif; font-size: 14px; color: var(--grey); }
+
+  .dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 22px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #D6D8E0; border: none; padding: 0; cursor: default; transition: background 0.2s, transform 0.15s; }
+  .dot.visited { background: var(--navy); cursor: pointer; }
+  .dot.current { background: var(--gold); transform: scale(1.3); cursor: pointer; }
+
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 30px 30px 26px; box-shadow: 0 2px 10px rgba(0,32,91,0.06); min-height: 280px; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .step-number { font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--gold); font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase; margin: 0 0 6px; }
+  .step-title { font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--navy); font-size: 21px; margin: 0 0 14px; }
+  .step-prompt { margin: 0 0 16px; }
+  .step-prompt em { color: var(--grey); }
+
+  textarea.answer { width: 100%; min-height: 140px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 18px; line-height: 1.5; color: #232326; resize: vertical; }
+  textarea.answer:focus { outline: none; border-color: var(--navy); }
+  input.shortline { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 18px; color: #232326; }
+  input.shortline:focus { outline: none; border-color: var(--navy); }
+  .counter { display: flex; justify-content: flex-end; margin-top: 6px; font-family: 'Cambria', Georgia, serif; font-size: 14px; color: var(--grey); }
+  .counter.met { color: var(--gold); font-weight: 700; }
+
+  .comfort-scale { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+  .comfort-btn {
+    display: flex; align-items: flex-start; gap: 12px; text-align: left; width: 100%;
+    padding: 14px 16px; border: 1px solid var(--border); border-left: 4px solid var(--border);
+    border-radius: 6px; background: #fff; font-family: inherit; font-size: 17px; color: #232326; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .comfort-btn:hover { border-color: var(--navy); border-left-color: var(--navy); }
+  .comfort-btn.selected { border-left-color: var(--gold); background: var(--gold-tint); }
+  .comfort-btn .num { font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--grey); flex-shrink: 0; }
+  .comfort-btn.selected .num { color: var(--gold); }
+
+
+  .scale-entries { display: flex; flex-direction: column; gap: 12px; margin: 4px 0 8px; }
+  .scale-entry { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 6px; background: #fff; }
+  .scale-entry label { font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--navy); font-size: 16px; }
+  .pct-wrap { display: flex; align-items: center; gap: 6px; }
+  .pct-input { width: 74px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 5px; font-family: inherit; font-size: 17px; text-align: center; }
+  .pct-input:focus { outline: none; border-color: var(--navy); }
+  .pct-suffix { font-family: 'Cambria', Georgia, serif; font-size: 13px; color: var(--grey); white-space: nowrap; }
+  .band-readout { font-family: 'Cambria', Georgia, serif; font-size: 13.5px; font-weight: 700; color: transparent; min-width: 150px; text-align: right; }
+  .band-readout.shown.high, .band-readout.shown.low { color: var(--gold); }
+  .band-readout.shown.mid { color: var(--grey); }
+
+  .extreme-box { background: var(--navy-tint); border: 1px solid #D3D8E8; border-radius: 8px; padding: 16px 18px; margin-top: 16px; animation: fadeIn 0.3s ease; }
+  .extreme-box .eb-label { display: block; font-family: 'Cambria', Georgia, serif; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--grey); margin-bottom: 6px; }
+  .extreme-box .eb-scale { display: block; font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--navy); font-size: 20px; }
+  .extreme-box .eb-band { display: block; font-family: 'Cambria', Georgia, serif; font-weight: 700; color: var(--gold); font-size: 16px; margin-top: 3px; }
+  .extreme-box .eb-note { margin: 10px 0 0; font-size: 16px; color: #232326; }
+
+  @media (max-width: 560px) {
+    .scale-entry { grid-template-columns: 1fr auto; }
+    .band-readout { grid-column: 1 / -1; text-align: left; min-width: 0; }
+  }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+  .btn-next, .btn-start, .btn-restart, .btn-copy, .btn-download, .btn-resume, .btn-fresh {
+    font-family: 'Cambria', Georgia, serif; font-weight: 700; font-size: 16px; border: none; border-radius: 6px; padding: 12px 26px; cursor: pointer; transition: opacity 0.2s, background 0.15s;
+  }
+  .btn-next { background: var(--navy); color: #fff; }
+  .btn-next:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-next:not(:disabled):hover { background: #001642; }
+  .btn-start, .btn-copy { background: var(--gold); color: #fff; }
+  .btn-restart, .btn-fresh { background: #fff; color: var(--navy); border: 1px solid var(--navy); }
+  .btn-resume { background: var(--navy); color: #fff; }
+  .btn-download { background: #fff; color: var(--grey); border: 1px solid var(--border); font-size: 14px; padding: 9px 18px; }
+
+  .screen-title { font-size: 24px; color: var(--navy); margin: 0 0 10px; }
+  .screen-body p { margin: 0 0 14px; }
+
+  .pullquote { border-left: 4px solid var(--gold); background: var(--gold-tint); padding: 14px 18px; margin: 0 0 16px; font-size: 18px; }
+  .pullquote .attrib { display: block; margin-top: 8px; font-size: 15px; color: var(--grey); font-family: 'Cambria', Georgia, serif; }
+
+  .resume-banner { background: var(--navy-tint); border: 1px solid #D3D8E8; border-radius: 6px; padding: 16px 18px; margin-bottom: 18px; }
+  .resume-banner p { margin: 0 0 12px; font-size: 17px; }
+  .resume-actions { display: flex; gap: 10px; }
+
+  .output-box { width: 100%; min-height: 280px; padding: 16px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Courier New', monospace; font-size: 14.5px; line-height: 1.5; color: #232326; background: var(--light); white-space: pre-wrap; resize: vertical; }
+  .copy-row { display: flex; align-items: center; gap: 12px; margin: 14px 0 6px; flex-wrap: wrap; }
+  .copy-confirm { color: var(--gold); font-weight: 700; font-family: 'Cambria', Georgia, serif; font-size: 15px; opacity: 0; transition: opacity 0.2s; }
+  .copy-confirm.shown { opacity: 1; }
+
+  .footnote { text-align: center; color: var(--grey); font-size: 13.5px; margin-top: 22px; font-family: 'Cambria', Georgia, serif; }
+
+  @media (max-width: 520px) {
+    body { font-size: 17px; padding: 16px 10px 32px; }
+    .card { padding: 22px 18px 20px; }
+    textarea.answer, input.shortline { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">MBA@Rice 511 &middot; Session 2</span>
+    <span class="progress-label" id="progressLabel"></span>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="card" id="card"></div>
+  <div class="footnote">This page collects no data and requires no login. Everything you write stays in this browser until you copy or download it yourself.</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'rice511_adaptability_v1';
+
+const SCALES = [
+  { key: 'es', name: 'Emotional Stability',
+    high: 'Composed & Resilient', mid: 'Steady & Grounded', low: 'Passionate & Sensitive',
+    highOpp: 'reacting visibly to pressure, letting concern show, treating a setback as worth dwelling on',
+    lowOpp: 'staying level when things go wrong, absorbing bad news without visible reaction, moving on quickly' },
+  { key: 'e', name: 'Extraversion',
+    high: 'Energizing & Assertive', mid: 'Engaged & Adaptable', low: 'Reflective & Measured',
+    highOpp: 'holding back in a group, letting silence sit, working a problem alone before bringing it to anyone',
+    lowOpp: 'taking the floor, thinking out loud in front of others, pushing into a room rather than waiting to be asked' },
+  { key: 'a', name: 'Agreeableness',
+    high: 'Collaborative & Caring', mid: 'Balanced & Principled', low: 'Direct & Challenging',
+    highOpp: 'saying the unwelcome thing, holding a position someone dislikes, declining a request without softening it',
+    lowOpp: 'conceding a point to preserve a relationship, letting something go, prioritising harmony over being right' },
+  { key: 'c', name: 'Conscientiousness',
+    high: 'Disciplined & Thorough', mid: 'Organized & Flexible', low: 'Spontaneous & Adaptive',
+    highOpp: 'deciding without full information, changing plan mid-execution, shipping something imperfect on time',
+    lowOpp: 'working to a plan, finishing before the deadline forces it, following a process you did not design' },
+  { key: 'i', name: 'Curiosity',
+    high: 'Visionary & Curious', mid: 'Open & Practical', low: 'Grounded & Focused',
+    highOpp: 'sticking with the proven option, resisting the interesting tangent, valuing reliability over novelty',
+    lowOpp: 'entertaining an unproven approach, sitting with an abstract problem, changing something that already works' }
+];
+
+const COMFORT_LEVELS = [
+  "I haven't really tried it. It's not in my repertoire yet.",
+  "I've tried it and it felt visibly awkward — to me and probably to others.",
+  "I can do it when I plan for it, but it takes deliberate effort every time.",
+  "I can do it fairly readily now, though it still costs me something.",
+  "It's become genuinely comfortable. Nobody watching would call it a stretch."
+];
+
+const STEPS = [
+  {
+    tag: 'extreme', type: 'scales', number: 'Step 1', title: 'Your five percentiles',
+    prompt: "Enter your percentile on each scale from your Personality Profile.<br><br>You don't need to decide which is most extreme &mdash; that's easy to get wrong, and the tool will work it out. Just read the five numbers across."
+  },
+  {
+    tag: 'counter', type: 'long', number: 'Step 2', title: 'The behavior it makes hard', minChars: 200,
+    dynamic: true,
+    prompt: ""
+  },
+  {
+    tag: 'demand', type: 'long', number: 'Step 3', title: 'Where your role demands it', minChars: 200,
+    prompt: "Name a specific situation in your <strong>current</strong> role &mdash; not a hypothetical future one &mdash; that calls for exactly the behavior you just described.<br><br>When does it come up, who's in the room, and what happens now when it does?<br><br><em>3&ndash;5 sentences.</em>"
+  },
+  {
+    tag: 'comfort', type: 'comfort', number: 'Step 4', title: 'Where you are with it',
+    prompt: "Authenticity isn't about never behaving outside your disposition &mdash; it's about developing enough skill that the behavior stops feeling like a costume.<br><br><strong>Where are you right now with the behavior from Step 2?</strong>"
+  },
+  {
+    tag: 'practice', type: 'long', number: 'Step 5', title: 'The next rep', minChars: 200,
+    prompt: "What's one concrete, low-stakes occasion in the next month where you could practise this?<br><br>Low-stakes matters. The board presentation is the wrong place to attempt a behavior for the first time. What's the equivalent of a small meeting where the cost of it going badly is low?<br><br><em>2&ndash;4 sentences.</em>"
+  }
+];
+
+const TOTAL = STEPS.length;
+let current = -1;
+let furthest = -1;
+let answers = {};
+
+function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, furthest })); } catch (e) {} }
+function loadState() { try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
+function clearState() { try { localStorage.removeItem(STORAGE_KEY); } catch (e) {} }
+
+const card = document.getElementById('card');
+const dotsEl = document.getElementById('dots');
+const progressLabel = document.getElementById('progressLabel');
+
+function renderDots() {
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('button');
+    d.className = 'dot';
+    if (i === current) d.className += ' current';
+    else if (i <= furthest) d.className += ' visited';
+    d.setAttribute('aria-label', 'Step ' + (i + 1));
+    if (i <= furthest) d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  }
+}
+function updateProgressLabel() {
+  if (current < 0) progressLabel.textContent = '';
+  else if (current >= TOTAL) progressLabel.textContent = 'Complete';
+  else progressLabel.textContent = 'Step ' + (current + 1) + ' of ' + TOTAL;
+}
+function isStepComplete(step) {
+  const v = answers[step.tag];
+  if (step.type === 'scales') return allPercentilesSet();
+  if (step.type === 'comfort') return v !== undefined && v !== null;
+  if (step.type === 'short') return (v || '').trim().length >= 3;
+  return (v || '').trim().length >= step.minChars;
+}
+
+function goTo(index) {
+  current = index;
+  if (index > furthest) furthest = index;
+  updateProgressLabel();
+  renderDots();
+  if (index === -1) renderIntro();
+  else if (index >= TOTAL) renderComplete();
+  else renderStep(STEPS[index]);
+}
+
+function renderIntro() {
+  const saved = loadState();
+  const hasSaved = saved && Object.keys(saved.answers || {}).length > 0;
+  let resumeHtml = '';
+  if (hasSaved) {
+    resumeHtml = `
+      <div class="resume-banner">
+        <p><strong>We found saved progress in this browser from a previous session.</strong></p>
+        <div class="resume-actions">
+          <button class="btn-resume" id="resumeBtn">Resume where I left off</button>
+          <button class="btn-fresh" id="freshBtn">Start fresh</button>
+        </div>
+      </div>
+    `;
+  }
+
+  card.innerHTML = `
+    <h2 class="screen-title">Adaptability and Authenticity</h2>
+    <div class="screen-body">
+      ${resumeHtml}
+      <div class="pullquote">
+        Where do you find your own inflexibility? You look at the scores that sit furthest from the middle &mdash; because the behaviors at the other end of those scales are the ones you have least practice with.
+        <span class="attrib">&mdash; from the previous reading</span>
+      </div>
+      <p>That's a diagnostic. This exercise turns it into something you can act on &mdash; and connects it to the question the authenticity segment raises: if you develop a behavior that isn't natural to you, are you being inauthentic?</p>
+      <p>The argument there is no: authenticity isn't never stepping outside your disposition, it's reaching the point where the behavior no longer feels like a costume. Getting there is practice, and practice starts with knowing which behavior you're practising and why.</p>
+      <p>You'll need your <strong>Personality Profile</strong> open for Step 1 &mdash; you'll enter your percentile on each of the five scales.</p>
+    </div>
+    <button class="btn-start" id="beginBtn">${hasSaved ? 'Start fresh instead' : 'Begin'}</button>
+  `;
+
+  if (hasSaved) {
+    document.getElementById('resumeBtn').addEventListener('click', () => {
+      answers = saved.answers || {};
+      furthest = typeof saved.furthest === 'number' ? saved.furthest : -1;
+      const firstIncomplete = STEPS.findIndex((s) => !isStepComplete(s));
+      goTo(firstIncomplete === -1 ? TOTAL : firstIncomplete);
+    });
+    document.getElementById('freshBtn').addEventListener('click', startFresh);
+    document.getElementById('beginBtn').addEventListener('click', startFresh);
+  } else {
+    document.getElementById('beginBtn').addEventListener('click', () => goTo(0));
+  }
+}
+
+function startFresh() { answers = {}; furthest = -1; clearState(); goTo(0); }
+
+function renderStep(step) {
+  if (step.type === 'comfort') { renderComfortStep(step); return; }
+  if (step.type === 'scales') { renderScalesStep(step); return; }
+
+  let promptText = step.prompt;
+  if (step.dynamic) {
+    const ext = mostExtreme();
+    if (ext) {
+      const b = bandFor(ext.scale, ext.value);
+      promptText = `Your furthest-from-middle score is <strong>${ext.scale.name}</strong> at the ${ordinal(ext.value)} percentile &mdash; <em>${b.label}</em>.<br><br>People at the opposite end of that scale do things that don't come naturally to you. For this scale that typically means <em>${oppositeBehaviors(ext.scale, ext.value)}</em>.<br><br><strong>What does that look like in your work specifically?</strong> Behaviors, not traits &mdash; the concrete things you'd have to actually do.<br><br><em>3&ndash;5 sentences.</em>`;
+    } else {
+      promptText = "Go back to Step 1 and enter your percentiles first.";
+    }
+  }
+  const existing = answers[step.tag] || '';
+  const field = step.type === 'short'
+    ? `<input class="shortline" id="answerBox" value="${escapeAttr(existing)}" placeholder="${escapeAttr(step.placeholder || '')}" maxlength="120">`
+    : `<textarea class="answer" id="answerBox" placeholder="Start typing...">${escapeHtml(existing)}</textarea>`;
+
+  card.innerHTML = `
+    <p class="step-number">${step.number}</p>
+    <h3 class="step-title">${step.title}</h3>
+    <p class="step-prompt">${promptText}</p>
+    ${field}
+    <div class="counter" id="counter"></div>
+    <div class="nav"><span></span><button class="btn-next" id="nextBtn" disabled>Next &rarr;</button></div>
+  `;
+
+  const box = document.getElementById('answerBox');
+  const counter = document.getElementById('counter');
+  const nextBtn = document.getElementById('nextBtn');
+
+  function refresh() {
+    answers[step.tag] = box.value;
+    if (step.type === 'short') {
+      counter.textContent = '';
+      nextBtn.disabled = box.value.trim().length < 3;
+    } else {
+      const len = box.value.trim().length;
+      const met = len >= step.minChars;
+      counter.textContent = len + ' / ' + step.minChars + ' characters minimum';
+      counter.className = 'counter' + (met ? ' met' : '');
+      nextBtn.disabled = !met;
+    }
+    saveState();
+  }
+  box.addEventListener('input', refresh);
+  refresh();
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+}
+
+
+// ---------- scale helpers ----------
+function getPercentiles() {
+  return answers['extreme'] || {};
+}
+function allPercentilesSet() {
+  const p = getPercentiles();
+  return SCALES.every(s => {
+    const v = p[s.key];
+    return v !== undefined && v !== null && v !== '' && !isNaN(parseInt(v, 10))
+      && parseInt(v, 10) >= 0 && parseInt(v, 10) <= 100;
+  });
+}
+function mostExtreme() {
+  const p = getPercentiles();
+  let best = null, bestDist = -1;
+  SCALES.forEach(s => {
+    const v = parseInt(p[s.key], 10);
+    if (isNaN(v)) return;
+    const dist = Math.abs(v - 50);
+    if (dist > bestDist) { bestDist = dist; best = { scale: s, value: v, dist: dist }; }
+  });
+  return best;
+}
+function ordinal(n) {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function bandFor(scale, pct) {
+  if (pct >= 65) return { label: scale.high, band: 'high' };
+  if (pct <= 35) return { label: scale.low, band: 'low' };
+  return { label: scale.mid, band: 'mid' };
+}
+function oppositeBehaviors(scale, pct) {
+  // if they're high, the hard behaviors are the low-end ones, and vice versa
+  return pct >= 50 ? scale.highOpp : scale.lowOpp;
+}
+
+function renderScalesStep(step) {
+  const p = getPercentiles();
+  const rows = SCALES.map(s => `
+    <div class="scale-entry">
+      <label for="pct-${s.key}">${s.name}</label>
+      <div class="pct-wrap">
+        <input type="number" id="pct-${s.key}" class="pct-input" min="0" max="100"
+               value="${p[s.key] !== undefined ? escapeAttr(String(p[s.key])) : ''}" placeholder="&mdash;">
+        <span class="pct-suffix">th percentile</span>
+      </div>
+      <span class="band-readout" id="band-${s.key}"></span>
+    </div>
+  `).join('');
+
+  card.innerHTML = `
+    <p class="step-number">${step.number}</p>
+    <h3 class="step-title">${step.title}</h3>
+    <p class="step-prompt">${step.prompt}</p>
+    <div class="scale-entries">${rows}</div>
+    <div id="extremeReadout"></div>
+    <div class="nav"><span></span><button class="btn-next" id="nextBtn" disabled>Next &rarr;</button></div>
+  `;
+
+  const nextBtn = document.getElementById('nextBtn');
+
+  function refresh() {
+    const store = answers['extreme'] || {};
+    SCALES.forEach(s => {
+      const el = document.getElementById('pct-' + s.key);
+      store[s.key] = el.value;
+      const v = parseInt(el.value, 10);
+      const readout = document.getElementById('band-' + s.key);
+      if (!isNaN(v) && v >= 0 && v <= 100) {
+        const b = bandFor(s, v);
+        readout.textContent = b.label;
+        readout.className = 'band-readout shown ' + b.band;
+      } else {
+        readout.textContent = '';
+        readout.className = 'band-readout';
+      }
+    });
+    answers['extreme'] = store;
+
+    const zone = document.getElementById('extremeReadout');
+    if (allPercentilesSet()) {
+      const ext = mostExtreme();
+      const b = bandFor(ext.scale, ext.value);
+      zone.innerHTML = `
+        <div class="extreme-box">
+          <span class="eb-label">Furthest from the middle</span>
+          <span class="eb-scale">${ext.scale.name} &mdash; ${ordinal(ext.value)} percentile</span>
+          <span class="eb-band">${b.label}</span>
+          <p class="eb-note">This is where the framework says your adaptability is most limited &mdash; not because the score is bad, but because the behaviors at the other end are the ones you have least practice with.</p>
+        </div>
+      `;
+      nextBtn.disabled = false;
+    } else {
+      zone.innerHTML = '';
+      nextBtn.disabled = true;
+    }
+    saveState();
+  }
+
+  SCALES.forEach(s => {
+    document.getElementById('pct-' + s.key).addEventListener('input', refresh);
+  });
+  refresh();
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+}
+
+function renderComfortStep(step) {
+  const btns = COMFORT_LEVELS.map((lvl, i) => `
+    <button class="comfort-btn" data-level="${i}">
+      <span class="num">${i + 1}.</span>
+      <span>${lvl}</span>
+    </button>
+  `).join('');
+
+  card.innerHTML = `
+    <p class="step-number">${step.number}</p>
+    <h3 class="step-title">${step.title}</h3>
+    <p class="step-prompt">${step.prompt}</p>
+    <div class="comfort-scale" id="comfortScale">${btns}</div>
+    <div class="nav"><span></span><button class="btn-next" id="nextBtn" disabled>Next &rarr;</button></div>
+  `;
+
+  const nextBtn = document.getElementById('nextBtn');
+  function paint() {
+    card.querySelectorAll('.comfort-btn').forEach(b => {
+      b.classList.toggle('selected', parseInt(b.getAttribute('data-level'), 10) === answers[step.tag]);
+    });
+    nextBtn.disabled = answers[step.tag] === undefined || answers[step.tag] === null;
+  }
+
+  card.querySelectorAll('.comfort-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      answers[step.tag] = parseInt(btn.getAttribute('data-level'), 10);
+      saveState();
+      paint();
+    });
+  });
+  paint();
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+}
+
+function renderComplete() {
+  const text = compileOutput();
+  card.innerHTML = `
+    <h2 class="screen-title">You're done.</h2>
+    <div class="screen-body">
+      <p>Copy everything below and paste it as your submission for the <strong>Adaptability and Authenticity</strong> assignment in Canvas.</p>
+    </div>
+    <div class="copy-row">
+      <button class="btn-copy" id="copyBtn">Copy everything</button>
+      <button class="btn-download" id="downloadBtn">Download a copy for yourself</button>
+      <span class="copy-confirm" id="copyConfirm">Copied &mdash; now paste it into Canvas</span>
+    </div>
+    <textarea class="output-box" id="outputBox" readonly>${escapeHtml(text)}</textarea>
+    <div class="nav"><button class="btn-restart" id="restartBtn">Go back and edit</button><span></span></div>
+  `;
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const box = document.getElementById('outputBox');
+    let copied = false;
+    try { await navigator.clipboard.writeText(text); copied = true; }
+    catch (e) { try { box.focus(); box.select(); document.execCommand('copy'); copied = true; } catch (e2) {} }
+    if (copied) {
+      const c = document.getElementById('copyConfirm');
+      c.classList.add('shown');
+      setTimeout(() => c.classList.remove('shown'), 3000);
+    } else { box.focus(); box.select(); }
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'adaptability-authenticity.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('restartBtn').addEventListener('click', () => goTo(TOTAL - 1));
+}
+
+function compileOutput() {
+  const get = (t) => (answers[t] || '').trim();
+  const lvl = answers['comfort'];
+  const comfortText = (lvl !== undefined && lvl !== null)
+    ? (lvl + 1) + ' of 5 — ' + COMFORT_LEVELS[lvl]
+    : '(not set)';
+
+  const p = getPercentiles();
+  const pctLines = SCALES.map(s => {
+    const v = parseInt(p[s.key], 10);
+    if (isNaN(v)) return '  ' + s.name + ': (not set)';
+    const b = bandFor(s, v);
+    return '  ' + s.name + ': ' + ordinal(v) + ' percentile — ' + b.label;
+  });
+  const ext = mostExtreme();
+  const extLine = ext
+    ? ext.scale.name + ' — ' + ordinal(ext.value) + ' percentile (' + bandFor(ext.scale, ext.value).label + ')'
+    : '(not set)';
+
+  return [
+    'ADAPTABILITY AND AUTHENTICITY', '',
+    'STEP 1 — My profile',
+    ...pctLines, '',
+    'Furthest from the middle: ' + extLine, '',
+    'STEP 2 — The behavior it makes hard', get('counter'), '',
+    'STEP 3 — Where my role demands it', get('demand'), '',
+    'STEP 4 — Where I am with it', comfortText, '',
+    'STEP 5 — The next rep', get('practice')
+  ].join('\n');
+}
+
+function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+function escapeAttr(str) { return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+goTo(-1);
+</script>
+</body>
+</html>
