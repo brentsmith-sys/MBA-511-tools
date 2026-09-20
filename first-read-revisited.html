@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your First Read, Revisited — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#00205B; --navy-tint:#EEF0F6; --gold:#A88B3D; --gold-tint:#FBF6EA; --grey:#58595B; --light:#F7F7F9; --border:#DEDFE5; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:24px 16px 40px; background:var(--light); font-family:'EB Garamond',Garamond,Baskerville,'Times New Roman',serif; color:#232326; font-size:19px; line-height:1.55; }
+  h1,h2,h3 { font-family:'Cambria',Georgia,'Times New Roman',serif; }
+  .wrap { max-width:700px; margin:0 auto; }
+  .topbar { display:flex; justify-content:space-between; align-items:baseline; border-bottom:3px solid var(--gold); padding-bottom:10px; margin-bottom:18px; }
+  .topbar .brand { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:13px; letter-spacing:1.5px; color:var(--gold); text-transform:uppercase; }
+  .topbar .progress-label { font-family:'Cambria',Georgia,serif; font-size:14px; color:var(--grey); }
+  .dots { display:flex; gap:7px; justify-content:center; margin-bottom:22px; }
+  .dot { width:10px; height:10px; border-radius:50%; background:#D6D8E0; border:none; padding:0; cursor:default; transition:background .2s, transform .2s; }
+  .dot.visited { background:var(--navy); cursor:pointer; }
+  .dot.current { background:var(--gold); transform:scale(1.3); cursor:pointer; }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; padding:30px 30px 26px; box-shadow:0 2px 10px rgba(0,32,91,.06); min-height:280px; animation:fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .step-number { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--gold); font-size:14px; letter-spacing:.5px; text-transform:uppercase; margin:0 0 6px; }
+  .step-title { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--navy); font-size:21px; margin:0 0 14px; }
+  .step-prompt { margin:0 0 16px; }
+  .step-prompt em { color:var(--grey); }
+  .screen-title { font-size:24px; color:var(--navy); margin:0 0 10px; }
+  .screen-body p { margin:0 0 14px; }
+  .prereq-box { background:var(--gold-tint); border:1px solid #E9DDBE; border-radius:6px; padding:16px 18px; margin:0 0 16px; }
+  .prereq-box p { margin:0 0 8px; } .prereq-box p:last-child { margin-bottom:0; }
+
+  /* readback bars */
+  .readback-rows { display:flex; flex-direction:column; gap:10px; margin:4px 0 18px; }
+  .readback-row { display:grid; grid-template-columns:150px 1fr 50px; align-items:center; gap:12px; }
+  .readback-label { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--navy); font-size:15px; }
+  .readback-track { background:var(--light); border-radius:5px; height:22px; overflow:hidden; border:1px solid var(--border); }
+  .readback-fill { background:var(--navy); height:100%; transition:width .5s ease; }
+  .readback-val { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--navy); text-align:right; font-size:16px; }
+  .quote-block { background:var(--navy-tint); border-radius:6px; padding:16px 18px; margin:0 0 16px; font-style:italic; color:#232326; }
+
+  /* 100-point split (shared with first-read.html) */
+  .split-rows { display:flex; flex-direction:column; gap:12px; margin:4px 0 6px; }
+  .split-row { display:grid; grid-template-columns:1fr 90px; align-items:center; gap:14px; padding:12px 14px; border:1px solid var(--border); border-radius:6px; background:#fff; }
+  .split-row label { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--navy); font-size:16px; }
+  .split-row .sub { display:block; font-family:'EB Garamond',serif; font-weight:400; color:var(--grey); font-size:14px; margin-top:2px; }
+  .split-input { width:100%; padding:9px 10px; border:1px solid var(--border); border-radius:5px; font-family:'Cambria',Georgia,serif; font-weight:700; font-size:18px; text-align:center; }
+  .split-input:focus { outline:none; border-color:var(--navy); }
+  .split-total { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-radius:6px; margin-top:6px; font-family:'Cambria',Georgia,serif; font-weight:700; background:var(--navy-tint); }
+  .split-total.met { background:var(--gold-tint); color:var(--gold); }
+  .split-total .amt { font-size:20px; }
+
+  .delta-callout { background:var(--gold-tint); border:1px solid #E9DDBE; border-radius:8px; padding:16px 18px; margin:16px 0; }
+  .delta-callout .dc-label { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.5px; color:var(--gold); margin-bottom:6px; display:block; }
+
+  textarea.answer { width:100%; min-height:130px; padding:14px 16px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:18px; line-height:1.5; color:#232326; resize:vertical; }
+  textarea.answer:focus { outline:none; border-color:var(--navy); }
+  .counter { display:flex; justify-content:flex-end; margin-top:6px; font-family:'Cambria',Georgia,serif; font-size:14px; color:var(--grey); }
+  .counter.met { color:var(--gold); font-weight:700; }
+
+  .nav { display:flex; justify-content:space-between; align-items:center; margin-top:24px; }
+  .btn-next,.btn-start,.btn-restart,.btn-copy,.btn-download { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:16px; border:none; border-radius:6px; padding:12px 26px; cursor:pointer; transition:opacity .2s, background .15s; }
+  .btn-next { background:var(--navy); color:#fff; }
+  .btn-next:disabled { opacity:.35; cursor:not-allowed; }
+  .btn-next:not(:disabled):hover { background:#001642; }
+  .btn-start,.btn-copy { background:var(--gold); color:#fff; }
+  .btn-restart { background:#fff; color:var(--navy); border:1px solid var(--navy); }
+  .btn-download { background:#fff; color:var(--grey); border:1px solid var(--border); font-size:14px; padding:9px 18px; }
+
+  .output-box { width:100%; min-height:300px; padding:16px; border:1px solid var(--border); border-radius:6px; font-family:'Courier New',monospace; font-size:14.5px; line-height:1.5; color:#232326; background:var(--light); white-space:pre-wrap; resize:vertical; }
+  .copy-row { display:flex; align-items:center; gap:12px; margin:14px 0 6px; flex-wrap:wrap; }
+  .copy-confirm { color:var(--gold); font-weight:700; font-family:'Cambria',Georgia,serif; font-size:15px; opacity:0; transition:opacity .2s; }
+  .copy-confirm.shown { opacity:1; }
+  .footnote { text-align:center; color:var(--grey); font-size:13.5px; margin-top:22px; font-family:'Cambria',Georgia,serif; }
+  @media (max-width:520px) {
+    body{font-size:17px; padding:16px 10px 32px;} .card{padding:22px 18px 20px;}
+    textarea.answer{font-size:16px;} .split-row{grid-template-columns:1fr 74px;}
+    .readback-row{grid-template-columns:110px 1fr 40px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">MBA@Rice 511 &middot; Session 3</span>
+    <span class="progress-label" id="progressLabel"></span>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="card" id="card"></div>
+  <div class="footnote">This page collects no data and requires no login. Everything here stays in this browser until you copy or download it yourself.</div>
+</div>
+
+<script>
+const FIRST_READ_KEY = 'rice511_first_read_v1';
+const STORAGE_KEY = 'rice511_first_read_revisited_v1';
+
+const BUCKETS = [
+  { key: 'brodsky', label: 'Brodsky', sub: 'his personality, ability, motivation, work style, or fit for the role' },
+  { key: 'keller', label: 'Keller', sub: 'how he has managed, evaluated, communicated with, and related to Brodsky' },
+  { key: 'situation', label: 'The situation', sub: 'unclear expectations, resources, market conditions, the strategy itself' },
+  { key: 'haussler', label: 'Häussler and the parent company', sub: 'how the assignment was set up and supervised' }
+];
+
+let originalSplit = null;   // pulled from First Read, or captured fresh if missing
+let originalHypothesis = '';
+let originalFoundExisting = false;
+
+let revised = { brodsky:'', keller:'', situation:'', haussler:'' };
+let reflection = '';
+let bridge = '';
+
+const STEPS = ['capture_or_readback', 'reveal', 'resplit', 'reflection', 'bridge'];
+const TOTAL = STEPS.length;
+let current = -1;
+let furthest = -1;
+
+function loadFirstRead() {
+  try {
+    const raw = localStorage.getItem(FIRST_READ_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed.answers || null;
+  } catch (e) { return null; }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      originalSplit, originalHypothesis, originalFoundExisting, revised, reflection, bridge, furthest
+    }));
+  } catch (e) {}
+}
+function loadState() { try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : null; } catch(e){ return null; } }
+
+const card = document.getElementById('card');
+const dotsEl = document.getElementById('dots');
+const progressLabel = document.getElementById('progressLabel');
+
+function renderDots() {
+  dotsEl.innerHTML = '';
+  for (let i=0;i<TOTAL;i++){
+    const d = document.createElement('button');
+    d.className = 'dot';
+    if (i===current) d.className += ' current';
+    else if (i<=furthest) d.className += ' visited';
+    d.setAttribute('aria-label','Step '+(i+1));
+    if (i<=furthest) d.addEventListener('click', ()=>goTo(i));
+    dotsEl.appendChild(d);
+  }
+}
+function updateProgressLabel() {
+  if (current<0) progressLabel.textContent='';
+  else if (current>=TOTAL) progressLabel.textContent='Complete';
+  else progressLabel.textContent = 'Step '+(current+1)+' of '+TOTAL;
+}
+
+function splitTotal(obj) {
+  return BUCKETS.reduce((sum,b)=> sum + (parseInt(obj[b.key],10)||0), 0);
+}
+function splitValid(obj) {
+  const allFilled = BUCKETS.every(b => obj[b.key]!=='' && obj[b.key]!=null && !isNaN(parseInt(obj[b.key],10)));
+  return allFilled && splitTotal(obj)===100;
+}
+
+function isStepComplete(stepKey) {
+  if (stepKey==='capture_or_readback') return originalSplit !== null && splitValid(originalSplit);
+  if (stepKey==='reveal') return true;
+  if (stepKey==='resplit') return splitValid(revised);
+  if (stepKey==='reflection') return reflection.trim().length >= 100;
+  if (stepKey==='bridge') return bridge.trim().length >= 120;
+  return false;
+}
+
+function goTo(index){
+  current = index;
+  if (index>furthest) furthest = index;
+  updateProgressLabel(); renderDots();
+  if (index===-1) startIntro();
+  else if (index>=TOTAL) renderComplete();
+  else renderStep(STEPS[index]);
+}
+
+function startIntro(){
+  // On very first load, try to restore an in-progress session of THIS tool
+  const saved = loadState();
+  if (saved && saved.originalSplit) {
+    originalSplit = saved.originalSplit;
+    originalHypothesis = saved.originalHypothesis || '';
+    originalFoundExisting = saved.originalFoundExisting;
+    revised = saved.revised || revised;
+    reflection = saved.reflection || '';
+    bridge = saved.bridge || '';
+    furthest = typeof saved.furthest==='number' ? saved.furthest : -1;
+  }
+
+  card.innerHTML = `
+    <h2 class="screen-title">Your First Read, Revisited</h2>
+    <div class="screen-body">
+      <p>Before any video, you distributed 100 points across four explanations for why Brodsky was underperforming, and wrote a hypothesis.</p>
+      <p>You've now watched the explanation. This is where we connect the two.</p>
+    </div>
+    <button class="btn-start" id="beginBtn">Begin</button>
+  `;
+  document.getElementById('beginBtn').addEventListener('click', () => {
+    if (originalSplit && splitValid(originalSplit)) {
+      goTo(0); // will render readback
+    } else {
+      const fr = loadFirstRead();
+      if (fr && fr.split && splitValid(fr.split)) {
+        originalSplit = fr.split;
+        originalHypothesis = fr.hypothesis || '';
+        originalFoundExisting = true;
+      } else {
+        originalFoundExisting = false;
+      }
+      goTo(0);
+    }
+  });
+}
+
+function renderStep(stepKey) {
+  if (stepKey === 'capture_or_readback') { renderCaptureOrReadback(); return; }
+  if (stepKey === 'reveal') { renderReveal(); return; }
+  if (stepKey === 'resplit') { renderResplit(); return; }
+  if (stepKey === 'reflection') { renderReflection(); return; }
+  if (stepKey === 'bridge') { renderBridge(); return; }
+}
+
+// ---------- Step 1: readback, or capture if missing ----------
+function renderCaptureOrReadback() {
+  if (originalSplit && splitValid(originalSplit) && originalFoundExisting) {
+    renderReadback();
+  } else if (originalSplit && splitValid(originalSplit) && !originalFoundExisting) {
+    // already captured fresh in this session — just show it
+    renderReadback();
+  } else {
+    renderFreshCapture();
+  }
+}
+
+function renderReadback() {
+  const rows = BUCKETS.map(b => {
+    const v = parseInt(originalSplit[b.key],10) || 0;
+    return `
+      <div class="readback-row">
+        <span class="readback-label">${b.label}</span>
+        <div class="readback-track"><div class="readback-fill" style="width:${v}%"></div></div>
+        <span class="readback-val">${v}</span>
+      </div>
+    `;
+  }).join('');
+  const hypHtml = originalHypothesis
+    ? `<div class="quote-block">&ldquo;${escapeHtml(originalHypothesis)}&rdquo;</div>`
+    : '';
+
+  card.innerHTML = `
+    <p class="step-number">Step 1 of 5</p>
+    <h3 class="step-title">Where you started</h3>
+    <p class="step-prompt">This is exactly what you entered before watching anything.</p>
+    <div class="readback-rows">${rows}</div>
+    ${hypHtml}
+    <div class="nav"><span></span><button class="btn-next" id="nextBtn">Next &rarr;</button></div>
+  `;
+  document.getElementById('nextBtn').addEventListener('click', () => goTo(current+1));
+}
+
+function renderFreshCapture() {
+  const rows = BUCKETS.map(b => `
+    <div class="split-row">
+      <label for="split-${b.key}">${b.label}<span class="sub">${b.sub}</span></label>
+      <input type="number" id="split-${b.key}" class="split-input" min="0" max="100" placeholder="0">
+    </div>
+  `).join('');
+
+  card.innerHTML = `
+    <p class="step-number">Step 1 of 5</p>
+    <h3 class="step-title">Where you started</h3>
+    <div class="prereq-box">
+      <p>We couldn't find your First Read answers in this browser &mdash; you may have completed it on a different device. That's fine.</p>
+      <p>Take thirty seconds to reconstruct roughly where you started, as honestly as you can, before you keep going.</p>
+    </div>
+    <p class="step-prompt">Distribute <strong>100 points</strong> across these four explanations, according to how much each contributes.</p>
+    <div class="split-rows">${rows}</div>
+    <div class="split-total" id="splitTotal"><span>Total</span><span class="amt" id="splitAmt">0 / 100</span></div>
+    <div class="nav"><span></span><button class="btn-next" id="nextBtn" disabled>Next &rarr;</button></div>
+  `;
+
+  const temp = { brodsky:'', keller:'', situation:'', haussler:'' };
+  const nextBtn = document.getElementById('nextBtn');
+  function refresh() {
+    BUCKETS.forEach(b => { temp[b.key] = document.getElementById('split-'+b.key).value; });
+    const total = splitTotal(temp);
+    document.getElementById('splitAmt').textContent = total + ' / 100';
+    const valid = splitValid(temp);
+    document.getElementById('splitTotal').className = 'split-total' + (valid?' met':'');
+    nextBtn.disabled = !valid;
+  }
+  BUCKETS.forEach(b => document.getElementById('split-'+b.key).addEventListener('input', refresh));
+  nextBtn.addEventListener('click', () => {
+    originalSplit = { ...temp };
+    originalHypothesis = '';
+    saveState();
+    goTo(current+1);
+  });
+}
+
+// ---------- Step 2: the reveal ----------
+function renderReveal() {
+  const b = parseInt(originalSplit.brodsky,10)||0;
+  const k = parseInt(originalSplit.keller,10)||0;
+  const s = parseInt(originalSplit.situation,10)||0;
+  const h = parseInt(originalSplit.haussler,10)||0;
+
+  const brodskyLine = b >= 40
+    ? `You put <strong>${b} points on Brodsky</strong> &mdash; the largest share, or close to it.`
+    : `You put ${b} points on Brodsky.`;
+  const hausslerLine = h <= 15
+    ? `You put only <strong>${h} points on H&auml;ussler</strong> &mdash; barely on the list.`
+    : `You put ${h} points on H&auml;ussler.`;
+
+  card.innerHTML = `
+    <p class="step-number">Step 2 of 5</p>
+    <h3 class="step-title">What you now know</h3>
+    <div class="screen-body">
+      <p>${brodskyLine} ${hausslerLine}</p>
+      <p>You now know the mechanism. Keller and Brodsky differ &mdash; in age, background, and personality &mdash; and that difference, not Brodsky's performance, is what research on managerial ingroups and outgroups says actually predicts who gets scrutinized and who gets trusted. Brodsky landed in the outgroup. The outgroup gets less access, more monitoring, and the benefit of the doubt withheld. Performance follows the treatment, not the other way around &mdash; which is exactly what the natural experiment of Keller's absence in Brazil showed.</p>
+      <p>Go one layer further back, and the same pattern repeats: Häussler gave a turnaround specialist another turnaround instead of developing the general-management skills Keller actually needed next. Keller's failure with Brodsky has a shape Häussler's failure with Keller already predicted.</p>
+      <p><strong>This is the same error twice.</strong> The fundamental attribution error is putting the cause inside the person instead of the situation they're in. Set-up-to-fail syndrome is that same error, running a real organization. If your own split loaded heavily on Brodsky and lightly on Häussler, you didn't get it wrong &mdash; you did the thing everyone does, including managers who should know better. That's the point of asking before you'd seen any of this.</p>
+    </div>
+    <div class="nav"><span></span><button class="btn-next" id="nextBtn">Next &rarr;</button></div>
+  `;
+  document.getElementById('nextBtn').addEventListener('click', () => goTo(current+1));
+}
+
+// ---------- Step 3: re-split ----------
+function renderResplit() {
+  const rows = BUCKETS.map(b => `
+    <div class="split-row">
+      <label for="rsplit-${b.key}">${b.label}<span class="sub">${b.sub}</span></label>
+      <input type="number" id="rsplit-${b.key}" class="split-input" min="0" max="100"
+             value="${revised[b.key]}" placeholder="0">
+    </div>
+  `).join('');
+
+  card.innerHTML = `
+    <p class="step-number">Step 3 of 5</p>
+    <h3 class="step-title">Redistribute the 100 points</h3>
+    <p class="step-prompt">Same four buckets. Knowing what you know now, where would the 100 points actually go?</p>
+    <div class="split-rows">${rows}</div>
+    <div class="split-total" id="splitTotal"><span>Total</span><span class="amt" id="splitAmt">0 / 100</span></div>
+    <div class="nav"><span></span><button class="btn-next" id="nextBtn" disabled>Next &rarr;</button></div>
+  `;
+
+  const nextBtn = document.getElementById('nextBtn');
+  function refresh() {
+    BUCKETS.forEach(b => { revised[b.key] = document.getElementById('rsplit-'+b.key).value; });
+    const total = splitTotal(revised);
+    document.getElementById('splitAmt').textContent = total + ' / 100';
+    const valid = splitValid(revised);
+    document.getElementById('splitTotal').className = 'split-total' + (valid?' met':'');
+    nextBtn.disabled = !valid;
+    saveState();
+  }
+  BUCKETS.forEach(b => document.getElementById('rsplit-'+b.key).addEventListener('input', refresh));
+  refresh();
+  nextBtn.addEventListener('click', () => goTo(current+1));
+}
+
+// ---------- Step 4: reflection ----------
+function renderReflection() {
+  const deltaRows = BUCKETS.map(b => {
+    const o = parseInt(originalSplit[b.key],10)||0;
+    const r = parseInt(revised[b.key],10)||0;
+    const delta = r - o;
+    const sign = delta > 0 ? '+' : '';
+    return `${b.label}: ${o} &rarr; ${r} (${sign}${delta})`;
+  }).join(' &nbsp;&middot;&nbsp; ');
+
+  card.innerHTML = `
+    <p class="step-number">Step 4 of 5</p>
+    <h3 class="step-title">What moved, and why</h3>
+    <div class="delta-callout">
+      <span class="dc-label">Your shift</span>
+      ${deltaRows}
+    </div>
+    <p class="step-prompt">Look at the biggest change. What does it tell you about how you reasoned the first time &mdash; not about the case, about your own thinking? Where did your first instinct go, and why there?</p>
+    <textarea class="answer" id="answerBox" placeholder="Start typing...">${escapeHtml(reflection)}</textarea>
+    <div class="counter" id="counter"></div>
+    <div class="nav"><span></span><button class="btn-next" id="nextBtn" disabled>Next &rarr;</button></div>
+  `;
+  const box=document.getElementById('answerBox'), counter=document.getElementById('counter'), nextBtn=document.getElementById('nextBtn');
+  function refresh(){
+    const len=box.value.trim().length, met=len>=100;
+    counter.textContent = len+' / 100 characters minimum';
+    counter.className = 'counter'+(met?' met':'');
+    nextBtn.disabled = !met;
+    reflection = box.value;
+    saveState();
+  }
+  box.addEventListener('input', refresh); refresh();
+  nextBtn.addEventListener('click', () => goTo(current+1));
+}
+
+// ---------- Step 5: bridge to coaching ----------
+function renderBridge() {
+  card.innerHTML = `
+    <p class="step-number">Step 5 of 5</p>
+    <h3 class="step-title">Into the coaching segment</h3>
+    <p class="step-prompt">You're about to work through a six-part coaching model &mdash; and you're going to apply every stage of it to Brodsky, using what you now know rather than what Keller's memo says.<br><br>Before you start: given everything above, what does Keller owe Brodsky in their next actual conversation? Not a strategy &mdash; the first thing that has to be said, and by whom.</p>
+    <textarea class="answer" id="answerBox" placeholder="Start typing...">${escapeHtml(bridge)}</textarea>
+    <div class="counter" id="counter"></div>
+    <div class="nav"><span></span><button class="btn-next" id="nextBtn" disabled>Finish &rarr;</button></div>
+  `;
+  const box=document.getElementById('answerBox'), counter=document.getElementById('counter'), nextBtn=document.getElementById('nextBtn');
+  function refresh(){
+    const len=box.value.trim().length, met=len>=120;
+    counter.textContent = len+' / 120 characters minimum';
+    counter.className = 'counter'+(met?' met':'');
+    nextBtn.disabled = !met;
+    bridge = box.value;
+    saveState();
+  }
+  box.addEventListener('input', refresh); refresh();
+  nextBtn.addEventListener('click', () => goTo(current+1));
+}
+
+// ---------- complete ----------
+function renderComplete() {
+  const text = compileOutput();
+  card.innerHTML = `
+    <h2 class="screen-title">You're done.</h2>
+    <div class="screen-body"><p>Copy everything below and paste it as your submission for <strong>Your First Read, Revisited</strong> in Canvas.</p></div>
+    <div class="copy-row">
+      <button class="btn-copy" id="copyBtn">Copy everything</button>
+      <button class="btn-download" id="downloadBtn">Download a copy</button>
+      <span class="copy-confirm" id="copyConfirm">Copied &mdash; now paste it into Canvas</span>
+    </div>
+    <textarea class="output-box" id="outputBox" readonly>${escapeHtml(text)}</textarea>
+  `;
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const box=document.getElementById('outputBox'); let copied=false;
+    try{ await navigator.clipboard.writeText(text); copied=true; }
+    catch(e){ try{ box.focus(); box.select(); document.execCommand('copy'); copied=true; }catch(e2){} }
+    if(copied){ const c=document.getElementById('copyConfirm'); c.classList.add('shown'); setTimeout(()=>c.classList.remove('shown'),3000); }
+    else{ box.focus(); box.select(); }
+  });
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const blob=new Blob([text],{type:'text/plain'}); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='first-read-revisited.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  });
+}
+
+function compileOutput() {
+  const lines = ["YOUR FIRST READ, REVISITED", ""];
+  lines.push("Original split:");
+  BUCKETS.forEach(b => lines.push("  " + b.label + ": " + (originalSplit[b.key]||0)));
+  if (originalHypothesis) { lines.push(""); lines.push("Original hypothesis:"); lines.push(originalHypothesis.trim()); }
+  lines.push("");
+  lines.push("Revised split:");
+  BUCKETS.forEach(b => lines.push("  " + b.label + ": " + (revised[b.key]||0)));
+  lines.push("");
+  lines.push("What moved, and why:");
+  lines.push(reflection.trim());
+  lines.push("");
+  lines.push("What Keller owes Brodsky first:");
+  lines.push(bridge.trim());
+  return lines.join("\n");
+}
+
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+goTo(-1);
+</script>
+</body>
+</html>

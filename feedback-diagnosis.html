@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feedback Diagnosis — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#00205B; --navy-tint:#EEF0F6; --gold:#A88B3D; --gold-tint:#FBF6EA; --grey:#58595B; --light:#F7F7F9; --border:#DEDFE5; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:24px 16px 40px; background:var(--light); font-family:'EB Garamond',Garamond,Baskerville,'Times New Roman',serif; color:#232326; font-size:19px; line-height:1.55; }
+  h1,h2,h3 { font-family:'Cambria',Georgia,'Times New Roman',serif; }
+  .wrap { max-width:700px; margin:0 auto; }
+  .topbar { display:flex; justify-content:space-between; align-items:baseline; border-bottom:3px solid var(--gold); padding-bottom:10px; margin-bottom:18px; }
+  .topbar .brand { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:13px; letter-spacing:1.5px; color:var(--gold); text-transform:uppercase; }
+  .topbar .stage-tag { font-family:'Cambria',Georgia,serif; font-size:14px; color:var(--grey); }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; padding:30px 30px 26px; box-shadow:0 2px 10px rgba(0,32,91,.06); animation:fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .checkpoint-badge { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--gold); font-size:13px; text-transform:uppercase; letter-spacing:.5px; margin:0 0 6px; }
+  .screen-title { font-size:24px; color:var(--navy); margin:0 0 10px; }
+  .intro-text p, .screen-body p { margin:0 0 14px; }
+  .welcome-back { background:var(--navy-tint); border:1px solid #D3D8E8; border-radius:6px; padding:14px 18px; margin:0 0 18px; font-size:17px; }
+  .field-label { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--navy); font-size:17px; margin:22px 0 4px; }
+  .field-label:first-of-type { margin-top:4px; }
+  .field-hint { font-size:15.5px; color:var(--grey); margin:0 0 8px; }
+  textarea.answer { width:100%; min-height:110px; padding:14px 16px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:17px; line-height:1.5; color:#232326; resize:vertical; }
+  textarea.answer:focus { outline:none; border-color:var(--navy); }
+  .counter { display:flex; justify-content:flex-end; margin-top:5px; font-family:'Cambria',Georgia,serif; font-size:13.5px; color:var(--grey); }
+  .counter.met { color:var(--gold); font-weight:700; }
+  .nav { display:flex; justify-content:space-between; align-items:center; margin-top:26px; }
+  .btn-submit,.btn-copy,.btn-download,.btn-restart { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:16px; border:none; border-radius:6px; padding:12px 26px; cursor:pointer; transition:opacity .2s, background .15s; }
+  .btn-submit { background:var(--navy); color:#fff; }
+  .btn-submit:disabled { opacity:.35; cursor:not-allowed; }
+  .btn-submit:not(:disabled):hover { background:#001642; }
+  .btn-copy { background:var(--gold); color:#fff; }
+  .btn-download { background:#fff; color:var(--grey); border:1px solid var(--border); font-size:14px; padding:9px 18px; }
+  .btn-restart { background:#fff; color:var(--navy); border:1px solid var(--navy); }
+  .output-box { width:100%; min-height:300px; padding:16px; border:1px solid var(--border); border-radius:6px; font-family:'Courier New',monospace; font-size:14.5px; line-height:1.5; color:#232326; background:var(--light); white-space:pre-wrap; resize:vertical; }
+  .copy-row { display:flex; align-items:center; gap:12px; margin:14px 0 6px; flex-wrap:wrap; }
+  .copy-confirm { color:var(--gold); font-weight:700; font-family:'Cambria',Georgia,serif; font-size:15px; opacity:0; transition:opacity .2s; }
+  .copy-confirm.shown { opacity:1; }
+  .footnote { text-align:center; color:var(--grey); font-size:13.5px; margin-top:22px; font-family:'Cambria',Georgia,serif; }
+  @media (max-width:520px) { body{font-size:17px; padding:16px 10px 32px;} .card{padding:22px 18px 20px;} textarea.answer{font-size:16px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">MBA@Rice 511 &middot; Session 3</span>
+    <span class="stage-tag" id="stageTag"></span>
+  </div>
+  <div class="card" id="card"></div>
+  <div class="footnote">This page collects no data and requires no login. Everything you write stays in this browser until you copy or download it yourself.</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'rice511_feedback_diagnosis_v1';
+const MIN = 120;
+
+const CP1_FIELDS = [
+  { tag: 'what_wrong', label: 'What specifically went wrong?',
+    hint: "Not &ldquo;it was bad feedback.&rdquo; Name the actual failure. Did the structure collapse? Did it judge the person instead of the behavior? Was it a vague impression instead of a specific incident? Did it explain a motive instead of describing what happened?" },
+  { tag: 'opening_line', label: "If you were giving this feedback instead, what's the one specific behavior you'd open with?",
+    hint: "Not a rewrite of the whole thing &mdash; just the first sentence. What's the actual behavior, stated as behavior?" }
+];
+
+const CP2_FIELDS = [
+  { tag: 'what_different', label: 'What did the better example do differently?',
+    hint: "Be specific about the mechanism, not just &ldquo;it was nicer.&rdquo;" },
+  { tag: 'same_mistake', label: 'Does the better one still make one of the same mistakes &mdash; just less obviously?',
+    hint: "Look especially at moments that sound kind. Explaining why someone might have done something, even sympathetically, is still explaining motive instead of describing behavior. Where does that happen here, if it does?" }
+];
+
+let answers = { cp1: {}, cp2: {} };
+CP1_FIELDS.forEach(f => { answers.cp1[f.tag] = ''; });
+CP2_FIELDS.forEach(f => { answers.cp2[f.tag] = ''; });
+
+function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers })); } catch(e){} }
+function loadState() { try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : null; } catch(e){ return null; } }
+
+(function restore() {
+  const saved = loadState();
+  if (saved && saved.answers) answers = saved.answers;
+})();
+
+const card = document.getElementById('card');
+const stageTag = document.getElementById('stageTag');
+
+function cp1Complete() { return CP1_FIELDS.every(f => (answers.cp1[f.tag]||'').trim().length >= MIN); }
+function cp2Complete() { return CP2_FIELDS.every(f => (answers.cp2[f.tag]||'').trim().length >= MIN); }
+
+function route() {
+  if (!cp1Complete()) renderCheckpoint(1);
+  else if (!cp2Complete()) renderCheckpoint(2);
+  else renderComplete();
+}
+
+function renderCheckpoint(n) {
+  stageTag.textContent = 'Checkpoint ' + n + ' of 2';
+  const fields = n === 1 ? CP1_FIELDS : CP2_FIELDS;
+  const bucket = n === 1 ? 'cp1' : 'cp2';
+
+  const welcomeBack = (n === 2) ? `
+    <div class="welcome-back">
+      <strong>Continuing from Checkpoint 1.</strong> You've now watched the next two videos &mdash; this picks up where you left off.
+    </div>` : '';
+
+  const introText = n === 1
+    ? `<div class="intro-text"><p>You just watched a feedback conversation go badly. Before moving to the next video, name specifically what happened &mdash; not just that it was uncomfortable to watch.</p></div>`
+    : `<div class="intro-text"><p>Compare the two examples you just watched against the one from before.</p></div>`;
+
+  const fieldsHtml = fields.map(f => `
+    <p class="field-label">${f.label}</p>
+    <p class="field-hint">${f.hint}</p>
+    <textarea class="answer" data-tag="${f.tag}" placeholder="Start typing...">${escapeHtml(answers[bucket][f.tag])}</textarea>
+    <div class="counter" data-counter="${f.tag}"></div>
+  `).join('');
+
+  card.innerHTML = `
+    <p class="checkpoint-badge">Checkpoint ${n}</p>
+    <h2 class="screen-title">${n===1 ? 'The first example' : 'Comparing the examples'}</h2>
+    ${welcomeBack}
+    ${introText}
+    ${fieldsHtml}
+    <div class="nav">
+      <span></span>
+      <button class="btn-submit" id="submitBtn" disabled>${n===1 ? "Save &mdash; I'll continue after the next videos &rarr;" : "Finish &rarr;"}</button>
+    </div>
+  `;
+
+  card.querySelectorAll('textarea[data-tag]').forEach(ta => {
+    ta.addEventListener('input', () => { answers[bucket][ta.getAttribute('data-tag')] = ta.value; refresh(); });
+  });
+
+  function refresh() {
+    fields.forEach(f => {
+      const len = (answers[bucket][f.tag]||'').trim().length, met = len >= MIN;
+      const c = card.querySelector(`[data-counter="${f.tag}"]`);
+      c.textContent = len+' / '+MIN+' characters minimum';
+      c.className = 'counter'+(met?' met':'');
+    });
+    const done = fields.every(f => (answers[bucket][f.tag]||'').trim().length >= MIN);
+    document.getElementById('submitBtn').disabled = !done;
+    saveState();
+  }
+  refresh();
+  document.getElementById('submitBtn').addEventListener('click', route);
+}
+
+function renderComplete() {
+  stageTag.textContent = 'Complete';
+  const text = compileOutput();
+  card.innerHTML = `
+    <h2 class="screen-title">Both checkpoints done.</h2>
+    <div class="screen-body"><p>Copy everything below and paste it as your submission for <strong>Feedback Diagnosis</strong> in Canvas.</p></div>
+    <div class="copy-row">
+      <button class="btn-copy" id="copyBtn">Copy everything</button>
+      <button class="btn-download" id="downloadBtn">Download a copy</button>
+      <span class="copy-confirm" id="copyConfirm">Copied &mdash; now paste it into Canvas</span>
+    </div>
+    <textarea class="output-box" id="outputBox" readonly>${escapeHtml(text)}</textarea>
+    <div class="nav"><button class="btn-restart" id="restartBtn">Go back and edit</button><span></span></div>
+  `;
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const b=document.getElementById('outputBox'); let copied=false;
+    try{ await navigator.clipboard.writeText(text); copied=true; }
+    catch(e){ try{ b.focus(); b.select(); document.execCommand('copy'); copied=true; }catch(e2){} }
+    if(copied){ const c=document.getElementById('copyConfirm'); c.classList.add('shown'); setTimeout(()=>c.classList.remove('shown'),3000); }
+    else{ b.focus(); b.select(); }
+  });
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const blob=new Blob([text],{type:'text/plain'}); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='feedback-diagnosis.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  });
+  document.getElementById('restartBtn').addEventListener('click', () => renderCheckpoint(cp1Complete() && cp2Complete() ? 2 : 1));
+}
+
+function compileOutput() {
+  const lines = ['FEEDBACK DIAGNOSIS', '', 'CHECKPOINT 1 — The first example', ''];
+  CP1_FIELDS.forEach(f => { lines.push(f.label); lines.push((answers.cp1[f.tag]||'').trim()); lines.push(''); });
+  lines.push('CHECKPOINT 2 — Comparing the examples');
+  lines.push('');
+  CP2_FIELDS.forEach(f => { lines.push(f.label.replace(/&mdash;/g,'\u2014').replace(/&ldquo;/g,'\u201c').replace(/&rdquo;/g,'\u201d')); lines.push((answers.cp2[f.tag]||'').trim()); lines.push(''); });
+  return lines.join('\n').trim();
+}
+
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+route();
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus on the Right Issues — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#00205B; --navy-tint:#EEF0F6; --gold:#A88B3D; --gold-tint:#FBF6EA; --grey:#58595B; --light:#F7F7F9; --border:#DEDFE5; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:24px 16px 40px; background:var(--light); font-family:'EB Garamond',Garamond,Baskerville,'Times New Roman',serif; color:#232326; font-size:19px; line-height:1.55; }
+  h1,h2,h3 { font-family:'Cambria',Georgia,'Times New Roman',serif; }
+  .wrap { max-width:700px; margin:0 auto; }
+  .topbar { display:flex; justify-content:space-between; align-items:baseline; border-bottom:3px solid var(--gold); padding-bottom:10px; margin-bottom:18px; }
+  .topbar .brand { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:13px; letter-spacing:1.5px; color:var(--gold); text-transform:uppercase; }
+  .topbar .stage-tag { font-family:'Cambria',Georgia,serif; font-size:14px; color:var(--grey); }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; padding:30px 30px 26px; box-shadow:0 2px 10px rgba(0,32,91,.06); animation:fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .screen-title { font-size:24px; color:var(--navy); margin:0 0 8px; }
+  .screen-sub { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--gold); font-size:13px; text-transform:uppercase; letter-spacing:.5px; margin:0 0 16px; }
+  .intro-text p { margin:0 0 14px; }
+  .field-label { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--navy); font-size:17px; margin:22px 0 4px; }
+  .field-label:first-of-type { margin-top:4px; }
+  .field-hint { font-size:15.5px; color:var(--grey); margin:0 0 8px; }
+  textarea.answer { width:100%; min-height:120px; padding:14px 16px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:17px; line-height:1.5; color:#232326; resize:vertical; }
+  textarea.answer:focus { outline:none; border-color:var(--navy); }
+  .counter { display:flex; justify-content:flex-end; margin-top:5px; font-family:'Cambria',Georgia,serif; font-size:13.5px; color:var(--grey); }
+  .counter.met { color:var(--gold); font-weight:700; }
+  .nav { display:flex; justify-content:flex-end; align-items:center; margin-top:26px; }
+  .btn-submit,.btn-copy,.btn-download,.btn-restart { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:16px; border:none; border-radius:6px; padding:12px 26px; cursor:pointer; transition:opacity .2s, background .15s; }
+  .btn-submit { background:var(--navy); color:#fff; }
+  .btn-submit:disabled { opacity:.35; cursor:not-allowed; }
+  .btn-submit:not(:disabled):hover { background:#001642; }
+  .btn-copy { background:var(--gold); color:#fff; }
+  .btn-download { background:#fff; color:var(--grey); border:1px solid var(--border); font-size:14px; padding:9px 18px; }
+  .btn-restart { background:#fff; color:var(--navy); border:1px solid var(--navy); }
+  .output-box { width:100%; min-height:260px; padding:16px; border:1px solid var(--border); border-radius:6px; font-family:'Courier New',monospace; font-size:14.5px; line-height:1.5; color:#232326; background:var(--light); white-space:pre-wrap; resize:vertical; }
+  .copy-row { display:flex; align-items:center; gap:12px; margin:14px 0 6px; flex-wrap:wrap; }
+  .copy-confirm { color:var(--gold); font-weight:700; font-family:'Cambria',Georgia,serif; font-size:15px; opacity:0; transition:opacity .2s; }
+  .copy-confirm.shown { opacity:1; }
+  .footnote { text-align:center; color:var(--grey); font-size:13.5px; margin-top:22px; font-family:'Cambria',Georgia,serif; }
+  @media (max-width:520px) { body{font-size:17px; padding:16px 10px 32px;} .card{padding:22px 18px 20px;} textarea.answer{font-size:16px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">MBA@Rice 511 &middot; Session 3</span>
+    <span class="stage-tag">Coaching Brodsky &middot; 2 of 4</span>
+  </div>
+  <div class="card" id="card"></div>
+  <div class="footnote">This page collects no data and requires no login. Everything you write stays in this browser until you copy or download it yourself.</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'rice511_coaching_issues_v1';
+const MIN = 150;
+
+const FIELDS = [
+  { tag: 'observation_inference', label: '1. Observation versus inference', hint: "Take Keller's list of Brodsky's weaknesses from the HR memo. Pick three items. For each, separate what Keller actually <em>observed</em> (specific behavior) from what he <em>inferred</em> (a judgment about Brodsky's character or ability)." },
+  { tag: 'disconfirm', label: '2. Seeking to disconfirm', hint: "Keller believes Brodsky lacks leadership and personality. If Keller had actually gone looking for evidence against that belief instead of evidence for it, what was available in the case that he'd have found? Be specific &mdash; this should draw on what happened during Brazil." }
+];
+
+let answers = {};
+FIELDS.forEach(f => { answers[f.tag] = ''; });
+let screen = 'form';
+
+function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers })); } catch(e){} }
+function loadState() { try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : null; } catch(e){ return null; } }
+function clearState() { try { localStorage.removeItem(STORAGE_KEY); } catch(e){} }
+
+const card = document.getElementById('card');
+
+function allComplete() { return FIELDS.every(f => (answers[f.tag]||'').trim().length >= MIN); }
+
+function renderForm() {
+  screen = 'form';
+  const saved = loadState();
+  if (saved && saved.answers) answers = saved.answers;
+
+  const fieldsHtml = FIELDS.map(f => `
+    <p class="field-label">${f.label}</p>
+    <p class="field-hint">${f.hint}</p>
+    <textarea class="answer" data-tag="${f.tag}" placeholder="Start typing...">${escapeHtml(answers[f.tag])}</textarea>
+    <div class="counter" data-counter="${f.tag}"></div>
+  `).join('');
+
+  card.innerHTML = `
+    <p class="screen-sub">After: Focus on the Right Issues</p>
+    <h2 class="screen-title">Focus on the Right Issues</h2>
+    <div class="intro-text"><p>Keller has a list of Brodsky's weaknesses. Some of it is observation. Some of it is inference dressed up as fact.</p></div>
+    ${fieldsHtml}
+    <div class="nav"><button class="btn-submit" id="submitBtn" disabled>Submit &rarr;</button></div>
+  `;
+
+  card.querySelectorAll('textarea[data-tag]').forEach(ta => {
+    ta.addEventListener('input', () => { answers[ta.getAttribute('data-tag')] = ta.value; refresh(); });
+  });
+
+  function refresh() {
+    FIELDS.forEach(f => {
+      const len = (answers[f.tag]||'').trim().length, met = len >= MIN;
+      const c = card.querySelector(`[data-counter="${f.tag}"]`);
+      c.textContent = len+' / '+MIN+' characters minimum';
+      c.className = 'counter'+(met?' met':'');
+    });
+    document.getElementById('submitBtn').disabled = !allComplete();
+    saveState();
+  }
+  refresh();
+  document.getElementById('submitBtn').addEventListener('click', renderComplete);
+}
+
+function renderComplete() {
+  screen = 'complete';
+  const text = compileOutput();
+  card.innerHTML = `
+    <h2 class="screen-title">Submitted.</h2>
+    <div class="intro-text"><p>Copy everything below and paste it as your submission for <strong>Focus on the Right Issues</strong> in Canvas. Then move on to the next video.</p></div>
+    <div class="copy-row">
+      <button class="btn-copy" id="copyBtn">Copy everything</button>
+      <button class="btn-download" id="downloadBtn">Download a copy</button>
+      <span class="copy-confirm" id="copyConfirm">Copied &mdash; now paste it into Canvas</span>
+    </div>
+    <textarea class="output-box" id="outputBox" readonly>${escapeHtml(text)}</textarea>
+    <div class="nav"><button class="btn-restart" id="restartBtn">Go back and edit</button></div>
+  `;
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const b=document.getElementById('outputBox'); let copied=false;
+    try{ await navigator.clipboard.writeText(text); copied=true; }
+    catch(e){ try{ b.focus(); b.select(); document.execCommand('copy'); copied=true; }catch(e2){} }
+    if(copied){ const c=document.getElementById('copyConfirm'); c.classList.add('shown'); setTimeout(()=>c.classList.remove('shown'),3000); }
+    else{ b.focus(); b.select(); }
+  });
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const blob=new Blob([text],{type:'text/plain'}); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='coaching-issues.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  });
+  document.getElementById('restartBtn').addEventListener('click', renderForm);
+}
+
+function compileOutput() {
+  const lines = ['COACHING BRODSKY — FOCUS ON THE RIGHT ISSUES', ''];
+  FIELDS.forEach(f => {
+    lines.push(f.label.replace(/^\d+\.\s*/, '').replace(/&rsquo;/g, "'").replace(/&mdash;/g, '\u2014'));
+    lines.push((answers[f.tag]||'').trim());
+    lines.push('');
+  });
+  return lines.join('\n').trim();
+}
+
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+renderForm();
+</script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keller's Adaptability Worksheet — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#00205B; --navy-tint:#EEF0F6; --gold:#A88B3D; --gold-tint:#FBF6EA; --grey:#58595B; --light:#F7F7F9; --border:#DEDFE5; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:24px 16px 40px; background:var(--light); font-family:'EB Garamond',Garamond,Baskerville,'Times New Roman',serif; color:#232326; font-size:19px; line-height:1.55; }
+  h1,h2,h3 { font-family:'Cambria',Georgia,'Times New Roman',serif; }
+  .wrap { max-width:700px; margin:0 auto; }
+  .topbar { display:flex; justify-content:space-between; align-items:baseline; border-bottom:3px solid var(--gold); padding-bottom:10px; margin-bottom:18px; }
+  .topbar .brand { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:13px; letter-spacing:1.5px; color:var(--gold); text-transform:uppercase; }
+  .topbar .progress-label { font-family:'Cambria',Georgia,serif; font-size:14px; color:var(--grey); }
+  .dots { display:flex; gap:7px; justify-content:center; margin-bottom:22px; }
+  .dot { width:10px; height:10px; border-radius:50%; background:#D6D8E0; border:none; padding:0; cursor:default; transition:background .2s, transform .2s; }
+  .dot.visited { background:var(--navy); cursor:pointer; }
+  .dot.current { background:var(--gold); transform:scale(1.3); cursor:pointer; }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; padding:30px 30px 26px; box-shadow:0 2px 10px rgba(0,32,91,.06); min-height:280px; animation:fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .step-number { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--gold); font-size:14px; letter-spacing:.5px; text-transform:uppercase; margin:0 0 6px; }
+  .step-title { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--navy); font-size:21px; margin:0 0 14px; }
+  .step-prompt { margin:0 0 16px; }
+  .step-prompt em { color:var(--grey); }
+  .exhibit-note { background:var(--navy-tint); border-left:4px solid var(--navy); border-radius:6px; padding:12px 16px; margin:0 0 16px; font-size:16.5px; }
+  textarea.answer { width:100%; min-height:130px; padding:14px 16px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:18px; line-height:1.5; color:#232326; resize:vertical; }
+  textarea.answer:focus { outline:none; border-color:var(--navy); }
+  input.shortline { width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:18px; color:#232326; }
+  input.shortline:focus { outline:none; border-color:var(--navy); }
+  .counter { display:flex; justify-content:flex-end; margin-top:6px; font-family:'Cambria',Georgia,serif; font-size:14px; color:var(--grey); }
+  .counter.met { color:var(--gold); font-weight:700; }
+  .comfort-scale { display:flex; flex-direction:column; gap:10px; margin-top:6px; }
+  .comfort-btn { display:flex; align-items:flex-start; gap:12px; text-align:left; width:100%; padding:14px 16px; border:1px solid var(--border); border-left:4px solid var(--border); border-radius:6px; background:#fff; font-family:inherit; font-size:17px; color:#232326; cursor:pointer; transition:border-color .15s, background .15s; }
+  .comfort-btn:hover { border-color:var(--navy); border-left-color:var(--navy); }
+  .comfort-btn.selected { border-left-color:var(--gold); background:var(--gold-tint); }
+  .comfort-btn .num { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--grey); flex-shrink:0; }
+  .comfort-btn.selected .num { color:var(--gold); }
+  .nav { display:flex; justify-content:space-between; align-items:center; margin-top:24px; }
+  .btn-next,.btn-start,.btn-restart,.btn-copy,.btn-download,.btn-resume,.btn-fresh { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:16px; border:none; border-radius:6px; padding:12px 26px; cursor:pointer; transition:opacity .2s, background .15s; }
+  .btn-next { background:var(--navy); color:#fff; }
+  .btn-next:disabled { opacity:.35; cursor:not-allowed; }
+  .btn-next:not(:disabled):hover { background:#001642; }
+  .btn-start,.btn-copy { background:var(--gold); color:#fff; }
+  .btn-restart,.btn-fresh { background:#fff; color:var(--navy); border:1px solid var(--navy); }
+  .btn-resume { background:var(--navy); color:#fff; }
+  .btn-download { background:#fff; color:var(--grey); border:1px solid var(--border); font-size:14px; padding:9px 18px; }
+  .screen-title { font-size:24px; color:var(--navy); margin:0 0 10px; }
+  .screen-body p { margin:0 0 14px; }
+  .prereq-box { background:var(--gold-tint); border:1px solid #E9DDBE; border-radius:6px; padding:16px 18px; margin:0 0 16px; }
+  .prereq-box p { margin:0 0 8px; } .prereq-box p:last-child { margin-bottom:0; }
+  .resume-banner { background:var(--navy-tint); border:1px solid #D3D8E8; border-radius:6px; padding:16px 18px; margin-bottom:18px; }
+  .resume-banner p { margin:0 0 12px; font-size:17px; }
+  .resume-actions { display:flex; gap:10px; }
+  .output-box { width:100%; min-height:280px; padding:16px; border:1px solid var(--border); border-radius:6px; font-family:'Courier New',monospace; font-size:14.5px; line-height:1.5; color:#232326; background:var(--light); white-space:pre-wrap; resize:vertical; }
+  .copy-row { display:flex; align-items:center; gap:12px; margin:14px 0 6px; flex-wrap:wrap; }
+  .copy-confirm { color:var(--gold); font-weight:700; font-family:'Cambria',Georgia,serif; font-size:15px; opacity:0; transition:opacity .2s; }
+  .copy-confirm.shown { opacity:1; }
+  .footnote { text-align:center; color:var(--grey); font-size:13.5px; margin-top:22px; font-family:'Cambria',Georgia,serif; }
+  @media (max-width:520px) { body{font-size:17px; padding:16px 10px 32px;} .card{padding:22px 18px 20px;} textarea.answer,input.shortline{font-size:16px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">MBA@Rice 511 &middot; Session 3</span>
+    <span class="progress-label" id="progressLabel"></span>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="card" id="card"></div>
+  <div class="footnote">This page collects no data and requires no login. Everything you write stays in this browser until you copy or download it yourself.</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'rice511_keller_adaptability_v1';
+
+const COMFORT_LEVELS = [
+  "Hasn't tried it. Shows no sign it's in his repertoire at all.",
+  "Has tried it, briefly, and it visibly didn't take — he reverted almost immediately.",
+  "Says he'll do it, sets out a specific plan to do it, and the plan is genuine.",
+  "Has done it in limited moments, but it costs him something every time.",
+  "Has made it a comfortable, standing part of how he operates."
+];
+
+const STEPS = [
+  {
+    tag: 'extreme', type: 'short', number: 'Step 1', title: "Keller's most extreme tendency",
+    prompt: "Based on how Keller describes and defends himself in Exhibit 5, what is his most extreme personality tendency?<br><br>Not the mildest reading &mdash; the one he himself all but names when he lists his reasons for staying hands-on.",
+    placeholder: "e.g. compulsive need for direct operational involvement"
+  },
+  {
+    tag: 'counter', type: 'long', number: 'Step 2', title: 'The behavior it makes hard', minChars: 180,
+    prompt: "What does that tendency make difficult for Keller, specifically? What would the opposite behavior look like &mdash; concretely, in his actual role &mdash; and why is it hard for him to do it?"
+  },
+  {
+    tag: 'demand', type: 'long', number: 'Step 3', title: "Where the role now demands it", minChars: 180,
+    exhibit: "Exhibit 4 &mdash; H&auml;ussler's letter summarizing Keller's performance review.",
+    prompt: "Häussler tells Keller directly that something needs to change. What, specifically, does he ask Keller to do differently &mdash; and how does that connect to the tendency you named in Step 1?"
+  },
+  {
+    tag: 'comfort', type: 'comfort', number: 'Step 4', title: "Keller's comfort with the needed behavior",
+    exhibit: "Exhibit 5 &mdash; Keller's response letter.",
+    prompt: "In his own response, Keller doesn't dispute Häussler's read of him. He agrees with it, in writing &mdash; and then lists reasons he expects to keep operating the same way.<br><br>Based on that letter, where is Keller actually sitting with the change Häussler is asking for?"
+  },
+  {
+    tag: 'diagnosis', type: 'long', number: 'Step 5', title: 'Naming the actual problem', minChars: 150,
+    prompt: "This is not a case about someone unaware of his own pattern. Keller can describe his tendency accurately and in detail.<br><br>If lack of awareness isn't the obstacle, what is? Why would a self-aware, articulate manager agree with the diagnosis and continue anyway?"
+  },
+  {
+    tag: 'haussler_move', type: 'long', number: 'Step 6', title: "Häussler's next move", minChars: 150,
+    prompt: "If you were Häussler, and this is the letter you got back, what would you actually say in the next conversation?<br><br>Telling him again clearly isn't the answer &mdash; he already knows. What's different about the conversation this time?"
+  }
+];
+
+const TOTAL = STEPS.length;
+let current = -1;
+let furthest = -1;
+let answers = {};
+
+function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, furthest })); } catch(e){} }
+function loadState() { try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : null; } catch(e){ return null; } }
+function clearState() { try { localStorage.removeItem(STORAGE_KEY); } catch(e){} }
+
+const card = document.getElementById('card');
+const dotsEl = document.getElementById('dots');
+const progressLabel = document.getElementById('progressLabel');
+
+function renderDots() {
+  dotsEl.innerHTML = '';
+  for (let i=0;i<TOTAL;i++){
+    const d = document.createElement('button');
+    d.className = 'dot';
+    if (i===current) d.className += ' current';
+    else if (i<=furthest) d.className += ' visited';
+    d.setAttribute('aria-label','Step '+(i+1));
+    if (i<=furthest) d.addEventListener('click', ()=>goTo(i));
+    dotsEl.appendChild(d);
+  }
+}
+function updateProgressLabel() {
+  if (current<0) progressLabel.textContent='';
+  else if (current>=TOTAL) progressLabel.textContent='Complete';
+  else progressLabel.textContent = 'Step '+(current+1)+' of '+TOTAL;
+}
+function isStepComplete(step){
+  const v = answers[step.tag];
+  if (step.type === 'comfort') return v !== undefined && v !== null;
+  if (step.type === 'short') return (v||'').trim().length >= 3;
+  return (v||'').trim().length >= step.minChars;
+}
+
+function goTo(index){
+  current = index;
+  if (index>furthest) furthest = index;
+  updateProgressLabel(); renderDots();
+  if (index===-1) renderIntro();
+  else if (index>=TOTAL) renderComplete();
+  else renderStep(STEPS[index]);
+}
+
+function renderIntro(){
+  const saved = loadState();
+  const hasSaved = saved && Object.keys(saved.answers||{}).length>0;
+  let resumeHtml='';
+  if (hasSaved){
+    resumeHtml = `
+      <div class="resume-banner">
+        <p><strong>We found saved progress in this browser from a previous session.</strong></p>
+        <div class="resume-actions">
+          <button class="btn-resume" id="resumeBtn">Resume where I left off</button>
+          <button class="btn-fresh" id="freshBtn">Start fresh</button>
+        </div>
+      </div>`;
+  }
+  card.innerHTML = `
+    <h2 class="screen-title">Keller's Adaptability Worksheet</h2>
+    <div class="screen-body">
+      ${resumeHtml}
+      <div class="prereq-box">
+        <p><strong>Keep Exhibits 4 and 5 open.</strong> Häussler's letter, and Keller's response to it.</p>
+      </div>
+      <p>You did this exercise on yourself in the last session &mdash; most extreme score, the behavior it makes hard, where your role demands it anyway. Now do it on Keller, using the two letters as your evidence.</p>
+      <p>One thing to watch for as you go: this is not a case about someone unaware of his own pattern.</p>
+    </div>
+    <button class="btn-start" id="beginBtn">${hasSaved?'Start fresh instead':'Begin'}</button>
+  `;
+  if (hasSaved){
+    document.getElementById('resumeBtn').addEventListener('click', ()=>{
+      answers = saved.answers||{};
+      furthest = typeof saved.furthest==='number' ? saved.furthest : -1;
+      const fi = STEPS.findIndex(s=>!isStepComplete(s));
+      goTo(fi===-1?TOTAL:fi);
+    });
+    document.getElementById('freshBtn').addEventListener('click', startFresh);
+    document.getElementById('beginBtn').addEventListener('click', startFresh);
+  } else {
+    document.getElementById('beginBtn').addEventListener('click', ()=>goTo(0));
+  }
+}
+function startFresh(){ answers={}; furthest=-1; clearState(); goTo(0); }
+
+function renderStep(step){
+  if (step.type === 'comfort') { renderComfortStep(step); return; }
+  const existing = answers[step.tag]||'';
+  const exhibitHtml = step.exhibit ? `<div class="exhibit-note"><strong>Reread:</strong> ${step.exhibit}</div>` : '';
+  const field = step.type === 'short'
+    ? `<input class="shortline" id="answerBox" value="${escapeAttr(existing)}" placeholder="${escapeAttr(step.placeholder||'')}" maxlength="160">`
+    : `<textarea class="answer" id="answerBox" placeholder="Start typing...">${escapeHtml(existing)}</textarea>`;
+
+  card.innerHTML = `
+    <p class="step-number">${step.number}</p>
+    <h3 class="step-title">${step.title}</h3>
+    ${exhibitHtml}
+    <p class="step-prompt">${step.prompt}</p>
+    ${field}
+    <div class="counter" id="counter"></div>
+    <div class="nav"><span></span><button class="btn-next" id="nextBtn" disabled>Next &rarr;</button></div>
+  `;
+  const box=document.getElementById('answerBox'), counter=document.getElementById('counter'), nextBtn=document.getElementById('nextBtn');
+  function refresh(){
+    answers[step.tag]=box.value;
+    if (step.type==='short'){
+      counter.textContent='';
+      nextBtn.disabled = box.value.trim().length < 3;
+    } else {
+      const len=box.value.trim().length, met=len>=step.minChars;
+      counter.textContent = len+' / '+step.minChars+' characters minimum';
+      counter.className = 'counter'+(met?' met':'');
+      nextBtn.disabled = !met;
+    }
+    saveState();
+  }
+  box.addEventListener('input', refresh); refresh();
+  nextBtn.addEventListener('click', ()=>goTo(current+1));
+}
+
+function renderComfortStep(step){
+  const btns = COMFORT_LEVELS.map((lvl,i)=>`
+    <button class="comfort-btn" data-level="${i}">
+      <span class="num">${i+1}.</span>
+      <span>${lvl}</span>
+    </button>
+  `).join('');
+  const exhibitHtml = step.exhibit ? `<div class="exhibit-note"><strong>Reread:</strong> ${step.exhibit}</div>` : '';
+
+  card.innerHTML = `
+    <p class="step-number">${step.number}</p>
+    <h3 class="step-title">${step.title}</h3>
+    ${exhibitHtml}
+    <p class="step-prompt">${step.prompt}</p>
+    <div class="comfort-scale" id="comfortScale">${btns}</div>
+    <div class="nav"><span></span><button class="btn-next" id="nextBtn" disabled>Next &rarr;</button></div>
+  `;
+  const nextBtn = document.getElementById('nextBtn');
+  function paint(){
+    card.querySelectorAll('.comfort-btn').forEach(b=>{
+      b.classList.toggle('selected', parseInt(b.getAttribute('data-level'),10)===answers[step.tag]);
+    });
+    nextBtn.disabled = answers[step.tag]===undefined || answers[step.tag]===null;
+  }
+  card.querySelectorAll('.comfort-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      answers[step.tag] = parseInt(btn.getAttribute('data-level'),10);
+      saveState();
+      paint();
+    });
+  });
+  paint();
+  nextBtn.addEventListener('click', ()=>goTo(current+1));
+}
+
+function renderComplete(){
+  const text = compileOutput();
+  card.innerHTML = `
+    <h2 class="screen-title">You're done.</h2>
+    <div class="screen-body"><p>Copy everything below and paste it as your submission for the <strong>Keller's Adaptability Worksheet</strong> assignment in Canvas.</p></div>
+    <div class="copy-row">
+      <button class="btn-copy" id="copyBtn">Copy everything</button>
+      <button class="btn-download" id="downloadBtn">Download a copy</button>
+      <span class="copy-confirm" id="copyConfirm">Copied &mdash; now paste it into Canvas</span>
+    </div>
+    <textarea class="output-box" id="outputBox" readonly>${escapeHtml(text)}</textarea>
+    <div class="nav"><button class="btn-restart" id="restartBtn">Go back and edit</button><span></span></div>
+  `;
+  document.getElementById('copyBtn').addEventListener('click', async ()=>{
+    const box=document.getElementById('outputBox'); let copied=false;
+    try{ await navigator.clipboard.writeText(text); copied=true; }
+    catch(e){ try{ box.focus(); box.select(); document.execCommand('copy'); copied=true; }catch(e2){} }
+    if(copied){ const c=document.getElementById('copyConfirm'); c.classList.add('shown'); setTimeout(()=>c.classList.remove('shown'),3000); }
+    else{ box.focus(); box.select(); }
+  });
+  document.getElementById('downloadBtn').addEventListener('click', ()=>{
+    const blob=new Blob([text],{type:'text/plain'}); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='kellers-adaptability-worksheet.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  });
+  document.getElementById('restartBtn').addEventListener('click', ()=>goTo(TOTAL-1));
+}
+
+function compileOutput(){
+  const get=(t)=>(answers[t]||'').trim();
+  const lvl = answers['comfort'];
+  const comfortText = (lvl!==undefined && lvl!==null) ? (lvl+1)+' of 5 — '+COMFORT_LEVELS[lvl] : '(not set)';
+  return [
+    "KELLER'S ADAPTABILITY WORKSHEET", "",
+    "Step 1 — Most extreme tendency", get('extreme'), "",
+    "Step 2 — The behavior it makes hard", get('counter'), "",
+    "Step 3 — Where the role now demands it", get('demand'), "",
+    "Step 4 — Keller's comfort with the needed behavior", comfortText, "",
+    "Step 5 — Naming the actual problem", get('diagnosis'), "",
+    "Step 6 — Häussler's next move", get('haussler_move')
+  ].join('\n');
+}
+
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+function escapeAttr(str){ return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+goTo(-1);
+</script>
+</body>
+</html>
