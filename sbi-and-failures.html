@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feedback: SBI and Where It Fails — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#00205B; --navy-tint:#EEF0F6; --gold:#A88B3D; --gold-tint:#FBF6EA; --grey:#58595B; --light:#F7F7F9; --border:#DEDFE5; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:24px 16px 48px; background:var(--light); font-family:'EB Garamond',Garamond,Baskerville,'Times New Roman',serif; color:#232326; font-size:19px; line-height:1.6; }
+  h1,h2,h3 { font-family:'Cambria',Georgia,'Times New Roman',serif; }
+  .wrap { max-width:700px; margin:0 auto; }
+  .topbar { border-bottom:3px solid var(--gold); padding-bottom:10px; margin-bottom:24px; }
+  .topbar .brand { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:13px; letter-spacing:1.5px; color:var(--gold); text-transform:uppercase; }
+  h1.page-title { font-size:28px; color:var(--navy); margin:6px 0 0; }
+
+  section { margin-bottom:36px; }
+  p { margin:0 0 14px; }
+
+  .sbi-grid { display:flex; flex-direction:column; gap:10px; margin:16px 0 20px; }
+  .sbi-item { display:flex; gap:14px; padding:14px 16px; border:1px solid var(--border); border-radius:6px; background:#fff; }
+  .sbi-letter { flex-shrink:0; width:38px; height:38px; border-radius:50%; background:var(--navy); color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Cambria',Georgia,serif; font-weight:700; font-size:18px; }
+  .sbi-text strong { color:var(--navy); font-family:'Cambria',Georgia,serif; }
+
+  .example-card { border:1px solid var(--border); border-radius:10px; background:#fff; padding:22px 24px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,32,91,.05); }
+  .example-tag { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:12.5px; text-transform:uppercase; letter-spacing:.6px; color:var(--gold); margin:0 0 10px; }
+  .example-dialogue { background:var(--light); border-left:4px solid var(--border); padding:14px 18px; margin:0 0 14px; font-style:italic; }
+  .example-dialogue.bad { border-left-color:#B0392F; }
+  .example-dialogue.almost { border-left-color:var(--gold); }
+  .example-dialogue.good { border-left-color:#2E7D5B; }
+
+  .btn-reveal { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:15.5px; background:var(--navy); color:#fff; border:none; border-radius:6px; padding:11px 22px; cursor:pointer; transition:background .15s; }
+  .btn-reveal:hover { background:#001642; }
+  .btn-reveal.shown { display:none; }
+
+  .reveal-panel { display:none; margin-top:16px; padding:16px 18px; border-radius:6px; background:var(--navy-tint); border:1px solid #D3D8E8; animation:fadeIn .3s ease; }
+  .reveal-panel.open { display:block; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+  .reveal-panel .rp-label { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:12.5px; text-transform:uppercase; letter-spacing:.5px; color:var(--navy); display:block; margin-bottom:8px; }
+  .reveal-panel.trap { background:var(--gold-tint); border-color:#E9DDBE; }
+  .reveal-panel.trap .rp-label { color:var(--gold); }
+  .reveal-panel.good-note { background:#EAF5EF; border-color:#C9E5D6; }
+  .reveal-panel.good-note .rp-label { color:#2E7D5B; }
+
+  .fail-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .fail-tag { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:13px; color:#B0392F; background:#fff; border:1px solid #E3B8B1; border-radius:20px; padding:5px 13px; }
+
+  .common-list { display:flex; flex-direction:column; gap:12px; margin:16px 0; }
+  .common-item { padding:14px 16px; border:1px solid var(--border); border-radius:6px; background:#fff; }
+  .common-item strong { color:var(--navy); font-family:'Cambria',Georgia,serif; }
+
+  .bridge-box { background:var(--gold-tint); border:1px solid #E9DDBE; border-radius:8px; padding:20px 22px; margin-top:8px; }
+  .bridge-box p:last-child { margin-bottom:0; }
+
+  hr.divider { border:none; border-top:1px solid var(--border); margin:32px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">MBA@Rice 511 &middot; Session 3</span>
+    <h1 class="page-title">Feedback: SBI and Where It Fails</h1>
+  </div>
+
+  <section>
+    <p>You're about to give feedback, live, to two other people in the room. Before that happens, one framework and three examples &mdash; all built around Keller and Brodsky, since that's the relationship you already know in more detail than any hypothetical could give you.</p>
+  </section>
+
+  <section>
+    <h2>The framework</h2>
+    <p>Three parts. Skip any one of them and feedback tends to fail in a predictable way.</p>
+    <div class="sbi-grid">
+      <div class="sbi-item">
+        <span class="sbi-letter">S</span>
+        <span class="sbi-text"><strong>Situation.</strong> When and where. Specific enough that the other person immediately knows which moment you mean &mdash; not &ldquo;lately&rdquo; or &ldquo;in general.&rdquo;</span>
+      </div>
+      <div class="sbi-item">
+        <span class="sbi-letter">B</span>
+        <span class="sbi-text"><strong>Behavior.</strong> What they actually did &mdash; observable, not inferred. What a camera would have recorded, not what you concluded about them from it.</span>
+      </div>
+      <div class="sbi-item">
+        <span class="sbi-letter">I</span>
+        <span class="sbi-text"><strong>Impact.</strong> What it caused. Concretely &mdash; on the work, on a person, on a decision. Not how it made you feel about them as an employee.</span>
+      </div>
+    </div>
+    <p>Everything that goes wrong in the three examples below is one of these three things collapsing, or something else sneaking in to replace it.</p>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <h2>Example 1</h2>
+    <p class="example-tag">What Keller might say, unfiltered</p>
+    <div class="example-card">
+      <div class="example-dialogue bad">
+        &ldquo;Dimitri, I need to talk to you about your leadership. Frankly, you don't inspire the sales force, and I think it's because you're too formal and don't want to get your hands dirty with the team. You need to be more approachable and take charge more.&rdquo;
+      </div>
+      <p>Before you look further: what's actually wrong here? Take a guess, then check.</p>
+      <button class="btn-reveal" id="reveal1">See the diagnosis</button>
+      <div class="reveal-panel" id="panel1">
+        <span class="rp-label">Diagnosis</span>
+        <p>Every part of SBI is missing at once. There's no situation &mdash; &ldquo;lately&rdquo; isn't a moment Brodsky can locate and check against his own memory. There's no behavior &mdash; &ldquo;your leadership&rdquo; and &ldquo;you don't inspire&rdquo; are judgments about him, not descriptions of anything he did. And &ldquo;I think it's because you're too formal and don't want to get your hands dirty&rdquo; isn't impact at all &mdash; it's Keller explaining Brodsky's motive back to him, which is precisely the move that guarantees a defensive reaction, because it tells someone why they did something rather than what they did.</p>
+        <div class="fail-tags">
+          <span class="fail-tag">No specific situation</span>
+          <span class="fail-tag">Judges the person</span>
+          <span class="fail-tag">Explains motive</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Example 2</h2>
+    <p class="example-tag">A second attempt &mdash; sounds better already</p>
+    <div class="example-card">
+      <div class="example-dialogue almost">
+        &ldquo;Dimitri, at Friday's meeting, three regional managers raised delivery concerns and didn't hear back from you by Monday. I know you've been slammed with the Odessa integration, so I imagine it just fell through the cracks with everything else going on. But two of them mentioned it to me, and one wasn't sure his concerns were being taken seriously.&rdquo;
+      </div>
+      <p>This has a real situation and a real behavior now. Has it fixed the problem? Guess before you check.</p>
+      <button class="btn-reveal" id="reveal2">Has this fixed it?</button>
+      <div class="reveal-panel trap" id="panel2">
+        <span class="rp-label">Not quite</span>
+        <p>Situation and behavior are both there now &mdash; genuine progress. But look at the middle sentence again: <em>&ldquo;I imagine it just fell through the cracks with everything else going on.&rdquo;</em> That's still motive-explanation. It's kinder than Example 1, and it's dressed up as generosity toward Brodsky rather than an accusation &mdash; but Keller is still telling Brodsky why he did something, instead of describing what happened and letting Brodsky supply his own reason.</p>
+        <p>This is the trap worth watching for in your own feedback. The kindest-sounding version of a mistake is often the hardest one to catch, because it doesn't feel like the same error &mdash; it feels like empathy.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Example 3</h2>
+    <p class="example-tag">Without the motive</p>
+    <div class="example-card">
+      <div class="example-dialogue good">
+        &ldquo;Dimitri, at Friday's meeting, three regional managers raised delivery concerns. You told them you'd look into it, but none of them heard back from you by Monday. Two of them mentioned it to me directly, and one told me he wasn't sure his concerns were being taken seriously by the company.&rdquo;
+      </div>
+      <button class="btn-reveal" id="reveal3">Why this one holds up</button>
+      <div class="reveal-panel good-note" id="panel3">
+        <span class="rp-label">What's different</span>
+        <p>Same facts as Example 2, with the explanation removed. Friday's meeting is the situation. Telling the managers he'd follow up, then not doing it, is the behavior &mdash; observable, not interpreted. Two managers raising it independently, and one questioning whether the company takes him seriously, is the impact.</p>
+        <p>Nothing here tells Brodsky why he didn't follow up. That's deliberate. He might say he was buried in Odessa, or that he forgot, or that he didn't think it was urgent &mdash; and whichever it is, that's information Keller doesn't have yet and shouldn't supply for him.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <h2>The common ways this fails</h2>
+    <div class="common-list">
+      <div class="common-item"><strong>Structure collapse.</strong> One of the three parts is simply missing, usually Behavior &mdash; replaced by a summary judgment instead of an incident.</div>
+      <div class="common-item"><strong>Judging the person, not the behavior.</strong> &ldquo;You're not a leader&rdquo; versus &ldquo;you told them you'd follow up and didn't.&rdquo; The second one a person can actually change.</div>
+      <div class="common-item"><strong>Vague impression instead of a specific incident.</strong> &ldquo;Lately&rdquo; or &ldquo;you always&rdquo; gives the other person nothing to check your account against.</div>
+      <div class="common-item"><strong>Explaining motive.</strong> The Example 2 trap. Saying why someone did something, even sympathetically, is still a claim about their internal state that you don't actually have access to.</div>
+      <div class="common-item"><strong>Generalizing from one instance.</strong> A single episode gets described as a pattern before there's evidence of one.</div>
+    </div>
+  </section>
+
+  <div class="bridge-box">
+    <p><strong>Next:</strong> rehearse this once, privately, against an AI playing someone you actually work with &mdash; a real situation, not a hypothetical one.</p>
+    <p>Then the live session, where you'll do this for real, three times, with two other people watching and reacting.</p>
+  </div>
+</div>
+
+<script>
+function wireReveal(btnId, panelId) {
+  const btn = document.getElementById(btnId);
+  const panel = document.getElementById(panelId);
+  btn.addEventListener('click', () => {
+    panel.classList.add('open');
+    btn.classList.add('shown');
+  });
+}
+wireReveal('reveal1', 'panel1');
+wireReveal('reveal2', 'panel2');
+wireReveal('reveal3', 'panel3');
+</script>
+</body>
+</html>
