@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Planning</title>
+<style>
+:root{
+  --navy:#14284b; --navy-2:#243d6b; --gold:#b8892b; --gold-soft:#f3e7c8;
+  --bg:#faf8f3; --card:#ffffff; --ink:#1d2433; --muted:#5d6678; --line:#d8d2c3;
+  --ok:#2f7d4f; --bad:#a43b2f; --focus:#2a6fdb;
+  --serif:"EB Garamond",Garamond,"Hoefler Text",Georgia,serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.45 var(--serif)}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 16px 56px}
+h1{font-size:30px;line-height:1.15;margin:0 0 4px;color:var(--navy)}
+h2{font-size:23px;margin:0 0 8px;color:var(--navy)}
+h3{font-size:17px;margin:0 0 8px;color:var(--navy);letter-spacing:.02em;text-transform:uppercase}
+p{margin:0 0 12px}
+button,a.btn{touch-action:manipulation}
+.sub{color:var(--muted);margin-bottom:16px}
+.steps{display:flex;gap:8px;margin:0 0 20px;flex-wrap:wrap}
+.steps button{flex:1 1 150px;text-align:left;padding:10px 14px;border:1px solid var(--line);background:var(--card);border-radius:8px;font:inherit;color:var(--muted);cursor:pointer}
+.steps button b{display:block;color:var(--ink);font-size:17px}
+.steps button.on{border-color:var(--navy);box-shadow:inset 0 -3px 0 var(--gold);color:var(--navy)}
+.steps button.done b::after{content:" ✓";color:var(--ok)}
+.panel{display:none}.panel.on{display:block}
+.box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+.scenario{border-left:4px solid var(--gold);background:var(--card);padding:14px 18px;margin-bottom:16px;border-radius:0 10px 10px 0;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.scenario h3{margin-bottom:4px}
+.scenario p:last-child{margin-bottom:0}
+.btn{display:inline-block;text-decoration:none;font:inherit;font-size:17px;padding:10px 18px;border-radius:8px;border:1px solid var(--navy);background:var(--navy);color:#fff;cursor:pointer;text-align:center}
+.btn:hover:not(:disabled){background:var(--navy-2)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:#fff;color:var(--navy)}
+.btn.ghost:hover:not(:disabled){background:var(--gold-soft)}
+.btn.small{font-size:15px;padding:5px 11px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.status{color:var(--muted);font-size:16px}
+.status b{color:var(--navy)}
+
+/* ranker */
+.ranker{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px;align-items:start}
+.pane{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.pane h3 .hint{font-size:14px;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:normal;margin-left:6px}
+.pool-list{display:flex;flex-direction:column;gap:6px;min-height:60px}
+.pool-list .empty-note{color:var(--muted);font-style:italic;padding:8px 2px}
+.card{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;user-select:none;-webkit-user-select:none}
+.card .letter{flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold-soft);color:var(--navy);font-weight:700;display:grid;place-items:center;font-size:15px;margin-top:1px}
+.card .txt{flex:1;font-size:16.5px;line-height:1.3}
+.pool-list .card{cursor:pointer;touch-action:pan-y}
+.pool-list .card:hover{border-color:var(--gold);background:#fffdf7}
+.rank-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.rank-list li{display:flex;gap:8px;align-items:stretch}
+.num{flex:none;width:30px;text-align:right;font-weight:700;color:var(--navy);padding-top:9px}
+.slot{flex:1;min-width:0}
+.slot.empty{border:1.5px dashed var(--line);border-radius:8px;min-height:44px}
+.slot .card{border-color:#c7bfa9;background:#fff}
+.slot .tools{display:flex;gap:2px;flex:none;align-items:center}
+.ibtn{border:1px solid var(--line);background:#fff;border-radius:6px;width:30px;height:30px;font:inherit;cursor:pointer;color:var(--navy);line-height:1;padding:0}
+.ibtn:hover:not(:disabled){background:var(--gold-soft)}
+.ibtn:disabled{opacity:.3;cursor:default}
+.handle{cursor:grab;touch-action:none;width:24px;text-align:center;color:var(--muted);font-size:19px;line-height:26px;flex:none}
+.card.dragging{opacity:.28}
+.ghost-card{position:fixed;z-index:50;pointer-events:none;box-shadow:0 8px 24px rgba(20,40,75,.28);transform:rotate(-1.2deg);opacity:.97}
+.marker{height:4px;border-radius:2px;background:var(--gold);margin:-5px 0 -5px 38px;position:relative;z-index:2}
+.pane.target{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-soft)}
+.rtabs{display:none}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:9px 18px;border-radius:22px;font-size:16px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center}
+.toast.on{opacity:.96}
+
+/* phone layout for the ranker */
+.phone .rtabs{display:flex;gap:8px;position:sticky;top:0;z-index:20;background:var(--bg);padding:8px 0 10px}
+.phone .rtabs button{flex:1;font:inherit;font-size:17px;padding:11px 8px;border:1px solid var(--line);background:#fff;border-radius:10px;color:var(--muted);cursor:pointer;min-height:46px}
+.phone .rtabs button b{color:var(--navy)}
+.phone .rtabs button.on{border-color:var(--navy);color:var(--navy);box-shadow:inset 0 -3px 0 var(--gold)}
+.phone .ranker{display:block}
+.phone[data-tab=pool] [data-pane=rank]{display:none}
+.phone[data-tab=rank] [data-pane=pool]{display:none}
+.phone .pane{padding:10px}
+.phone .card{padding:12px 10px}
+.phone .card .txt{font-size:17.5px;line-height:1.3}
+.phone .card .letter{width:28px;height:28px}
+.phone .slot .card{cursor:pointer}
+.phone .card.sel{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-soft);background:#fffdf7}
+.phone .handle{width:30px;line-height:30px;font-size:22px}
+.bar{display:flex;gap:6px;margin-top:6px}
+.bar button{flex:1;min-height:46px;font:inherit;font-size:16px;border:1px solid var(--navy);background:#fff;color:var(--navy);border-radius:8px;cursor:pointer;padding:0 4px}
+.bar button:disabled{opacity:.35}
+.bar button.rm{border-color:var(--bad);color:var(--bad)}
+.numgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px}
+.numgrid button{min-height:46px;font:inherit;font-size:17px;border:1px solid var(--line);background:#fff;border-radius:8px;color:var(--navy);cursor:pointer}
+.numgrid button:disabled{background:var(--gold-soft);opacity:.7}
+.review-note{margin-top:10px}
+
+/* receipt / codes */
+.codebox{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px;word-break:break-all;background:#f4f1e8;border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%;resize:none}
+ol.final{margin:10px 0 0;padding-left:0;list-style:none;display:grid;gap:4px}
+ol.final li{display:flex;gap:10px;align-items:baseline;border-bottom:1px solid #eee9da;padding:3px 0}
+ol.final .n{flex:none;width:28px;text-align:right;font-weight:700;color:var(--navy)}
+ol.final .l{flex:none;width:20px;font-weight:700;color:var(--gold)}
+.warn{background:#fff6e0;border:1px solid #e6cf91;border-radius:8px;padding:10px 14px}
+.err{color:var(--bad);margin:8px 0 0}
+label.f{display:block;font-weight:700;color:var(--navy);margin:12px 0 4px;font-size:16px}
+input.t{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.actions .btn{flex:1 1 150px}
+.step-note{background:#eef3fb;border:1px solid #c9d6ee;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:16.5px}
+
+/* results */
+.scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:8px 0 16px}
+.big{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--gold);border-radius:10px;padding:12px 16px}
+.big .v{font-size:44px;line-height:1.05;color:var(--navy);font-weight:700}
+.big .k{color:var(--muted);font-size:15px}
+table{border-collapse:collapse;width:100%;font-size:15.5px;background:var(--card)}
+th,td{border-bottom:1px solid #eee9da;padding:6px 8px;text-align:right}
+th{background:var(--navy);color:#fff;font-weight:600}
+td.l,th.l{text-align:left}
+td.a{text-align:left}
+tr.tot td{font-weight:700;border-top:2px solid var(--navy);background:#faf6ea}
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+.rcard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.rcard .top{display:flex;gap:10px;align-items:flex-start}
+.rcard .letter{flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold-soft);color:var(--navy);font-weight:700;display:grid;place-items:center;font-size:15px}
+.rcard .chips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.rcard .chip{background:#f6f2e6;border-radius:8px;padding:6px 8px;text-align:center;font-size:15px;line-height:1.25}
+.rcard .chip b{display:block;font-size:19px;color:var(--navy)}
+.rcard .chip small{display:block;color:var(--muted);font-size:13px}
+.hidden{display:none!important}
+@media(min-width:761px){.mob{display:none}}
+@media(max-width:760px){
+  .desk{display:none}
+  body{font-size:17px}
+  .wrap{padding:14px 12px 60px}
+  h1{font-size:26px}
+  .steps button{flex:1 1 100%}
+  .two{grid-template-columns:1fr}
+  .big .v{font-size:38px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Project Planning</h1>
+  <div class="sub">A three-step exercise: rank on your own, rank with your team, then see how you did.</div>
+
+  <div class="steps" role="tablist">
+    <button data-step="1" class="on" role="tab"><b>Step 1 · On your own</b>Rank the activities</button>
+    <button data-step="2" role="tab"><b>Step 2 · With your team</b>One shared ranking</button>
+    <button data-step="3" role="tab"><b>Step 3 · Results</b>Opens after the team round</button>
+  </div>
+
+  <!-- ===================== STEP 1 ===================== -->
+  <section class="panel on" id="p1">
+    <div class="scenario">
+      <h3>The situation</h3>
+      <p>Your organization has just assigned you to a newly formed task team which is taking over a secret project presently being handled by Research and Development. Your entire team has been assigned responsibility and authority to design a plan for managing the project, and then—after top management has reviewed and accepted your plans—carry out the project.</p>
+      <p>None of you has been told anything about the project so far, other than it is expected to grow to sizable proportions, requiring additional people.</p>
+      <h3 style="margin-top:12px">The challenge</h3>
+      <p>Despite the lack of information regarding the project, your team must now design a preliminary plan for managing it. Below are 20 Management Activities (A through T). Your task is to arrange these activities according to the sequence you would follow in planning, organizing, implementing, and controlling the project. This sequence will be reviewed by top management before you are authorized to begin work on the project.</p>
+    </div>
+
+    <div id="s1-work">
+      <div class="box warn">
+        <b>You will not see a score in this step.</b> Your score is revealed in Step 3, after your team has finished its own ranking. When you finish here, you will get a copy of your ranking to keep for the team session.
+      </div>
+      <div id="r1"></div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn" id="s1-done" disabled>Finish my ranking</button>
+        <button class="btn ghost" id="s1-reset">Start over</button>
+        <span class="status" id="s1-status"></span>
+      </div>
+      <details class="box" style="margin-top:18px">
+        <summary>Already finished on another device? Restore your ranking from its code</summary>
+        <label class="f" for="s1-restore">Your individual code</label>
+        <input class="t" id="s1-restore" placeholder="I-…" autocomplete="off" autocapitalize="characters">
+        <div class="row" style="margin-top:8px"><button class="btn ghost small" id="s1-restore-go">Restore</button></div>
+        <div class="err" id="s1-restore-err"></div>
+      </details>
+    </div>
+
+    <div id="s1-receipt" class="hidden">
+      <div class="box">
+        <h2>Your ranking is saved</h2>
+        <p>Keep this copy for the team session: you will use it to argue for your order. A screenshot works well. <b>Do not share it with teammates before the team ranking is finished.</b> You will not be told how you scored until Step 3.</p>
+        <div id="s1-list"></div>
+      </div>
+      <div class="box">
+        <h2>Send it to your instructor</h2>
+        <label class="f" for="s1-name">Your name (first and last, as it appears on the roster)</label>
+        <input class="t" id="s1-name" autocomplete="name">
+        <div class="actions">
+          <a class="btn" id="s1-submit" target="_blank" rel="noopener">Submit my ranking</a>
+        </div>
+        <p class="status" id="s1-submit-note" style="margin-top:8px">The form opens in a new tab with your code already filled in. Check your name, then tap Submit.</p>
+        <label class="f" for="s1-code">Your individual code</label>
+        <textarea class="codebox" id="s1-code" rows="2" readonly></textarea>
+        <div class="actions">
+          <button class="btn ghost" id="s1-copy">Copy code</button>
+          <button class="btn ghost hidden" id="s1-share">Share…</button>
+          <a class="btn ghost" id="s1-mail">Email it to myself</a>
+          <button class="btn ghost" id="s1-edit">Change my ranking</button>
+        </div>
+        <span class="status" id="s1-copied"></span>
+        <div class="step-note">When your team meets, go to Step 2 (the person sharing their screen will use it).</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== STEP 2 ===================== -->
+  <section class="panel" id="p2">
+    <div class="box">
+      <h2>Team ranking</h2>
+      <p>Use the same scenario and the same 20 activities. <b>One person shares their screen and moves the tiles</b>, ideally on a laptop. Everyone else works from their own saved copy of Step 1. Talk it through and agree on a single order. Do not share your individual rankings or scores in advance.</p>
+      <p class="status">Only the person sharing needs to use this step.</p>
+    </div>
+    <div id="s2-work">
+      <div id="r2"></div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn" id="s2-done" disabled>Finish team ranking</button>
+        <button class="btn ghost" id="s2-reset">Start over</button>
+        <span class="status" id="s2-status"></span>
+      </div>
+    </div>
+    <div id="s2-receipt" class="hidden">
+      <div class="box">
+        <h2>Your team's ranking is saved</h2>
+        <div id="s2-list"></div>
+      </div>
+      <div class="box">
+        <h2>Send it to your instructor</h2>
+        <div class="two">
+          <div><label class="f" for="s2-name">Your name (the person submitting)</label><input class="t" id="s2-name" autocomplete="name"></div>
+          <div><label class="f" for="s2-team">Team number</label><input class="t" id="s2-team" inputmode="numeric" autocomplete="off"></div>
+        </div>
+        <div class="actions"><a class="btn" id="s2-submit" target="_blank" rel="noopener">Submit the team ranking</a></div>
+        <p class="status" id="s2-submit-note" style="margin-top:8px">The form opens in a new tab with the team code already filled in. One person per team submits.</p>
+        <label class="f" for="s2-code">Team code</label>
+        <textarea class="codebox" id="s2-code" rows="2" readonly></textarea>
+        <div class="actions">
+          <button class="btn ghost" id="s2-copy">Copy code</button>
+          <button class="btn ghost hidden" id="s2-share">Share…</button>
+          <a class="btn ghost" id="s2-mail">Email it</a>
+          <button class="btn ghost" id="s2-edit">Change team ranking</button>
+        </div>
+        <span class="status" id="s2-copied"></span>
+        <div class="step-note">Paste the team code into the team chat so everyone has it. In Step 3, each person needs their own individual code and this team code.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== STEP 3 ===================== -->
+  <section class="panel" id="p3">
+    <div class="box" id="s3-form">
+      <h2>See your results</h2>
+      <p>Your instructor will give you a passphrase once every team has finished. Until then, scores stay locked.</p>
+      <label class="f" for="s3-ind">Your individual code</label>
+      <input class="t" id="s3-ind" placeholder="I-…" autocomplete="off" autocapitalize="characters">
+      <label class="f" for="s3-team">Your team code</label>
+      <input class="t" id="s3-team" placeholder="T-…" autocomplete="off" autocapitalize="characters">
+      <label class="f" for="s3-pass">Passphrase from your instructor</label>
+      <input class="t" id="s3-pass" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <div class="row" style="margin-top:12px"><button class="btn" id="s3-go">Show my results</button></div>
+      <div class="err" id="s3-err" role="alert"></div>
+    </div>
+    <div id="s3-out" class="hidden"></div>
+  </section>
+</div>
+
+<script>
+/* ---------- shared data + codec (no network, no storage of expert key in plain text) ---------- */
+const ITEMS = [{"id": "A", "text": "Find qualified people to fill positions."}, {"id": "B", "text": "Measure progress toward, and/or deviation from, the project's goals."}, {"id": "C", "text": "Identify and analyze the various job tasks necessary to implement the project."}, {"id": "D", "text": "Develop strategies (priorities, sequence, timing of major steps)."}, {"id": "E", "text": "Develop possible alternative courses of action."}, {"id": "F", "text": "Deliver appropriate consequences for individual performance."}, {"id": "G", "text": "Assign responsibility/accountability/authority."}, {"id": "H", "text": "Set project objectives (desired results)."}, {"id": "I", "text": "Train and develop personnel for new responsibility/authority."}, {"id": "J", "text": "Gather and analyze the facts of the current project situation."}, {"id": "K", "text": "Establish qualifications for new positions."}, {"id": "L", "text": "Take corrective action on the project (recycle project plans)."}, {"id": "M", "text": "Coordinate day-to-day activities."}, {"id": "N", "text": "Determine the allocation of resources (including budget, facilities, etc.)."}, {"id": "O", "text": "Measure individual performance against performance objectives and standards."}, {"id": "P", "text": "Identify the negative consequences of each course of action."}, {"id": "Q", "text": "Develop individual performance objectives which are mutually agreeable to the individual and his/her manager."}, {"id": "R", "text": "Define scope of relationships, responsibilities, and authority of new positions."}, {"id": "S", "text": "Decide on a basic course of action."}, {"id": "T", "text": "Determine when and how overall progress will be measured."}];
+const ENC = {"salt": "EVYEY7+vsYOSe8Sw9zuOdg==", "iv": "FGyPYYwq66iVd3O3", "ct": "6PYMbBrysJy68AYpX6+EzSLcGoGr3QaMrQRK5koVA4ZTjLUVb1QRHyeSDAO+gPEU2DbMlqzvyNfskgVBkWZ2iWOzDVOvr2Hn58ZcaQiuvnXkxJkaeV1OG66ViuWSISYm4NfikPsUoZa0leCYESXcwKc3peOhi1+1R9I5CKkeSVFO+TVo1vqzdxCZ+D9OL2In9z6IsDs3EOa5+6VSP7YLQbEDevqbAkYp61UZCgN03JWzMijAa3bJGyLbvA==", "iter": 250000};
+const IDS = ITEMS.map(i => i.id);
+const BYID = Object.fromEntries(ITEMS.map(i => [i.id, i]));
+const N = IDS.length;
+const CODE_RE = new RegExp('([IT])-([' + IDS.join('') + ']{' + N + '})-([0-9A-Z]{2})', 'i');
+const CODE_RE_STRICT = new RegExp('^([IT])-([' + IDS.join('') + ']{' + N + '})-([0-9A-Z]{2})$');
+
+function norm(p) { return String(p).toLowerCase().trim().replace(/\s+/g, ' '); }
+function b64d(s) { const b = atob(s), a = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
+
+function checksum(s) {
+  let h = 0;
+  for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) % 1296;
+  return h.toString(36).toUpperCase().padStart(2, '0');
+}
+function makeCode(prefix, order) {
+  const body = order.join('');
+  return prefix + '-' + body + '-' + checksum(prefix + body);
+}
+/* returns {order, prefix} or {error} */
+function parseCode(raw, expectPrefix) {
+  const s = String(raw || '').replace(/\s+/g, '').toUpperCase();
+  if (!s) return { error: 'Paste a code first.' };
+  const m = CODE_RE_STRICT.exec(s);
+  if (!m) return { error: 'That does not look like a ranking code. It should look like I-' + IDS.join('').slice(0, 6) + '…-XX. Copy the whole code, including the dashes.' };
+  const [, prefix, body, chk] = m;
+  if (expectPrefix && prefix !== expectPrefix)
+    return { error: prefix === 'T' ? 'That is a team code. Paste your individual code (it starts with I-).' : 'That is an individual code. Paste the team code (it starts with T-).' };
+  if (new Set(body).size !== N) return { error: 'That code repeats an activity, so it was probably mistyped. Copy it again.' };
+  if (checksum(prefix + body) !== chk) return { error: 'The end of that code does not match, so it was probably mistyped or cut off. Copy it again.' };
+  return { order: body.split(''), prefix };
+}
+
+async function unlockKey(pass) {
+  if (!(window.crypto && crypto.subtle)) throw new Error('nocrypto');
+  const enc = new TextEncoder();
+  const km = await crypto.subtle.importKey('raw', enc.encode(norm(pass)), 'PBKDF2', false, ['deriveKey']);
+  const k = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: b64d(ENC.salt), iterations: ENC.iter, hash: 'SHA-256' },
+    km, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64d(ENC.iv) }, k, b64d(ENC.ct));
+  return JSON.parse(new TextDecoder().decode(pt));   // {id: expertRank}
+}
+
+/* score = sum of |rank - expert rank|; lower is better, 0 is perfect, max is N*N/2 */
+function scoreOrder(order, key) {
+  let total = 0;
+  const rows = order.map((id, i) => {
+    const rank = i + 1, diff = Math.abs(rank - key[id]);
+    total += diff;
+    return { id, rank, expert: key[id], diff };
+  });
+  return { total, rows };
+}
+
+function copyText(text, fallbackEl) {
+  const fb = () => {
+    const t = fallbackEl || document.createElement('textarea');
+    if (!fallbackEl) { t.value = text; t.style.position = 'fixed'; t.style.opacity = '0'; document.body.appendChild(t); }
+    t.focus(); t.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    if (!fallbackEl) t.remove();
+    return ok;
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text).then(() => true, () => fb());
+  }
+  return Promise.resolve(fb());
+}
+function downloadText(filename, text, type) {
+  const blob = new Blob([text], { type: type || 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function store(key, val) { try { if (val === undefined) localStorage.removeItem(key); else localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+function load(key) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+
+const FORM = {"url": "https://docs.google.com/forms/d/e/1FAIpQLSeP_ZXy4SNmc-vhuujtiUz9IlA_ACKdofuh8WjbcG5zBNa1DQ/viewform", "name": "entry.1840477901", "team": "entry.1599233007", "code": "entry.1275950260"};
+
+/* ---------------- ranker widget ---------------- */
+function createRanker(root, opts) {
+  let ranked = [], sel = null, moving = false, tab = 'pool', justDragged = false;
+  const mq = window.matchMedia('(max-width: 760px)');
+  const phone = () => mq.matches;
+  root.innerHTML =
+    '<div class="rtabs"><button type="button" data-t="pool">Unranked <b class="c1"></b></button><button type="button" data-t="rank">My sequence <b class="c2"></b></button></div>' +
+    '<div class="ranker">' +
+    '<section class="pane" data-pane="pool"><h3>Unranked <span class="hint count"></span></h3><div class="pool-list"></div></section>' +
+    '<section class="pane" data-pane="rank"><h3>Your sequence <span class="hint hint-rank"></span></h3><ol class="rank-list"></ol></section>' +
+    '</div><div class="toast" aria-live="polite"></div>';
+  const poolEl = root.querySelector('.pool-list'), listEl = root.querySelector('.rank-list');
+  const poolPane = root.querySelector('[data-pane=pool]'), rankPane = root.querySelector('[data-pane=rank]');
+  const countEl = root.querySelector('.count'), toastEl = root.querySelector('.toast');
+  let drag = null, marker = null, raf = 0, toastT = 0;
+  root.querySelectorAll('.rtabs button').forEach(b => b.onclick = () => { tab = b.dataset.t; sel = null; moving = false; render(); window.scrollTo({ top: root.getBoundingClientRect().top + scrollY - 4 }); });
+  mq.addEventListener ? mq.addEventListener('change', () => { sel = null; moving = false; render(); }) : mq.addListener(() => render());
+
+  function toast(msg) { toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), 1400); }
+  function addFromPool(id) {
+    if (ranked.includes(id)) return;
+    ranked.push(id);
+    if (phone()) { if (ranked.length === N) { tab = 'rank'; toast('All 20 placed. Review your sequence.'); } else toast('Added as #' + ranked.length); }
+    changed();
+  }
+
+  function btn(txt, label, dis) { const b = document.createElement('button'); b.type = 'button'; b.className = 'ibtn'; b.textContent = txt; b.title = label; b.setAttribute('aria-label', label); b.disabled = dis; return b; }
+  function mkPoolCard(id) {
+    const c = document.createElement('div');
+    c.className = 'card'; c.dataset.id = id;
+    c.innerHTML = '<span class="letter"></span><span class="txt"></span>';
+    c.querySelector('.letter').textContent = id;
+    c.querySelector('.txt').textContent = BYID[id].text;
+    c.tabIndex = 0; c.setAttribute('role', 'button'); c.setAttribute('aria-label', 'Add activity ' + id + ' to ranking: ' + BYID[id].text);
+    c.addEventListener('pointerdown', e => { if (!phone()) startDrag(e, id, false, c); });
+    c.addEventListener('click', () => { if (phone()) addFromPool(id); });
+    c.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); addFromPool(id); } });
+    return c;
+  }
+  function mkRankedCard(id, pos) {
+    const c = document.createElement('div');
+    c.className = 'card' + (phone() && sel === id ? ' sel' : ''); c.dataset.id = id;
+    c.innerHTML = '<span class="letter"></span><span class="txt"></span>';
+    c.querySelector('.letter').textContent = id;
+    c.querySelector('.txt').textContent = BYID[id].text;
+    const t = document.createElement('div'); t.className = 'tools';
+    const h = document.createElement('span'); h.className = 'handle'; h.textContent = '⠿'; h.title = 'Drag to move'; h.setAttribute('aria-hidden', 'true');
+    t.append(h);
+    if (!phone()) {
+      const up = btn('↑', 'Move up', pos === 0), dn = btn('↓', 'Move down', pos === ranked.length - 1), rm = btn('✕', 'Remove from ranking', false);
+      up.onclick = () => move(pos, pos - 1); dn.onclick = () => move(pos, pos + 1); rm.onclick = () => { ranked.splice(pos, 1); changed(); };
+      t.append(up, dn, rm);
+    }
+    c.append(t);
+    c.addEventListener('pointerdown', e => startDrag(e, id, true, c));
+    c.addEventListener('click', e => {
+      if (!phone() || justDragged || e.target.closest('.handle')) return;
+      sel = sel === id ? null : id; moving = false; render();
+    });
+    return c;
+  }
+  function mkBar(id, pos) {
+    const wrap = document.createElement('div');
+    const bar = document.createElement('div'); bar.className = 'bar';
+    const mk = (txt, cls, dis, fn) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = txt; if (cls) b.className = cls; b.disabled = dis; b.onclick = fn; return b; };
+    bar.append(
+      mk('↑ Up', '', pos === 0, () => move(pos, pos - 1)),
+      mk('↓ Down', '', pos === ranked.length - 1, () => move(pos, pos + 1)),
+      mk(moving ? 'Cancel' : 'Move to…', '', false, () => { moving = !moving; render(); }),
+      mk('Remove', 'rm', false, () => { ranked.splice(pos, 1); sel = null; moving = false; changed(); })
+    );
+    wrap.append(bar);
+    if (moving) {
+      const g = document.createElement('div'); g.className = 'numgrid';
+      for (let n = 1; n <= ranked.length; n++) { const b = document.createElement('button'); b.type = 'button'; b.textContent = n; b.disabled = n === pos + 1; b.onclick = () => { moving = false; move(pos, n - 1); }; g.append(b); }
+      wrap.append(g);
+    }
+    return wrap;
+  }
+  function move(from, to) {
+    if (to < 0 || to >= ranked.length) return;
+    const [x] = ranked.splice(from, 1); ranked.splice(to, 0, x); changed();
+    if (phone()) requestAnimationFrame(() => { const el = listEl.querySelector('.card.sel'); el && el.scrollIntoView({ block: 'center', behavior: 'smooth' }); });
+  }
+
+  function render() {
+    const ph = phone();
+    root.classList.toggle('phone', ph); root.dataset.tab = tab;
+    poolEl.innerHTML = '';
+    const rem = IDS.filter(id => !ranked.includes(id));
+    rem.forEach(id => poolEl.append(mkPoolCard(id)));
+    if (!rem.length) {
+      const n = document.createElement('div'); n.className = 'empty-note';
+      n.textContent = 'All 20 activities are placed. Reorder them if you like, then finish.'; poolEl.append(n);
+    }
+    countEl.textContent = rem.length + ' left';
+    root.querySelector('.c1').textContent = rem.length; root.querySelector('.c2').textContent = ranked.length;
+    root.querySelectorAll('.rtabs button').forEach(b => b.classList.toggle('on', b.dataset.t === tab));
+    root.querySelector('.hint-rank').textContent = ph ? 'Tap a tile to move it' : '1 = first  ·  drag, or tap an activity to add it';
+    listEl.innerHTML = '';
+    for (let i = 0; i < N; i++) {
+      const li = document.createElement('li');
+      const num = document.createElement('span'); num.className = 'num'; num.textContent = (i + 1) + '.';
+      const slot = document.createElement('div');
+      if (i < ranked.length) {
+        slot.className = 'slot'; slot.append(mkRankedCard(ranked[i], i));
+        if (ph && sel === ranked[i]) slot.append(mkBar(ranked[i], i));
+      } else if (ph) { continue; }
+      else slot.className = 'slot empty';
+      li.append(num, slot); listEl.append(li);
+    }
+    if (ph && !ranked.length) { const li = document.createElement('li'); li.innerHTML = '<span class="empty-note" style="padding:8px;color:#5d6678;font-style:italic">Nothing yet. Tap “Unranked” and pick the activity you would do first.</span>'; listEl.append(li); }
+  }
+  function changed() { render(); if (opts.storageKey) store(opts.storageKey, Object.assign(load(opts.storageKey) || {}, { order: ranked.slice() })); opts.onChange && opts.onChange(ranked.slice()); }
+
+  /* pointer drag (mouse, pen, or the handle on touch) */
+  function insertionIndex(y) {
+    const items = [...listEl.querySelectorAll('.slot:not(.empty)')].filter(s => !s.querySelector('.card.dragging'));
+    let idx = 0;
+    for (const s of items) { const r = s.querySelector('.card').getBoundingClientRect(); if (y > r.top + r.height / 2) idx++; }
+    return idx;
+  }
+  function inRect(el, x, y) { const r = el.getBoundingClientRect(); return r.width > 0 && x >= r.left - 8 && x <= r.right + 8 && y >= r.top - 8 && y <= r.bottom + 8; }
+  function startDrag(e, id, fromRanked, cardEl) {
+    if (e.button && e.button !== 0) return;
+    if (e.target.closest('.ibtn') || e.target.closest('.bar') || e.target.closest('.numgrid')) return;
+    if (fromRanked && e.pointerType === 'touch' && !e.target.closest('.handle')) return;
+    drag = { id, fromRanked, cardEl, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, active: false, ghost: null, target: null, idx: null, pid: e.pointerId };
+    window.addEventListener('pointermove', onMove, { passive: false });
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onCancel);
+  }
+  function activate() {
+    drag.active = true; justDragged = true;
+    const r = drag.cardEl.getBoundingClientRect();
+    const g = drag.cardEl.cloneNode(true); g.classList.add('ghost-card'); g.classList.remove('sel'); g.querySelector('.tools')?.remove();
+    g.style.width = r.width + 'px'; document.body.append(g); drag.ghost = g;
+    drag.dx = drag.x0 - r.left; drag.dy = drag.y0 - r.top;
+    drag.cardEl.classList.add('dragging');
+    document.body.style.userSelect = 'none';
+    const loop = () => { if (!drag) return; if (drag.y < 90) window.scrollBy(0, -12); else if (drag.y > innerHeight - 90) window.scrollBy(0, 12); updateTarget(); raf = requestAnimationFrame(loop); };
+    raf = requestAnimationFrame(loop);
+  }
+  function updateTarget() {
+    if (!drag || !drag.active) return;
+    drag.ghost.style.left = (drag.x - drag.dx) + 'px'; drag.ghost.style.top = (drag.y - drag.dy) + 'px';
+    rankPane.classList.remove('target'); poolPane.classList.remove('target'); marker?.remove(); marker = null; drag.target = null; drag.idx = null;
+    if (inRect(rankPane, drag.x, drag.y)) {
+      drag.target = 'rank'; rankPane.classList.add('target');
+      drag.idx = insertionIndex(drag.y);
+      const items = [...listEl.querySelectorAll('li')].filter(li => li.querySelector('.slot') && !li.querySelector('.slot.empty') && !li.querySelector('.card.dragging'));
+      marker = document.createElement('div'); marker.className = 'marker';
+      if (drag.idx >= items.length) { if (items.length) items[items.length - 1].after(marker); else listEl.prepend(marker); }
+      else items[drag.idx].before(marker);
+    } else if (drag.fromRanked && inRect(poolPane, drag.x, drag.y)) { drag.target = 'pool'; poolPane.classList.add('target'); }
+  }
+  function onMove(e) {
+    if (!drag || e.pointerId !== drag.pid) return;
+    drag.x = e.clientX; drag.y = e.clientY;
+    if (!drag.active && Math.hypot(drag.x - drag.x0, drag.y - drag.y0) > 6) { if (e.cancelable) e.preventDefault(); activate(); }
+    if (drag.active) { if (e.cancelable) e.preventDefault(); updateTarget(); }
+  }
+  function cleanup() {
+    window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); window.removeEventListener('pointercancel', onCancel);
+    cancelAnimationFrame(raf); drag?.ghost?.remove(); marker?.remove(); marker = null;
+    rankPane.classList.remove('target'); poolPane.classList.remove('target'); document.body.style.userSelect = '';
+    setTimeout(() => { justDragged = false; }, 80);
+  }
+  function onCancel() { cleanup(); drag?.cardEl?.classList.remove('dragging'); drag = null; }
+  function onUp(e) {
+    if (!drag || e.pointerId !== drag.pid) return;
+    const d = drag; cleanup(); drag = null;
+    if (!d.active) { if (!d.fromRanked) addFromPool(d.id); return; }
+    if (d.target === 'rank') {
+      const from = ranked.indexOf(d.id); const idx = d.idx;
+      if (from !== -1) ranked.splice(from, 1);
+      ranked.splice(Math.min(idx, ranked.length), 0, d.id); changed();
+    } else if (d.target === 'pool' && d.fromRanked) { ranked.splice(ranked.indexOf(d.id), 1); changed(); }
+    else render();
+  }
+
+  render();
+  return {
+    get: () => ranked.slice(),
+    set: o => { ranked = o.slice(); changed(); },
+    reset: () => { ranked = []; sel = null; moving = false; tab = 'pool'; changed(); },
+    complete: () => ranked.length === N
+  };
+}
+
+/* ---------------- page logic ---------------- */
+const $ = id => document.getElementById(id);
+const K1 = 'pp-individual-v1', K2 = 'pp-team-v1', KW = 'pp-who-v1';
+let ind = load(K1) || {}, team = load(K2) || {}, who = load(KW) || {};
+
+document.querySelectorAll('.steps button').forEach(b => b.onclick = () => showStep(b.dataset.step));
+function showStep(n) {
+  document.querySelectorAll('.steps button').forEach(b => b.classList.toggle('on', b.dataset.step === String(n)));
+  [1, 2, 3].forEach(i => $('p' + i).classList.toggle('on', i === Number(n)));
+  if (n == 3) prefill3();
+  window.scrollTo(0, 0);
+}
+function markDone() {
+  document.querySelector('[data-step="1"]').classList.toggle('done', !!ind.done);
+  document.querySelector('[data-step="2"]').classList.toggle('done', !!team.done);
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+function receiptList(order) {
+  return '<ol class="final">' + order.map((id, i) => '<li><span class="n">' + (i + 1) + '.</span><span class="l">' + id + '</span><span>' + esc(BYID[id].text) + '</span></li>').join('') + '</ol>';
+}
+function plainText(title, code, order) {
+  return title + '\n\nCode: ' + code + '\n\n' + order.map((id, i) => String(i + 1).padStart(2) + '. [' + id + '] ' + BYID[id].text).join('\n') + '\n';
+}
+function formLink(code, name, teamNo) {
+  if (!FORM) return null;
+  const q = new URLSearchParams({ usp: 'pp_url' });
+  if (FORM.name && name) q.set(FORM.name, name);
+  if (FORM.team && teamNo) q.set(FORM.team, teamNo);
+  q.set(FORM.code, code);
+  return FORM.url + '?' + q.toString();
+}
+
+/* wire a receipt panel: s = 's1' or 's2' */
+function wireReceipt(s, kind, getCode, getOrder, title) {
+  const nameEl = $(s + '-name'), teamEl = $(s + '-team'), subEl = $(s + '-submit'), noteEl = $(s + '-submit-note');
+  nameEl.value = who.name || ''; if (teamEl) teamEl.value = who.team || '';
+  function refresh() {
+    const code = getCode(), order = getOrder();
+    $(s + '-code').value = code;
+    const href = formLink(code, nameEl.value.trim(), teamEl ? teamEl.value.trim() : '');
+    if (href) { subEl.href = href; subEl.classList.remove('hidden'); noteEl.classList.remove('hidden'); }
+    else { subEl.classList.add('hidden'); noteEl.classList.add('hidden'); }
+    const body = plainText(title, code, order);
+    $(s + '-mail').href = 'mailto:?subject=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(body);
+  }
+  [nameEl, teamEl].filter(Boolean).forEach(el => el.addEventListener('input', () => {
+    who = { name: nameEl.value.trim(), team: teamEl ? teamEl.value.trim() : (who.team || '') }; store(KW, who);
+    ['s1', 's2'].forEach(o => { if (o !== s) { const n = $(o + '-name'), t = $(o + '-team'); if (n) n.value = who.name; if (t && teamEl) t.value = who.team; } });
+    refresh();
+  }));
+  $(s + '-copy').onclick = () => copyText($(s + '-code').value, $(s + '-code')).then(ok => { $(s + '-copied').textContent = ok ? 'Copied.' : 'Press and hold the code to copy it.'; });
+  if (navigator.share) {
+    $(s + '-share').classList.remove('hidden');
+    $(s + '-share').onclick = () => navigator.share({ title, text: plainText(title, getCode(), getOrder()) }).catch(() => {});
+  }
+  return refresh;
+}
+
+/* ---- step 1 ---- */
+const r1 = createRanker($('r1'), { storageKey: K1, onChange: o => {
+  $('s1-done').disabled = o.length !== N;
+  $('s1-status').innerHTML = o.length === N ? '<b>All 20 placed.</b>' : '<b>' + o.length + '</b> of 20 placed';
+} });
+const refresh1 = wireReceipt('s1', 'I', () => makeCode('I', ind.order), () => ind.order, 'Project Planning: my individual ranking');
+function showReceipt1() {
+  $('s1-list').innerHTML = receiptList(ind.order); refresh1();
+  $('s1-work').classList.add('hidden'); $('s1-receipt').classList.remove('hidden'); markDone();
+}
+if (ind.order && ind.order.length === N) { r1.set(ind.order); if (ind.done) showReceipt1(); } else { r1.set(ind.order || []); }
+$('s1-done').onclick = () => { ind = { order: r1.get(), done: true }; store(K1, ind); showReceipt1(); window.scrollTo(0, 0); };
+$('s1-reset').onclick = () => { r1.reset(); ind = {}; store(K1, undefined); markDone(); };
+$('s1-edit').onclick = () => { ind.done = false; store(K1, ind); $('s1-receipt').classList.add('hidden'); $('s1-work').classList.remove('hidden'); markDone(); window.scrollTo(0, 0); };
+$('s1-restore-go').onclick = () => {
+  const p = parseCode($('s1-restore').value, 'I');
+  if (p.error) { $('s1-restore-err').textContent = p.error; return; }
+  $('s1-restore-err').textContent = ''; ind = { order: p.order, done: true }; store(K1, ind); r1.set(p.order); showReceipt1();
+};
+
+/* ---- step 2 ---- */
+const r2 = createRanker($('r2'), { storageKey: K2, onChange: o => {
+  $('s2-done').disabled = o.length !== N;
+  $('s2-status').innerHTML = o.length === N ? '<b>All 20 placed.</b>' : '<b>' + o.length + '</b> of 20 placed';
+} });
+const refresh2 = wireReceipt('s2', 'T', () => makeCode('T', team.order), () => team.order, 'Project Planning: team ranking');
+function showReceipt2() {
+  $('s2-list').innerHTML = receiptList(team.order); refresh2();
+  $('s2-work').classList.add('hidden'); $('s2-receipt').classList.remove('hidden'); markDone();
+}
+if (team.order && team.order.length === N) { r2.set(team.order); if (team.done) showReceipt2(); } else { r2.set(team.order || []); }
+$('s2-done').onclick = () => { team = { order: r2.get(), done: true }; store(K2, team); showReceipt2(); window.scrollTo(0, 0); };
+$('s2-reset').onclick = () => { r2.reset(); team = {}; store(K2, undefined); markDone(); };
+$('s2-edit').onclick = () => { team.done = false; store(K2, team); $('s2-receipt').classList.add('hidden'); $('s2-work').classList.remove('hidden'); markDone(); window.scrollTo(0, 0); };
+markDone();
+
+/* ---- step 3 ---- */
+function prefill3() {
+  if (!$('s3-ind').value && ind.done) $('s3-ind').value = makeCode('I', ind.order);
+  if (!$('s3-team').value && team.done) $('s3-team').value = makeCode('T', team.order);
+}
+$('s3-go').onclick = async () => {
+  const err = $('s3-err'); err.textContent = '';
+  const pi = parseCode($('s3-ind').value, 'I'); if (pi.error) { err.textContent = 'Individual code: ' + pi.error; return; }
+  const pt = parseCode($('s3-team').value, 'T'); if (pt.error) { err.textContent = 'Team code: ' + pt.error; return; }
+  if (!$('s3-pass').value.trim()) { err.textContent = 'Enter the passphrase your instructor gave you. If you do not have it yet, your instructor will share it once every team has finished.'; return; }
+  let key;
+  try { key = await unlockKey($('s3-pass').value); }
+  catch (e) { err.textContent = e.message === 'nocrypto' ? 'This browser blocks the feature needed to unlock results. Open the page in a current version of Chrome, Edge, Safari, or Firefox.' : 'That passphrase did not work. Check the spelling, or wait for your instructor to share it.'; return; }
+  showResults(pi.order, pt.order, key);
+};
+
+function showResults(io, to, key) {
+  const si = scoreOrder(io, key), st = scoreOrder(to, key);
+  const bi = Object.fromEntries(si.rows.map(r => [r.id, r])), bt = Object.fromEntries(st.rows.map(r => [r.id, r]));
+  const sorted = IDS.slice().sort((a, b) => key[a] - key[b]);
+  const rows = sorted.map(id =>
+    '<tr><td class="l"><b>' + id + '</b></td><td class="a">' + esc(BYID[id].text) + '</td><td>' + key[id] + '</td><td>' + bi[id].rank + '</td><td>' + bi[id].diff + '</td><td>' + bt[id].rank + '</td><td>' + bt[id].diff + '</td></tr>').join('');
+  const cards = sorted.map(id =>
+    '<div class="rcard"><div class="top"><span class="letter">' + id + '</span><span>' + esc(BYID[id].text) + '</span></div><div class="chips">' +
+    '<div class="chip"><b>' + key[id] + '</b><small>Experts</small></div>' +
+    '<div class="chip"><b>' + bi[id].rank + '</b><small>You · off by ' + bi[id].diff + '</small></div>' +
+    '<div class="chip"><b>' + bt[id].rank + '</b><small>Team · off by ' + bt[id].diff + '</small></div></div></div>').join('');
+  $('s3-form').classList.add('hidden');
+  const out = $('s3-out'); out.classList.remove('hidden');
+  out.innerHTML =
+    '<h2>Your results</h2>' +
+    '<p class="status">Each score is the sum of the gaps between a ranking and the experts\' ranking, so <b>lower is better</b>. 0 would match the experts exactly; the highest possible score is ' + (N * N / 2) + '.</p>' +
+    '<div class="scores"><div class="big"><div class="v">' + si.total + '</div><div class="k">Your individual score</div></div>' +
+    '<div class="big"><div class="v">' + st.total + '</div><div class="k">Your team\'s score</div></div></div>' +
+    '<p>' + (st.total < si.total ? 'Your team\'s ranking was <b>' + (si.total - st.total) + ' points closer</b> to the experts than your own.' :
+      st.total > si.total ? 'Your own ranking was <b>' + (st.total - si.total) + ' points closer</b> to the experts than your team\'s.' : 'Your ranking and your team\'s were equally close to the experts.') + ' Your instructor will show how the whole team compares.</p>' +
+    '<h3 style="margin-top:20px">Item by item</h3>' +
+    '<div class="tscroll desk"><table><thead><tr><th class="l">#</th><th class="l">Management activity</th><th>Experts\' rank</th><th>Your rank</th><th>Gap</th><th>Team rank</th><th>Gap</th></tr></thead><tbody>' + rows +
+    '<tr class="tot"><td></td><td class="a">Total</td><td></td><td></td><td>' + si.total + '</td><td></td><td>' + st.total + '</td></tr></tbody></table></div>' +
+    '<div class="mob">' + cards + '</div>' +
+    '<p class="status" style="margin-top:8px">Listed in the experts\' order. A gap of 0 means you placed that activity exactly where the experts did.</p>';
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
