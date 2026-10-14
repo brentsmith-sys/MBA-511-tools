@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debate, Argue, Disguise, or Undermine? — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#00205B; --navy-tint:#EEF0F6; --gold:#A88B3D; --gold-tint:#FBF6EA; --grey:#58595B; --light:#F7F7F9; --border:#DEDFE5; --good:#2E7D5B; --good-tint:#EAF5EF; --bad:#B0392F; --bad-tint:#FBEEEC; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:24px 16px 40px; background:var(--light); font-family:'EB Garamond',Garamond,Baskerville,'Times New Roman',serif; color:#232326; font-size:19px; line-height:1.55; }
+  h1,h2,h3 { font-family:'Cambria',Georgia,'Times New Roman',serif; }
+  .wrap { max-width:680px; margin:0 auto; }
+  .topbar { display:flex; justify-content:space-between; align-items:baseline; border-bottom:3px solid var(--gold); padding-bottom:10px; margin-bottom:18px; }
+  .topbar .brand { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:13px; letter-spacing:1.5px; color:var(--gold); text-transform:uppercase; }
+  .topbar .progress { font-family:'Cambria',Georgia,serif; font-size:14px; color:var(--grey); }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; padding:30px 30px 26px; box-shadow:0 2px 10px rgba(0,32,91,.06); animation:fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .screen-title { font-size:22px; color:var(--navy); margin:0 0 14px; }
+  .scenario-text { background:var(--navy-tint); border-radius:8px; padding:16px 18px; margin:0 0 18px; font-style:italic; }
+
+  .quad-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 6px; }
+  .quad-btn { padding:16px 12px; border:1px solid var(--border); border-radius:8px; background:#fff; font-family:'Cambria',Georgia,serif; font-weight:700; font-size:16px; cursor:pointer; text-align:center; transition:border-color .15s, background .15s; }
+  .quad-btn:hover { border-color:var(--navy); }
+  .quad-btn:disabled { cursor:default; }
+  .quad-btn.correct-pick { border-color:var(--good); background:var(--good-tint); color:var(--good); }
+  .quad-btn.wrong-pick { border-color:var(--bad); background:var(--bad-tint); color:var(--bad); }
+  .quad-btn.reveal-correct { border-color:var(--good); background:var(--good-tint); color:var(--good); }
+
+  .feedback-panel { display:none; margin-top:16px; padding:16px 18px; border-radius:8px; animation:fadeIn .3s ease; }
+  .feedback-panel.open { display:block; }
+  .feedback-panel.is-correct { background:var(--good-tint); border:1px solid #C9E5D6; }
+  .feedback-panel.is-wrong { background:var(--bad-tint); border:1px solid #E3B8B1; }
+  .feedback-panel .fp-label { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:8px; }
+  .feedback-panel.is-correct .fp-label { color:var(--good); }
+  .feedback-panel.is-wrong .fp-label { color:var(--bad); }
+  .feedback-panel p { margin:0; }
+
+  .nav { display:flex; justify-content:space-between; align-items:center; margin-top:22px; }
+  .btn-next,.btn-start { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:16px; border:none; border-radius:6px; padding:12px 26px; cursor:pointer; transition:background .15s; }
+  .btn-next { background:var(--navy); color:#fff; }
+  .btn-next:disabled { opacity:.35; cursor:not-allowed; }
+  .btn-next:not(:disabled):hover { background:#001642; }
+  .btn-start { background:var(--gold); color:#fff; }
+  .footnote { text-align:center; color:var(--grey); font-size:13.5px; margin-top:22px; font-family:'Cambria',Georgia,serif; }
+  .score-summary { text-align:center; padding:20px; background:var(--navy-tint); border-radius:10px; margin:16px 0; }
+  .score-summary .num { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--navy); font-size:36px; }
+  @media (max-width:520px) { body{font-size:17px; padding:16px 10px 32px;} .card{padding:22px 18px 20px;} .quad-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">MBA@Rice 511 &middot; Session 4</span>
+    <span class="progress" id="progress"></span>
+  </div>
+  <div class="card" id="card"></div>
+  <div class="footnote">This page collects no data and requires no login &mdash; nothing here is submitted or graded.</div>
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    text: "During a product launch planning meeting, Priya tells the group directly that she thinks the March date is unrealistic given the testing backlog, and lays out her reasoning. Marcus disagrees, explains why he thinks testing can be compressed, and asks Priya what would need to be true for March to work. They go back and forth for ten minutes, each building on what the other just said, until they land on a revised plan neither had proposed originally.",
+    answer: "Debate",
+    explanation: "High directness &mdash; both name the actual disagreement and their reasoning. Low intensity &mdash; neither is entrenched, and the exchange genuinely moves the thinking forward."
+  },
+  {
+    text: "In a budget meeting, Dana insists the marketing spend needs to be cut immediately, cutting off Raj before he finishes his point. Raj raises his voice, says Dana doesn't understand the pipeline implications, and repeats his original number without engaging with anything Dana just said. Both keep restating their positions, louder each time.",
+    answer: "Argue",
+    explanation: "High directness &mdash; the disagreement is out in the open. High intensity &mdash; neither is actually listening; they're just restating entrenched positions, louder."
+  },
+  {
+    text: "In a project postmortem, everyone agrees out loud that the missed deadline was mostly bad luck with a vendor. Afterward, in the hallway, two team members admit to each other they think the real problem was the original timeline being unrealistic from the start &mdash; something neither said in the room.",
+    answer: "Disguise",
+    explanation: "Low directness &mdash; the real disagreement never surfaces where it could matter. Low intensity &mdash; there's no visible friction at all, which is exactly the problem."
+  },
+  {
+    text: "After a resource allocation decision goes against him, a team lead starts routing around it quietly &mdash; reassigning people on his own team in ways that make it harder for the decision to actually take effect, without ever raising his objection to the person who made the call.",
+    answer: "Undermine",
+    explanation: "Low directness &mdash; he never says he disagrees. High intensity &mdash; he's actively working against the decision anyway, just not where anyone can see it or respond to it."
+  },
+  {
+    text: "In a hiring debrief, two interviewers land on opposite recommendations for the same candidate. Each walks through the specific moments in the interview that shaped their view. They ask each other clarifying questions, occasionally change their minds about a specific point, and end the conversation still disagreeing about the final call &mdash; but each understands exactly why the other sees it differently.",
+    answer: "Debate",
+    explanation: "High directness &mdash; the actual reasoning gets laid out and examined. Low intensity &mdash; disagreeing at the end isn't a failure here; understanding each other's reasoning is the actual goal."
+  },
+  {
+    text: "During a strategy review, two VPs clash over whether to enter a new market. Each treats the other's argument as evidence of not understanding the business. The conversation becomes personal &mdash; one implies the other is only pushing this because it would expand their own headcount. Neither position moves an inch.",
+    answer: "Argue",
+    explanation: "High directness &mdash; nobody's hiding the disagreement. High intensity &mdash; it's become personal, entrenched, and no longer about the actual decision."
+  },
+  {
+    text: "A team is asked whether they're comfortable with a new process the manager just proposed. Everyone nods. One person has real concerns about how it will affect a teammate's workload, but says nothing, deciding it's not worth raising since everyone else seems fine with it.",
+    answer: "Disguise",
+    explanation: "Low directness &mdash; the concern never gets voiced. Low intensity &mdash; there's no visible conflict, just a real disagreement quietly absorbed instead of raised."
+  },
+  {
+    text: "Two colleagues who disagreed in a vendor selection meeting say nothing to each other directly afterward. Over the next few weeks, one starts making pointed comments in other meetings about how &ldquo;some people&rdquo; don't think through the long-term costs of decisions &mdash; never naming anyone, but everyone in the room knows who it's about.",
+    answer: "Undermine",
+    explanation: "Low directness &mdash; the disagreement is never named or addressed directly. High intensity &mdash; it's expressed anyway, sideways, in a way that damages trust without ever being confrontable."
+  }
+];
+
+const QUADRANTS = ["Debate", "Argue", "Disguise", "Undermine"];
+
+let idx = 0;
+let answered = false;
+let correctCount = 0;
+let screen = 'intro';
+
+const card = document.getElementById('card');
+const progress = document.getElementById('progress');
+
+function render() {
+  if (screen === 'intro') renderIntro();
+  else if (screen === 'scenario') renderScenario();
+  else if (screen === 'summary') renderSummary();
+}
+
+function renderIntro() {
+  progress.textContent = '';
+  card.innerHTML = `
+    <h2 class="screen-title">Debate, Argue, Disguise, or Undermine?</h2>
+    <div class="screen-body">
+      <p>Eight short scenarios. For each, decide which quadrant of Behfar's model the exchange actually falls into &mdash; how direct it is, and how intense.</p>
+    </div>
+    <button class="btn-start" id="beginBtn">Begin</button>
+  `;
+  document.getElementById('beginBtn').addEventListener('click', () => { screen='scenario'; idx=0; answered=false; correctCount=0; render(); });
+}
+
+function renderScenario() {
+  progress.textContent = 'Scenario ' + (idx+1) + ' of ' + SCENARIOS.length;
+  const s = SCENARIOS[idx];
+  answered = false;
+
+  const buttonsHtml = QUADRANTS.map(q => `<button class="quad-btn" data-q="${q}">${q}</button>`).join('');
+
+  card.innerHTML = `
+    <h2 class="screen-title">What's happening here?</h2>
+    <div class="scenario-text">${s.text}</div>
+    <div class="quad-grid" id="quadGrid">${buttonsHtml}</div>
+    <div class="feedback-panel" id="feedback"></div>
+    <div class="nav"><span></span><button class="btn-next" id="nextBtn" disabled>${idx===SCENARIOS.length-1?'See summary':'Next scenario'} &rarr;</button></div>
+  `;
+
+  document.querySelectorAll('.quad-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (answered) return;
+      answered = true;
+      const picked = btn.dataset.q;
+      const isCorrect = picked === s.answer;
+      if (isCorrect) correctCount++;
+
+      document.querySelectorAll('.quad-btn').forEach(b => {
+        b.disabled = true;
+        if (b.dataset.q === s.answer) b.classList.add(isCorrect ? 'correct-pick' : 'reveal-correct');
+        else if (b === btn) b.classList.add('wrong-pick');
+      });
+
+      const fb = document.getElementById('feedback');
+      fb.className = 'feedback-panel open ' + (isCorrect ? 'is-correct' : 'is-wrong');
+      fb.innerHTML = `
+        <span class="fp-label">${isCorrect ? 'Correct' : 'Not quite \u2014 this one is ' + s.answer}</span>
+        <p>${s.explanation}</p>
+      `;
+      document.getElementById('nextBtn').disabled = false;
+    });
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    if (idx < SCENARIOS.length - 1) { idx++; render(); }
+    else { screen = 'summary'; render(); }
+  });
+}
+
+function renderSummary() {
+  progress.textContent = 'Complete';
+  card.innerHTML = `
+    <h2 class="screen-title">Done</h2>
+    <div class="score-summary">
+      <div class="num">${correctCount} / ${SCENARIOS.length}</div>
+    </div>
+    <div class="screen-body">
+      <p>The two quadrants worth watching for in your own teams are Disguise and Undermine &mdash; both look calm on the surface. Debate and Argue are at least visible; the ones that quietly erode a team are the ones nobody in the room can see happening.</p>
+    </div>
+  `;
+}
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Diagnosis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#00205B; --navy-tint:#EEF0F6; --gold:#A88B3D; --gold-tint:#FBF6EA; --grey:#58595B; --light:#F7F7F9; --border:#DEDFE5; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:24px 16px 40px; background:var(--light); font-family:'EB Garamond',Garamond,Baskerville,'Times New Roman',serif; color:#232326; font-size:19px; line-height:1.55; }
+  h1,h2,h3 { font-family:'Cambria',Georgia,'Times New Roman',serif; }
+  .wrap { max-width:700px; margin:0 auto; }
+  .topbar { display:flex; justify-content:space-between; align-items:baseline; border-bottom:3px solid var(--gold); padding-bottom:10px; margin-bottom:18px; }
+  .topbar .brand { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:13px; letter-spacing:1.5px; color:var(--gold); text-transform:uppercase; }
+  .topbar .stage-tag { font-family:'Cambria',Georgia,serif; font-size:14px; color:var(--grey); }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; padding:30px 30px 26px; box-shadow:0 2px 10px rgba(0,32,91,.06); animation:fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .checkpoint-badge { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--gold); font-size:13px; text-transform:uppercase; letter-spacing:.5px; margin:0 0 6px; }
+  .screen-title { font-size:24px; color:var(--navy); margin:0 0 10px; }
+  .intro-text p, .screen-body p { margin:0 0 14px; }
+  .welcome-back { background:var(--navy-tint); border:1px solid #D3D8E8; border-radius:6px; padding:14px 18px; margin:0 0 18px; font-size:17px; }
+
+  .tag-label { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--navy); font-size:17px; margin:20px 0 8px; }
+  .tag-options { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+  .tag-option { border:1px solid var(--border); background:#fff; border-radius:20px; padding:9px 16px; font-family:'Cambria',Georgia,serif; font-size:15px; cursor:pointer; transition:border-color .15s, background .15s, color .15s; }
+  .tag-option:hover { border-color:var(--navy); }
+  .tag-option.selected { background:var(--navy); border-color:var(--navy); color:#fff; }
+
+  .field-label { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--navy); font-size:17px; margin:22px 0 4px; }
+  .field-hint { font-size:15.5px; color:var(--grey); margin:0 0 8px; }
+  textarea.answer { width:100%; min-height:110px; padding:14px 16px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:17px; line-height:1.5; color:#232326; resize:vertical; }
+  textarea.answer:focus { outline:none; border-color:var(--navy); }
+  .counter { display:flex; justify-content:flex-end; margin-top:5px; font-family:'Cambria',Georgia,serif; font-size:13.5px; color:var(--grey); }
+  .counter.met { color:var(--gold); font-weight:700; }
+
+  .nav { display:flex; justify-content:space-between; align-items:center; margin-top:26px; }
+  .btn-submit,.btn-copy,.btn-download { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:16px; border:none; border-radius:6px; padding:12px 26px; cursor:pointer; transition:opacity .2s, background .15s; }
+  .btn-submit { background:var(--navy); color:#fff; }
+  .btn-submit:disabled { opacity:.35; cursor:not-allowed; }
+  .btn-submit:not(:disabled):hover { background:#001642; }
+  .btn-copy { background:var(--gold); color:#fff; }
+  .btn-download { background:#fff; color:var(--grey); border:1px solid var(--border); font-size:14px; padding:9px 18px; }
+  .btn-restart { background:#fff; color:var(--navy); border:1px solid var(--navy); font-family:'Cambria',Georgia,serif; font-weight:700; font-size:16px; border-radius:6px; padding:12px 26px; cursor:pointer; }
+
+  .output-box { width:100%; min-height:320px; padding:16px; border:1px solid var(--border); border-radius:6px; font-family:'Courier New',monospace; font-size:14px; line-height:1.5; color:#232326; background:var(--light); white-space:pre-wrap; resize:vertical; }
+  .copy-row { display:flex; align-items:center; gap:12px; margin:14px 0 6px; flex-wrap:wrap; }
+  .copy-confirm { color:var(--gold); font-weight:700; font-family:'Cambria',Georgia,serif; font-size:15px; opacity:0; transition:opacity .2s; }
+  .copy-confirm.shown { opacity:1; }
+
+  .footnote { text-align:center; color:var(--grey); font-size:13.5px; margin-top:22px; font-family:'Cambria',Georgia,serif; }
+  @media (max-width:520px) { body{font-size:17px; padding:16px 10px 32px;} .card{padding:22px 18px 20px;} textarea.answer{font-size:16px;} .tag-option{font-size:14px; padding:8px 13px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">Team Diagnosis</span>
+    <span class="stage-tag" id="stageTag"></span>
+  </div>
+  <div class="card" id="card"></div>
+  <div class="footnote">This page collects no data and requires no login. Everything you write stays in this browser until you copy or download it yourself.</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'rice511_team_diagnosis_v1';
+const MIN = 120;
+
+const CHECKPOINTS = [
+  {
+    key: 'interdependence',
+    badge: 'Checkpoint 1 of 5',
+    title: 'Symphony or jazz?',
+    afterLabel: 'after the interdependence discussion',
+    intro: "Pick a real team you're actually on right now &mdash; not a hypothetical, not this course's own project team.",
+    tag: {
+      label: 'Where does this team actually sit?',
+      options: ['Symphony orchestra (mostly independent)', 'Improvisational jazz (highly interdependent)', 'Somewhere in between']
+    },
+    fields: [
+      { tag: 'evidence', label: 'What specifically makes you place it there?',
+        hint: 'Point to how the work actually gets done, not just a general impression.' },
+      { tag: 'leadership_match', label: "Does the leadership this team gets actually match that?",
+        hint: 'Is someone running it like an orchestra when it needs to run like a quartet, or the reverse?' }
+    ]
+  },
+  {
+    key: 'safety',
+    badge: 'Checkpoint 2 of 5',
+    title: 'Psychological safety',
+    afterLabel: 'after the psychological safety segment',
+    intro: 'Same team as before.',
+    tag: {
+      label: 'How psychologically safe is this team, genuinely?',
+      options: ['High', 'Moderate', 'Low']
+    },
+    fields: [
+      { tag: 'evidence', label: 'What specific evidence puts it there?',
+        hint: "Not a vibe &mdash; a specific interpersonal risk someone would, or wouldn't, feel safe taking. A mistake admitted, a question asked, feedback requested." }
+    ]
+  },
+  {
+    key: 'conflict',
+    badge: 'Checkpoint 3 of 5',
+    title: 'How disagreement actually goes',
+    afterLabel: 'after the conflict segment',
+    intro: 'Same team.',
+    tag: {
+      label: 'When disagreement happens on this team, which quadrant does it usually land in?',
+      options: ['Debate', 'Argue', 'Disguise', 'Undermine']
+    },
+    fields: [
+      { tag: 'evidence', label: 'Describe one specific instance.',
+        hint: 'A real disagreement, not a hypothetical one. What happened, and how could you tell which quadrant it was?' }
+    ]
+  },
+  {
+    key: 'process',
+    badge: 'Checkpoint 4 of 5',
+    title: 'Decision-making process',
+    afterLabel: 'after Bay of Pigs and the Cuban Missile Crisis',
+    intro: 'Same team.',
+    tag: {
+      label: "Which does this team's typical decision-making resemble more?",
+      options: ['Closer to Bay of Pigs', 'Closer to the Cuban Missile Crisis reforms', 'A mix of both']
+    },
+    fields: [
+      { tag: 'evidence', label: 'Which specific process characteristics stand out?',
+        hint: "Role of the leader in discussions, who's expected to speak up, whether alternatives get genuinely considered, whether anyone plays devil's advocate." }
+    ]
+  },
+  {
+    key: 'synthesis',
+    badge: 'Checkpoint 5 of 5',
+    title: 'Synthesis',
+    afterLabel: '',
+    intro: 'Given everything above, one last question.',
+    tag: {
+      label: 'Where does the greatest impediment mostly sit?',
+      options: ['Trust / safety', 'How conflict gets handled', 'Decision-making process', 'Mismatch between team type and leadership', 'Something else']
+    },
+    fields: [
+      { tag: 'impediment', label: "What's the single greatest impediment to this team's effectiveness?",
+        hint: 'Not a list of everything that could be better &mdash; the one thing that matters most.' },
+      { tag: 'action', label: "What's one thing that could actually be done about it?",
+        hint: 'Concrete enough that someone could tell whether it happened.' }
+    ]
+  }
+];
+
+let answers = {};
+CHECKPOINTS.forEach(cp => {
+  answers[cp.key] = { tag: '' };
+  cp.fields.forEach(f => { answers[cp.key][f.tag] = ''; });
+});
+
+function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers })); } catch(e){} }
+function loadState() { try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : null; } catch(e){ return null; } }
+
+(function restore() {
+  const saved = loadState();
+  if (saved && saved.answers) {
+    CHECKPOINTS.forEach(cp => {
+      if (saved.answers[cp.key]) answers[cp.key] = saved.answers[cp.key];
+    });
+  }
+})();
+
+const card = document.getElementById('card');
+const stageTag = document.getElementById('stageTag');
+
+function checkpointComplete(cp) {
+  const a = answers[cp.key];
+  if (!a.tag) return false;
+  return cp.fields.every(f => (a[f.tag]||'').trim().length >= MIN);
+}
+function firstIncompleteIndex() {
+  for (let i = 0; i < CHECKPOINTS.length; i++) {
+    if (!checkpointComplete(CHECKPOINTS[i])) return i;
+  }
+  return -1; // all complete
+}
+
+function route() {
+  const idx = firstIncompleteIndex();
+  if (idx === -1) renderComplete();
+  else renderCheckpoint(idx);
+}
+
+function renderCheckpoint(idx) {
+  const cp = CHECKPOINTS[idx];
+  stageTag.textContent = cp.badge;
+  const a = answers[cp.key];
+
+  const welcomeBack = idx > 0 ? `
+    <div class="welcome-back">
+      <strong>Continuing from Checkpoint ${idx}.</strong> Do this one ${cp.afterLabel}.
+    </div>` : '';
+
+  const tagOptionsHtml = cp.tag.options.map(opt => `
+    <button type="button" class="tag-option${a.tag===opt?' selected':''}" data-opt="${opt}">${opt}</button>
+  `).join('');
+
+  const fieldsHtml = cp.fields.map(f => `
+    <p class="field-label">${f.label}</p>
+    <p class="field-hint">${f.hint}</p>
+    <textarea class="answer" data-tag="${f.tag}" placeholder="Start typing...">${escapeHtml(a[f.tag])}</textarea>
+    <div class="counter" data-counter="${f.tag}"></div>
+  `).join('');
+
+  card.innerHTML = `
+    <p class="checkpoint-badge">${cp.badge}</p>
+    <h2 class="screen-title">${cp.title}</h2>
+    ${welcomeBack}
+    <div class="intro-text"><p>${cp.intro}</p></div>
+    <p class="tag-label">${cp.tag.label}</p>
+    <div class="tag-options">${tagOptionsHtml}</div>
+    ${fieldsHtml}
+    <div class="nav"><span></span><button class="btn-submit" id="submitBtn" disabled>${idx===CHECKPOINTS.length-1?'Finish':'Save and continue'} &rarr;</button></div>
+  `;
+
+  card.querySelectorAll('.tag-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      a.tag = btn.dataset.opt;
+      card.querySelectorAll('.tag-option').forEach(b => b.classList.toggle('selected', b.dataset.opt === a.tag));
+      refresh();
+    });
+  });
+  card.querySelectorAll('textarea[data-tag]').forEach(ta => {
+    ta.addEventListener('input', () => { a[ta.dataset.tag] = ta.value; refresh(); });
+  });
+
+  function refresh() {
+    cp.fields.forEach(f => {
+      const len = (a[f.tag]||'').trim().length, met = len >= MIN;
+      const c = card.querySelector(`[data-counter="${f.tag}"]`);
+      c.textContent = len+' / '+MIN+' characters minimum';
+      c.className = 'counter'+(met?' met':'');
+    });
+    document.getElementById('submitBtn').disabled = !checkpointComplete(cp);
+    saveState();
+  }
+  refresh();
+  document.getElementById('submitBtn').addEventListener('click', route);
+}
+
+function renderComplete() {
+  stageTag.textContent = 'Complete';
+  const text = compileOutput();
+  card.innerHTML = `
+    <h2 class="screen-title">All five checkpoints done.</h2>
+    <div class="screen-body"><p>Copy everything below and paste it as your submission for <strong>Team Diagnosis</strong> in Canvas.</p></div>
+    <div class="copy-row">
+      <button class="btn-copy" id="copyBtn">Copy everything</button>
+      <button class="btn-download" id="downloadBtn">Download a copy</button>
+      <span class="copy-confirm" id="copyConfirm">Copied &mdash; now paste it into Canvas</span>
+    </div>
+    <textarea class="output-box" id="outputBox" readonly>${escapeHtml(text)}</textarea>
+    <div class="nav"><button class="btn-restart" id="restartBtn">Go back and edit</button><span></span></div>
+  `;
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    const b=document.getElementById('outputBox'); let copied=false;
+    try{ await navigator.clipboard.writeText(text); copied=true; }
+    catch(e){ try{ b.focus(); b.select(); document.execCommand('copy'); copied=true; }catch(e2){} }
+    if(copied){ const c=document.getElementById('copyConfirm'); c.classList.add('shown'); setTimeout(()=>c.classList.remove('shown'),3000); }
+    else{ b.focus(); b.select(); }
+  });
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const blob=new Blob([text],{type:'text/plain'}); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='team-diagnosis.txt';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  });
+  document.getElementById('restartBtn').addEventListener('click', () => renderCheckpoint(CHECKPOINTS.length-1));
+}
+
+function compileOutput() {
+  const lines = ['TEAM DIAGNOSIS', ''];
+  CHECKPOINTS.forEach(cp => {
+    lines.push('=== ' + cp.title.toUpperCase() + ' ===');
+    lines.push('Tag: ' + answers[cp.key].tag);
+    lines.push('');
+    cp.fields.forEach(f => {
+      lines.push(f.label.replace(/&mdash;/g,'—').replace(/&rsquo;/g,"'"));
+      lines.push((answers[cp.key][f.tag]||'').trim());
+      lines.push('');
+    });
+  });
+  return lines.join('\n').trim();
+}
+
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+
+route();
+</script>
+</body>
+</html>
