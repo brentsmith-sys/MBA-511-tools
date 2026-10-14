@@ -355,7 +355,7 @@ function downloadText(filename, text, type) {
 function store(key, val) { try { if (val === undefined) localStorage.removeItem(key); else localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
 function load(key) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
 
-const FORM = {"url": "https://docs.google.com/forms/d/e/1FAIpQLSeP_ZXy4SNmc-vhuujtiUz9IlA_ACKdofuh8WjbcG5zBNa1DQ/viewform", "name": "entry.1840477901", "team": "entry.1599233007", "code": "entry.1275950260", "verify": "https://script.google.com/macros/s/AKfycbx4tVIP7zNp-5uhd5hNUSjH6ON3rf3vYEK_iP23xIYJnZEpLVJg56RSn-aenxRRKE0/exec"};
+const FORM = {"url": "https://docs.google.com/forms/d/e/1FAIpQLSeP_ZXy4SNmc-vhuujtiUz9IlA_ACKdofuh8WjbcG5zBNa1DQ/viewform", "name": "entry.1840477901", "team": "entry.1599233007", "code": "entry.1275950260", "verify": "https://script.google.com/macros/s/AKfycby-OaoK0OrXAO9JLvdXiX-VqYJZXtnKDyKF18rfvBtm6eglsF3xSTN3tdQd7rZExsJ8/exec"};
 
 /* ---------------- ranker widget ---------------- */
 function createRanker(root, opts) {
