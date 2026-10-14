@@ -257,13 +257,15 @@ tr.tot td{font-weight:700;border-top:2px solid var(--navy);background:#faf6ea}
   <section class="panel" id="p3">
     <div class="box" id="s3-form">
       <h2>See your results</h2>
-      <p>Your instructor will give you a passphrase once every team has finished. Until then, scores stay locked.</p>
+      <p id="s3-intro"></p>
       <label class="f" for="s3-ind">Your individual code</label>
       <input class="t" id="s3-ind" placeholder="I-…" autocomplete="off" autocapitalize="characters">
       <label class="f" for="s3-team">Your team code</label>
       <input class="t" id="s3-team" placeholder="T-…" autocomplete="off" autocapitalize="characters">
-      <label class="f" for="s3-pass">Passphrase from your instructor</label>
-      <input class="t" id="s3-pass" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <div id="s3-passbox">
+        <label class="f" for="s3-pass">Passphrase from your instructor</label>
+        <input class="t" id="s3-pass" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
       <div class="row" style="margin-top:12px"><button class="btn" id="s3-go">Show my results</button></div>
       <div class="err" id="s3-err" role="alert"></div>
     </div>
@@ -274,7 +276,7 @@ tr.tot td{font-weight:700;border-top:2px solid var(--navy);background:#faf6ea}
 <script>
 /* ---------- shared data + codec (no network, no storage of expert key in plain text) ---------- */
 const ITEMS = [{"id": "A", "text": "Find qualified people to fill positions."}, {"id": "B", "text": "Measure progress toward, and/or deviation from, the project's goals."}, {"id": "C", "text": "Identify and analyze the various job tasks necessary to implement the project."}, {"id": "D", "text": "Develop strategies (priorities, sequence, timing of major steps)."}, {"id": "E", "text": "Develop possible alternative courses of action."}, {"id": "F", "text": "Deliver appropriate consequences for individual performance."}, {"id": "G", "text": "Assign responsibility/accountability/authority."}, {"id": "H", "text": "Set project objectives (desired results)."}, {"id": "I", "text": "Train and develop personnel for new responsibility/authority."}, {"id": "J", "text": "Gather and analyze the facts of the current project situation."}, {"id": "K", "text": "Establish qualifications for new positions."}, {"id": "L", "text": "Take corrective action on the project (recycle project plans)."}, {"id": "M", "text": "Coordinate day-to-day activities."}, {"id": "N", "text": "Determine the allocation of resources (including budget, facilities, etc.)."}, {"id": "O", "text": "Measure individual performance against performance objectives and standards."}, {"id": "P", "text": "Identify the negative consequences of each course of action."}, {"id": "Q", "text": "Develop individual performance objectives which are mutually agreeable to the individual and his/her manager."}, {"id": "R", "text": "Define scope of relationships, responsibilities, and authority of new positions."}, {"id": "S", "text": "Decide on a basic course of action."}, {"id": "T", "text": "Determine when and how overall progress will be measured."}];
-const ENC = {"salt": "EVYEY7+vsYOSe8Sw9zuOdg==", "iv": "FGyPYYwq66iVd3O3", "ct": "6PYMbBrysJy68AYpX6+EzSLcGoGr3QaMrQRK5koVA4ZTjLUVb1QRHyeSDAO+gPEU2DbMlqzvyNfskgVBkWZ2iWOzDVOvr2Hn58ZcaQiuvnXkxJkaeV1OG66ViuWSISYm4NfikPsUoZa0leCYESXcwKc3peOhi1+1R9I5CKkeSVFO+TVo1vqzdxCZ+D9OL2In9z6IsDs3EOa5+6VSP7YLQbEDevqbAkYp61UZCgN03JWzMijAa3bJGyLbvA==", "iter": 250000};
+const ENC = {"salt": "skm7Yelii1fqiilZjI8MAg==", "iv": "91ICRGObBqBN670n", "ct": "SUhrjDYWtK3Ec719AiJwg6OU2rLSfbUCYzSLjwq2C44EU3epfjuPdevWlrZGtVjKLsflUN6Iftl4NEkqarT5b4KDHfDPnRDE5yYDxLtXflLWxAPD1qirBzzeXsA5DQJuq/hvo/tZ1Swv645gxvVWJ/MMPKn6abIF9K6cY42i6DXBH7DKUk014uzR8+UA5p+VnU88tkqwNwbhNcmkbk6vUcMW1kwdmfh29V0s+QguJtZHXFh5LNYZLx9RMQ==", "iter": 250000};
 const IDS = ITEMS.map(i => i.id);
 const BYID = Object.fromEntries(ITEMS.map(i => [i.id, i]));
 const N = IDS.length;
@@ -644,14 +646,49 @@ function prefill3() {
   if (!$('s3-ind').value && ind.done) $('s3-ind').value = makeCode('I', ind.order);
   if (!$('s3-team').value && team.done) $('s3-team').value = makeCode('T', team.order);
 }
+const AUTO = !!(FORM && FORM.verify);
+$('s3-intro').textContent = AUTO
+  ? 'Your scores open as soon as your individual ranking and your team\'s ranking have both been submitted through the form. Your codes are filled in below if you used this device for the rankings; otherwise paste them.'
+  : 'Your instructor will give you a passphrase once every team has finished. Until then, scores stay locked.';
+if (AUTO) {
+  const box = $('s3-passbox'), d = document.createElement('details');
+  d.style.marginTop = '10px';
+  d.innerHTML = '<summary style="cursor:pointer;color:var(--muted,#555)">My instructor gave me a passphrase</summary>';
+  box.parentNode.insertBefore(d, box); d.appendChild(box);
+}
+async function fetchPass(io, to) {
+  const u = FORM.verify + (FORM.verify.indexOf('?') < 0 ? '?' : '&') + 'ind=' + encodeURIComponent(makeCode('I', io)) + '&team=' + encodeURIComponent(makeCode('T', to)) + '&_=' + Date.now();
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 20000);
+  try {
+    const r = await fetch(u, { cache: 'no-store', signal: ctl.signal });
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
 $('s3-go').onclick = async () => {
-  const err = $('s3-err'); err.textContent = '';
+  const err = $('s3-err'), btn = $('s3-go'); err.textContent = '';
   const pi = parseCode($('s3-ind').value, 'I'); if (pi.error) { err.textContent = 'Individual code: ' + pi.error; return; }
   const pt = parseCode($('s3-team').value, 'T'); if (pt.error) { err.textContent = 'Team code: ' + pt.error; return; }
-  if (!$('s3-pass').value.trim()) { err.textContent = 'Enter the passphrase your instructor gave you. If you do not have it yet, your instructor will share it once every team has finished.'; return; }
+  const manual = $('s3-pass').value.trim();
+  let pass = manual;
+  if (!manual) {
+    if (!AUTO) { err.textContent = 'Enter the passphrase your instructor gave you. If you do not have it yet, your instructor will share it once every team has finished.'; return; }
+    btn.disabled = true; const label = btn.textContent; btn.textContent = 'Checking…';
+    let res;
+    try { res = await fetchPass(pi.order, pt.order); }
+    catch (e) { res = null; }
+    btn.disabled = false; btn.textContent = label;
+    if (!res) { err.textContent = 'We could not reach the results service. Check your connection and try again. If it keeps failing, email your instructor.'; return; }
+    if (!res.ok) {
+      const m = res.missing || [];
+      const need = m.length === 2 || !m.length ? 'your individual ranking and your team\'s ranking' : m[0] === 'individual' ? 'your individual ranking' : 'your team\'s ranking';
+      err.textContent = 'Results are not open yet. We do not see ' + need + ' in the form. Use the Submit button in ' + (m.length === 1 && m[0] === 'team' ? 'Step 2' : m.length === 1 ? 'Step 1' : 'Steps 1 and 2') + ', wait a few seconds, and try again. A teammate may also need to submit the team ranking first.';
+      return;
+    }
+    pass = res.pass;
+  }
   let key;
-  try { key = await unlockKey($('s3-pass').value); }
-  catch (e) { err.textContent = e.message === 'nocrypto' ? 'This browser blocks the feature needed to unlock results. Open the page in a current version of Chrome, Edge, Safari, or Firefox.' : 'That passphrase did not work. Check the spelling, or wait for your instructor to share it.'; return; }
+  try { key = await unlockKey(pass); }
+  catch (e) { err.textContent = e.message === 'nocrypto' ? 'This browser blocks the feature needed to unlock results. Open the page in a current version of Chrome, Edge, Safari, or Firefox.' : (manual ? 'That passphrase did not work. Check the spelling, or leave it blank to unlock automatically.' : 'The results service sent something unexpected. Email your instructor.'); return; }
   showResults(pi.order, pt.order, key);
 };
 
