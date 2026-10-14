@@ -186,7 +186,7 @@ tr.tot td{font-weight:700;border-top:2px solid var(--navy);background:#faf6ea}
     <div id="s1-receipt" class="hidden">
       <div class="box">
         <h2>Your ranking is saved</h2>
-        <p>Keep this copy for the team session: you will use it to argue for your order. A screenshot works well. <b>Do not share it with teammates before the team ranking is finished.</b> You will not be told how you scored until Step 3.</p>
+        <p>Keep this copy for the team session: you will use it to argue for your order. A screenshot works well. <b>Do not share it with teammates before your team session begins.</b> Once it does, how you use it is up to your team. You will not be told how you scored until Step 3.</p>
         <div id="s1-list"></div>
       </div>
       <div class="box">
@@ -215,7 +215,7 @@ tr.tot td{font-weight:700;border-top:2px solid var(--navy);background:#faf6ea}
   <section class="panel" id="p2">
     <div class="box">
       <h2>Team ranking</h2>
-      <p>Use the same scenario and the same 20 activities. <b>One person shares their screen and moves the tiles</b>, ideally on a laptop. Everyone else works from their own saved copy of Step 1. Talk it through and agree on a single order. Do not share your individual rankings or scores in advance.</p>
+      <p>Use the same scenario and the same 20 activities. <b>One person shares their screen and moves the tiles</b>, ideally on a laptop. Everyone else works from their own saved copy of Step 1. Talk it through and agree on a single order. Do not share your individual ranking before the team session begins. Once it does, how you use your rankings is up to your team: you might read them out, compare them, or start from a blank slate.</p>
       <p class="status">Only the person sharing needs to use this step.</p>
     </div>
     <div id="s2-work">
@@ -276,7 +276,7 @@ tr.tot td{font-weight:700;border-top:2px solid var(--navy);background:#faf6ea}
 <script>
 /* ---------- shared data + codec (no network, no storage of expert key in plain text) ---------- */
 const ITEMS = [{"id": "A", "text": "Find qualified people to fill positions."}, {"id": "B", "text": "Measure progress toward, and/or deviation from, the project's goals."}, {"id": "C", "text": "Identify and analyze the various job tasks necessary to implement the project."}, {"id": "D", "text": "Develop strategies (priorities, sequence, timing of major steps)."}, {"id": "E", "text": "Develop possible alternative courses of action."}, {"id": "F", "text": "Deliver appropriate consequences for individual performance."}, {"id": "G", "text": "Assign responsibility/accountability/authority."}, {"id": "H", "text": "Set project objectives (desired results)."}, {"id": "I", "text": "Train and develop personnel for new responsibility/authority."}, {"id": "J", "text": "Gather and analyze the facts of the current project situation."}, {"id": "K", "text": "Establish qualifications for new positions."}, {"id": "L", "text": "Take corrective action on the project (recycle project plans)."}, {"id": "M", "text": "Coordinate day-to-day activities."}, {"id": "N", "text": "Determine the allocation of resources (including budget, facilities, etc.)."}, {"id": "O", "text": "Measure individual performance against performance objectives and standards."}, {"id": "P", "text": "Identify the negative consequences of each course of action."}, {"id": "Q", "text": "Develop individual performance objectives which are mutually agreeable to the individual and his/her manager."}, {"id": "R", "text": "Define scope of relationships, responsibilities, and authority of new positions."}, {"id": "S", "text": "Decide on a basic course of action."}, {"id": "T", "text": "Determine when and how overall progress will be measured."}];
-const ENC = {"salt": "4j1j0GKrS5QmqGw8jyab8A==", "iv": "INDBUeRph81+3T8I", "ct": "6WzMEOAsCwH4KgFq3mcsYHiZTGE+9SNfQ8rwPsEtJuU+VOfkUYeoDvLAshmu1bqiUgricaNEBLeowkStxg6LMnNJoIUG94BqlORVgSMX+OqQjjo943aJJLfCjkGZOfHmDMFJ6+S0lzqSzAMkl6ZuMx0g0rHBaeJNvdHpBRe2bDbepr/ggpJ2+t0Abk04T2tMw0voA82ItDv+rQKYjR+kq+eOK4B51e6UtHSMUlaSzJ5AZXurIgGIUGlaaw==", "iter": 250000};
+const ENC = {"salt": "rmbT9gnmP8MkJztRQasc3Q==", "iv": "26XbygOKRP1wP7iz", "ct": "Xb/Rs9P8mqFQnaUaWobQ+VvcAFJ5Fw/3N3g0wrfcJtC5Z8CwMW6v2ZO6wyrt/GpoIjFb/wwarNt+bTeYxz5EgwVFxc7qNLsjEFkReEDQ8OTRUWC0aV/ZG+efy4Vt0KxYRG2XyxonmDvx2fzmwznlpJQRMSTFiDjFOF/cgLMCdL+LqXPVBddS1FUZAODUmHW1SK26ijwXF5bQQUG9jQYpUUKKpVdwmjwQhVGRkZ5sHKQVbDrQvKpvOWIrpw==", "iter": 250000};
 const IDS = ITEMS.map(i => i.id);
 const BYID = Object.fromEntries(ITEMS.map(i => [i.id, i]));
 const N = IDS.length;
