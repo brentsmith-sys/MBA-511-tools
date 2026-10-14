@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two Decisions, One President — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cambria&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#00205B; --navy-tint:#EEF0F6; --gold:#A88B3D; --gold-tint:#FBF6EA; --grey:#58595B; --light:#F7F7F9; --border:#DEDFE5; --bad:#B0392F; --bad-tint:#FBEEEC; --good:#2E7D5B; --good-tint:#EAF5EF; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:24px 16px 40px; background:var(--light); font-family:'EB Garamond',Garamond,Baskerville,'Times New Roman',serif; color:#232326; font-size:19px; line-height:1.55; }
+  h1,h2,h3 { font-family:'Cambria',Georgia,'Times New Roman',serif; }
+  .wrap { max-width:700px; margin:0 auto; }
+  .topbar { border-bottom:3px solid var(--gold); padding-bottom:10px; margin-bottom:18px; }
+  .topbar .brand { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:13px; letter-spacing:1.5px; color:var(--gold); text-transform:uppercase; }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; padding:30px 30px 26px; box-shadow:0 2px 10px rgba(0,32,91,.06); animation:fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .round-badge { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--gold); font-size:13px; text-transform:uppercase; letter-spacing:.5px; margin:0 0 6px; }
+  .screen-title { font-size:23px; color:var(--navy); margin:0 0 12px; }
+  .screen-body p { margin:0 0 14px; }
+
+  .process-list { display:flex; flex-direction:column; gap:8px; margin:16px 0 20px; }
+  .process-item { display:flex; gap:12px; padding:10px 14px; border:1px solid var(--border); border-radius:6px; background:var(--light); font-size:16px; }
+  .process-item strong { color:var(--navy); font-family:'Cambria',Georgia,serif; flex-shrink:0; min-width:130px; }
+
+  .field-label { font-family:'Cambria',Georgia,serif; font-weight:700; color:var(--navy); font-size:17px; margin:18px 0 6px; }
+  textarea.answer { width:100%; min-height:90px; padding:14px 16px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:17px; line-height:1.5; color:#232326; resize:vertical; }
+  textarea.answer:focus { outline:none; border-color:var(--navy); }
+  .counter { display:flex; justify-content:flex-end; margin-top:5px; font-family:'Cambria',Georgia,serif; font-size:13.5px; color:var(--grey); }
+  .counter.met { color:var(--gold); font-weight:700; }
+
+  .outcome-panel { margin-top:20px; padding:20px 22px; border-radius:10px; }
+  .outcome-panel.bad { background:var(--bad-tint); border:1px solid #E3B8B1; }
+  .outcome-panel.good { background:var(--good-tint); border:1px solid #C9E5D6; }
+  .outcome-panel .op-label { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:10px; }
+  .outcome-panel.bad .op-label { color:var(--bad); }
+  .outcome-panel.good .op-label { color:var(--good); }
+  .outcome-panel p { margin:0 0 10px; }
+  .outcome-panel p:last-child { margin-bottom:0; }
+
+  .nav { display:flex; justify-content:flex-end; align-items:center; margin-top:24px; }
+  .btn-next,.btn-start { font-family:'Cambria',Georgia,serif; font-weight:700; font-size:16px; border:none; border-radius:6px; padding:12px 26px; cursor:pointer; transition:background .15s; }
+  .btn-next { background:var(--navy); color:#fff; }
+  .btn-next:disabled { opacity:.35; cursor:not-allowed; }
+  .btn-next:not(:disabled):hover { background:#001642; }
+  .btn-start { background:var(--gold); color:#fff; }
+  .footnote { text-align:center; color:var(--grey); font-size:13.5px; margin-top:22px; font-family:'Cambria',Georgia,serif; }
+  @media (max-width:520px) { body{font-size:17px; padding:16px 10px 32px;} .card{padding:22px 18px 20px;} .process-item{flex-direction:column; gap:2px;} .process-item strong{min-width:0;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><span class="brand">MBA@Rice 511 &middot; Session 4</span></div>
+  <div class="card" id="card"></div>
+  <div class="footnote">This page collects no data and requires no login &mdash; nothing here is submitted or graded.</div>
+</div>
+
+<script>
+const MIN = 80;
+let prediction1 = '';
+let prediction2 = '';
+let screen = 'intro';
+const card = document.getElementById('card');
+
+function goTo(s) { screen = s; render(); }
+function render() {
+  if (screen==='intro') renderIntro();
+  else if (screen==='predict1') renderPredict1();
+  else if (screen==='reveal1') renderReveal1();
+  else if (screen==='predict2') renderPredict2();
+  else if (screen==='reveal2') renderReveal2();
+  else if (screen==='synthesis') renderSynthesis();
+}
+
+function renderIntro() {
+  card.innerHTML = `
+    <h2 class="screen-title">Two Decisions, One President</h2>
+    <div class="screen-body">
+      <p>Same administration. Same room, more or less. Some of the same brilliant, highly credentialed people. One decision became a byword for disaster. The other is taught as a model of how good process actually works.</p>
+      <p>You'll see how each decision was actually run &mdash; not the outcome, just the process &mdash; and predict what happened before you find out.</p>
+    </div>
+    <button class="btn-start" id="beginBtn">Begin</button>
+  `;
+  document.getElementById('beginBtn').addEventListener('click', () => goTo('predict1'));
+}
+
+function renderPredict1() {
+  card.innerHTML = `
+    <p class="round-badge">Decision 1</p>
+    <h2 class="screen-title">How this one was run</h2>
+    <div class="process-list">
+      <div class="process-item"><strong>The leader's role</strong> Present at every critical meeting, guiding all discussion himself.</div>
+      <div class="process-item"><strong>Participants' role</strong> Speak on your own area of expertise; stay quiet otherwise.</div>
+      <div class="process-item"><strong>Group norms</strong> Deference to experts and rank; strict adherence to protocol.</div>
+      <div class="process-item"><strong>Secrecy</strong> Extremely high &mdash; the plan was tightly held.</div>
+      <div class="process-item"><strong>Subgroups</strong> None. One group converged quickly on a single plan.</div>
+      <div class="process-item"><strong>Alternatives considered</strong> None &mdash; no real evaluation of other options.</div>
+      <div class="process-item"><strong>Dissent</strong> No one was assigned to argue the other side.</div>
+    </div>
+    <p class="field-label">Predict: given this process, what do you expect happened?</p>
+    <textarea class="answer" id="pred1" placeholder="Start typing...">${prediction1}</textarea>
+    <div class="counter" id="counter1"></div>
+    <div class="nav"><button class="btn-next" id="nextBtn" disabled>Reveal &rarr;</button></div>
+  `;
+  const box = document.getElementById('pred1');
+  function refresh() {
+    prediction1 = box.value;
+    const len = prediction1.trim().length, met = len >= MIN;
+    document.getElementById('counter1').textContent = len+' / '+MIN+' characters minimum';
+    document.getElementById('counter1').className = 'counter'+(met?' met':'');
+    document.getElementById('nextBtn').disabled = !met;
+  }
+  box.addEventListener('input', refresh); refresh();
+  document.getElementById('nextBtn').addEventListener('click', () => goTo('reveal1'));
+}
+
+function renderReveal1() {
+  card.innerHTML = `
+    <p class="round-badge">Decision 1, revealed</p>
+    <h2 class="screen-title">The Bay of Pigs</h2>
+    <div class="outcome-panel bad">
+      <span class="op-label">What actually happened</span>
+      <p>This was the Kennedy administration's decision to invade Cuba using armed, US-trained Cuban exiles. It went ahead despite widely available evidence it would fail &mdash; the training operation was an open secret, Cuban military strength had been badly underestimated, and morale among the exile force was already shaky.</p>
+      <p>Roughly 1,200 people were captured, several hundred killed, and the US ultimately paid around $80 million to get the survivors back. It became a lasting embarrassment to US foreign policy &mdash; and by most accounts, a direct contributor to the next major crisis.</p>
+      <p>Notice what the process actually predicted: a single group, rapid convergence, no dissent built in, deference to whoever outranked you in the room. That's a recipe for a bad decision regardless of how smart everyone in it is.</p>
+    </div>
+    <div class="nav"><button class="btn-next" id="nextBtn">Continue &rarr;</button></div>
+  `;
+  document.getElementById('nextBtn').addEventListener('click', () => goTo('predict2'));
+}
+
+function renderPredict2() {
+  card.innerHTML = `
+    <p class="round-badge">Decision 2</p>
+    <h2 class="screen-title">The next crisis, run differently</h2>
+    <div class="screen-body"><p>After the Bay of Pigs, Kennedy ordered his own decision-making process rebuilt. Here's how the very next major crisis &mdash; the Soviet Union placing missiles in Cuba &mdash; was actually handled.</p></div>
+    <div class="process-list">
+      <div class="process-item"><strong>The leader's role</strong> Absent from preliminary meetings &mdash; Kennedy worried his own reactions would bias the group toward whichever option he seemed to favor.</div>
+      <div class="process-item"><strong>Participants' role</strong> Everyone told to be a &ldquo;skeptical generalist&rdquo; &mdash; expertise was beside the point; the job was to question everything.</div>
+      <div class="process-item"><strong>Involvement</strong> Direct communication with everyone who had relevant information, across many parties.</div>
+      <div class="process-item"><strong>Subgroups</strong> Independent groups evaluated the two live options separately, staying coordinated, until a final joint meeting.</div>
+      <div class="process-item"><strong>Alternatives considered</strong> Two real options, genuinely weighed against each other.</div>
+      <div class="process-item"><strong>Dissent</strong> People were explicitly assigned to argue against each option.</div>
+    </div>
+    <p class="field-label">Predict again: given this very different process, what do you expect happened?</p>
+    <textarea class="answer" id="pred2" placeholder="Start typing...">${prediction2}</textarea>
+    <div class="counter" id="counter2"></div>
+    <div class="nav"><button class="btn-next" id="nextBtn" disabled>Reveal &rarr;</button></div>
+  `;
+  const box = document.getElementById('pred2');
+  function refresh() {
+    prediction2 = box.value;
+    const len = prediction2.trim().length, met = len >= MIN;
+    document.getElementById('counter2').textContent = len+' / '+MIN+' characters minimum';
+    document.getElementById('counter2').className = 'counter'+(met?' met':'');
+    document.getElementById('nextBtn').disabled = !met;
+  }
+  box.addEventListener('input', refresh); refresh();
+  document.getElementById('nextBtn').addEventListener('click', () => goTo('reveal2'));
+}
+
+function renderReveal2() {
+  card.innerHTML = `
+    <p class="round-badge">Decision 2, revealed</p>
+    <h2 class="screen-title">The Cuban Missile Crisis</h2>
+    <div class="outcome-panel good">
+      <span class="op-label">What actually happened</span>
+      <p>This process is now taught as close to a textbook example of good high-stakes decision-making. The two live options &mdash; blockade the ships carrying missiles, or bomb them &mdash; were genuinely developed in parallel, stress-tested by people specifically assigned to attack each one, and only brought together for a final decision once both had been thoroughly worked through.</p>
+      <p>Same president. Many of the same people in the room. A radically different process &mdash; and a radically different outcome.</p>
+    </div>
+    <div class="nav"><button class="btn-next" id="nextBtn">Continue &rarr;</button></div>
+  `;
+  document.getElementById('nextBtn').addEventListener('click', () => goTo('synthesis'));
+}
+
+function renderSynthesis() {
+  card.innerHTML = `
+    <h2 class="screen-title">The actual lesson</h2>
+    <div class="screen-body">
+      <p>It's tempting to explain the Bay of Pigs by saying the room lacked talent. It didn't &mdash; Kennedy had assembled some of the most capable people in government for both decisions. What changed wasn't who was in the room. It was the architecture of how they were allowed to think together.</p>
+      <p>That's the argument behind an article you'll read alongside this: making a decision <em>the right way</em> is a better bet than trying to will your way to the right decision directly. Good process doesn't guarantee a good outcome. But bad process reliably produces bad decisions, even from people who are individually brilliant &mdash; and that's the more useful thing to actually control.</p>
+    </div>
+  `;
+}
+
+render();
+</script>
+</body>
+</html>
