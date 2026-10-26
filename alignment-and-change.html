@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alignment and Change — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#00205B; --navy-tint:#EEF0F6; --gold:#A88B3D; --gold-tint:#FBF6EA; --grey:#58595B; --light:#F7F7F9; --border:#DEDFE5; --bad:#B0392F; --bad-tint:#FBEEEC; --good:#2E7D5B; --good-tint:#EAF5EF; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px 16px 40px; background:var(--light); font-family:'EB Garamond',Garamond,Baskerville,'Times New Roman',serif; color:#232326; font-size:19px; line-height:1.55; }
+  h1,h2,h3,.label { font-family:Cambria,Georgia,'Times New Roman',serif; }
+  .wrap { max-width:720px; margin:0 auto; }
+  .topbar { display:flex; justify-content:space-between; align-items:baseline; border-bottom:3px solid var(--gold); padding-bottom:10px; margin-bottom:18px; }
+  .brand { font-family:Cambria,Georgia,serif; font-weight:700; font-size:13px; letter-spacing:1.5px; color:var(--gold); text-transform:uppercase; }
+  .read { font-family:Cambria,Georgia,serif; font-size:14px; color:var(--grey); }
+  h1 { font-size:26px; color:var(--navy); margin:0 0 8px; line-height:1.25; }
+  .lede { margin:0 0 20px; }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; padding:22px 24px; box-shadow:0 2px 10px rgba(0,32,91,.06); margin-bottom:18px; }
+  .card h2 { font-size:18px; color:var(--navy); margin:0 0 10px; }
+  .card p { margin:0 0 10px; }
+  .card p:last-child { margin-bottom:0; }
+  svg { display:block; width:100%; height:auto; }
+  .note { font-family:Cambria,Georgia,serif; font-size:13px; color:var(--grey); margin:8px 0 0; text-align:center; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
+  .box { background:#fff; border:1px solid var(--border); border-top:4px solid var(--navy); border-radius:8px; padding:14px 16px; }
+  .box.trap { border-top-color:var(--bad); }
+  .box.knock { border-top-color:var(--gold); }
+  .box .label { font-size:12px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--navy); margin:0 0 6px; }
+  .box.trap .label { color:var(--bad); }
+  .box.knock .label { color:var(--gold); }
+  .box p { margin:0; font-size:17px; line-height:1.45; }
+  .foot { font-family:Cambria,Georgia,serif; font-size:13px; color:var(--grey); text-align:center; margin-top:8px; }
+  @media (max-width:560px) { body { font-size:18px; } .grid2 { grid-template-columns:1fr; } .card { padding:18px 16px; } }
+
+  .mob { display:none; }
+  .steps { list-style:none; margin:0; padding:0; }
+  .steps li { display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--border); font-size:17px; line-height:1.4; }
+  .steps li:last-child { border-bottom:0; }
+  .steps .n { flex:none; width:30px; height:30px; border-radius:50%; background:var(--navy); color:#fff; font-family:Cambria,Georgia,serif; font-weight:700; font-size:15px; display:flex; align-items:center; justify-content:center; }
+  .steps .n.g { background:var(--gold); } .steps .n.r { background:var(--bad); }
+  .steps b { font-family:Cambria,Georgia,serif; color:var(--navy); display:block; }
+  @media (max-width:560px) { .desk { display:none; } .mob { display:block; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><span class="brand">MBA@Rice 511 · Session 5</span><span class="read">About 2 minutes</span></div>
+
+  <h1>Alignment and change: a reminder from 510</h1>
+  <p class="lede">You met the organizational alignment model in 510. The videos that follow use it in one way: alignment tells you what to change, and it tells you what a change has thrown off. This page is a quick reminder.</p>
+
+  <div class="card">
+    <h2>The chain</h2>
+    <div class="desk"><svg viewBox="0 0 720 270" role="img" aria-label="Six links in order: purpose and ambition, strategy, core capabilities, culture, organization (structure, systems and processes), and people. Each link must support the one before it.">
+      <defs>
+        <marker id="ar" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#A88B3D"/></marker>
+      </defs>
+      <g font-family="Cambria, Georgia, serif" text-anchor="middle">
+        <!-- row 1 -->
+        <rect x="10"  y="20" width="200" height="80" rx="8" fill="#00205B"/>
+        <rect x="260" y="20" width="200" height="80" rx="8" fill="#00205B"/>
+        <rect x="510" y="20" width="200" height="80" rx="8" fill="#00205B"/>
+        <g fill="#fff" font-weight="700" font-size="18">
+          <text x="110" y="52">1</text><text x="360" y="52">2</text><text x="610" y="52">3</text>
+        </g>
+        <g fill="#fff" font-size="17">
+          <text x="110" y="78">Purpose and ambition</text>
+          <text x="360" y="78">Strategy</text>
+          <text x="610" y="78">Core capabilities</text>
+        </g>
+        <line x1="212" y1="60" x2="256" y2="60" stroke="#A88B3D" stroke-width="3" marker-end="url(#ar)"/>
+        <line x1="462" y1="60" x2="506" y2="60" stroke="#A88B3D" stroke-width="3" marker-end="url(#ar)"/>
+        <!-- turn -->
+        <path d="M610 102 L610 125 L110 125 L110 148" fill="none" stroke="#A88B3D" stroke-width="3" marker-end="url(#ar)"/>
+        <!-- row 2 -->
+        <rect x="10"  y="150" width="200" height="80" rx="8" fill="#A88B3D"/>
+        <rect x="260" y="150" width="200" height="80" rx="8" fill="#A88B3D"/>
+        <rect x="510" y="150" width="200" height="80" rx="8" fill="#A88B3D"/>
+        <g fill="#fff" font-weight="700" font-size="18">
+          <text x="110" y="182">4</text><text x="360" y="182">5</text><text x="610" y="182">6</text>
+        </g>
+        <g fill="#fff" font-size="17">
+          <text x="110" y="208">Culture</text>
+          <text x="360" y="200">Organization</text>
+          <text x="360" y="220" font-size="14">structure, systems, processes</text>
+          <text x="610" y="208">People</text>
+        </g>
+        <line x1="212" y1="190" x2="256" y2="190" stroke="#00205B" stroke-width="3" marker-end="url(#ar)"/>
+        <line x1="462" y1="190" x2="506" y2="190" stroke="#00205B" stroke-width="3" marker-end="url(#ar)"/>
+        <text x="360" y="257" font-size="14" fill="#58595B" font-style="italic">Each link has to support the one before it.</text>
+      </g>
+    </svg></div>
+    <ol class="steps mob"><li><span class="n">1</span><span><b>Purpose and ambition</b></span></li><li><span class="n">2</span><span><b>Strategy</b></span></li><li><span class="n">3</span><span><b>Core capabilities</b></span></li><li><span class="n g">4</span><span><b>Culture</b></span></li><li><span class="n g">5</span><span><b>Organization</b>Structure, systems and processes</span></li><li><span class="n g">6</span><span><b>People</b></span></li></ol><p class="note mob">Each link has to support the one before it.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="box"><p class="label">Use one: decide what to change</p><p>A gap between two links shows what needs to change. A change that does not restore alignment deserves skepticism.</p></div>
+    <div class="box knock"><p class="label">Use two: check after a new initiative</p><p>Every initiative disturbs other links. After a project is introduced, ask what it has pushed out of alignment. The answers are the next changes.</p></div>
+  </div>
+
+  <p class="foot">A refresher on material from MGMW 510.</p>
+</div>
+</body>
+</html>

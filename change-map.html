@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Change Map — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#00205B; --navy-tint:#EEF0F6; --gold:#A88B3D; --gold-tint:#FBF6EA; --grey:#58595B; --light:#F7F7F9; --border:#DEDFE5; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px 16px 40px; background:var(--light); font-family:'EB Garamond',Garamond,Baskerville,'Times New Roman',serif; color:#232326; font-size:19px; line-height:1.55; }
+  h1,h2,h3,.label,button,select,.counter { font-family:Cambria,Georgia,'Times New Roman',serif; }
+  .wrap { max-width:700px; margin:0 auto; }
+  .topbar { display:flex; justify-content:space-between; align-items:baseline; border-bottom:3px solid var(--gold); padding-bottom:10px; margin-bottom:18px; }
+  .brand { font-weight:700; font-size:13px; letter-spacing:1.5px; color:var(--gold); text-transform:uppercase; }
+  .tag { font-size:14px; color:var(--grey); }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; padding:28px 30px 26px; box-shadow:0 2px 10px rgba(0,32,91,.06); }
+  h1 { font-size:24px; color:var(--navy); margin:0 0 10px; }
+  .intro p { margin:0 0 12px; }
+  .callout { background:var(--navy-tint); border:1px solid #D3D8E8; border-radius:6px; padding:14px 18px; margin:0 0 6px; font-size:17px; }
+  .section { margin-top:26px; padding-top:6px; border-top:1px solid var(--border); }
+  .section h2 { font-size:18px; color:var(--navy); margin:14px 0 4px; }
+  .section .sub { font-size:16px; color:var(--grey); margin:0 0 4px; }
+  .fl { font-weight:700; color:var(--navy); font-size:16.5px; margin:16px 0 3px; display:block; }
+  .hint { font-size:15.5px; color:var(--grey); margin:0 0 6px; }
+  textarea, input[type=text], select { width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:17px; line-height:1.45; color:#232326; background:#fff; }
+  textarea { min-height:96px; resize:vertical; }
+  select { font-family:Cambria,Georgia,serif; font-size:16px; }
+  textarea:focus, input:focus, select:focus { outline:none; border-color:var(--navy); }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .counter { text-align:right; font-size:13px; color:var(--grey); margin-top:4px; }
+  .counter.met { color:var(--gold); font-weight:700; }
+  .shown-box { background:var(--gold-tint); border-left:4px solid var(--gold); border-radius:0 6px 6px 0; padding:10px 14px; margin:4px 0 6px; font-size:17px; white-space:pre-wrap; }
+  .btn { font-weight:700; font-size:16px; border:none; border-radius:6px; padding:12px 26px; cursor:pointer; }
+  .btn-main { background:var(--navy); color:#fff; }
+  .btn-main:disabled { opacity:.35; cursor:not-allowed; }
+  .btn-gold { background:var(--gold); color:#fff; }
+  .btn-ghost { background:#fff; color:var(--navy); border:1px solid var(--navy); }
+  .btn-dl { background:#fff; color:var(--grey); border:1px solid var(--border); font-size:14px; padding:9px 18px; }
+  .nav { margin-top:28px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .need { font-size:14px; color:var(--grey); font-family:Cambria,Georgia,serif; }
+  .out { width:100%; min-height:340px; padding:16px; border:1px solid var(--border); border-radius:6px; font-family:'Courier New',monospace; font-size:14px; line-height:1.5; background:var(--light); white-space:pre-wrap; }
+  .copy-row { display:flex; align-items:center; gap:12px; margin:14px 0 8px; flex-wrap:wrap; }
+  .confirm { color:var(--gold); font-weight:700; font-family:Cambria,Georgia,serif; font-size:15px; opacity:0; transition:opacity .2s; }
+  .confirm.shown { opacity:1; }
+  .foot { text-align:center; color:var(--grey); font-size:13.5px; margin-top:22px; font-family:Cambria,Georgia,serif; }
+  .hidden { display:none; }
+  @media (max-width:520px) { body { font-size:17px; padding:16px 10px 32px; } .card { padding:20px 16px; } .row2 { grid-template-columns:1fr; } textarea, input[type=text] { font-size:16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><span class="brand">Change Map · Session 5</span><span class="tag" id="tag">About 25 minutes</span></div>
+  <div class="card" id="card"></div>
+  <div class="foot">This page collects no data and requires no login. What you write stays in this browser until you copy or download it yourself.</div>
+</div>
+<script>
+const CFG = {"storageKey": "rice511_s5_changemap_v1", "reads": "rice511_s5_preplay_v1", "title": "Change Map", "short": "map", "file": "change-map.txt", "header": "CHANGE MAP", "intro": "<p>Apply what you have just learned to a <strong>real change at your own organization</strong>: one you are leading, one you are facing, or one you would like to lead. Choose one where you know the people.</p><p class=\"callout\">Use roles or initials, not full names, and leave out anything confidential. There are three parts. Part 3 asks you to look back at your simulation run.</p>", "sections": [{"title": "Part 1: The change", "fields": [{"id": "change", "type": "area", "min": 80, "label": "In one or two sentences, what is the change, and what does it ask of whom?"}]}, {"title": "Part 1: Person 1", "fields": [{"id": "p1who", "type": "text", "min": 2, "label": "Role or initials (no full names)"}, {"id": "p1curve", "type": "select", "half": true, "label": "Where they sit on the adoption curve", "options": ["Innovator", "Opinion leader", "Early adopter", "Late adopter", "Laggard or resister"]}, {"id": "p1stage", "type": "select", "half": true, "label": "Stage they are in now", "options": ["Not yet aware", "Aware", "Interested", "Evaluating", "Trying", "Adopted"]}, {"id": "p1conn", "type": "select", "half": true, "label": "How connected they are", "options": ["Hub: connected to many people across groups", "Average connections", "Few connections"]}, {"id": "p1power", "type": "select", "half": true, "label": "Their power over the change", "options": ["High", "Low"]}, {"id": "p1int", "type": "select", "half": true, "label": "Their interest in the change", "options": ["High", "Low"]}]}, {"title": "Part 1: Person 2", "fields": [{"id": "p2who", "type": "text", "min": 2, "label": "Role or initials (no full names)"}, {"id": "p2curve", "type": "select", "half": true, "label": "Where they sit on the adoption curve", "options": ["Innovator", "Opinion leader", "Early adopter", "Late adopter", "Laggard or resister"]}, {"id": "p2stage", "type": "select", "half": true, "label": "Stage they are in now", "options": ["Not yet aware", "Aware", "Interested", "Evaluating", "Trying", "Adopted"]}, {"id": "p2conn", "type": "select", "half": true, "label": "How connected they are", "options": ["Hub: connected to many people across groups", "Average connections", "Few connections"]}, {"id": "p2power", "type": "select", "half": true, "label": "Their power over the change", "options": ["High", "Low"]}, {"id": "p2int", "type": "select", "half": true, "label": "Their interest in the change", "options": ["High", "Low"]}]}, {"title": "Part 1: Person 3", "fields": [{"id": "p3who", "type": "text", "min": 2, "label": "Role or initials (no full names)"}, {"id": "p3curve", "type": "select", "half": true, "label": "Where they sit on the adoption curve", "options": ["Innovator", "Opinion leader", "Early adopter", "Late adopter", "Laggard or resister"]}, {"id": "p3stage", "type": "select", "half": true, "label": "Stage they are in now", "options": ["Not yet aware", "Aware", "Interested", "Evaluating", "Trying", "Adopted"]}, {"id": "p3conn", "type": "select", "half": true, "label": "How connected they are", "options": ["Hub: connected to many people across groups", "Average connections", "Few connections"]}, {"id": "p3power", "type": "select", "half": true, "label": "Their power over the change", "options": ["High", "Low"]}, {"id": "p3int", "type": "select", "half": true, "label": "Their interest in the change", "options": ["High", "Low"]}]}, {"title": "Part 1: Person 4", "fields": [{"id": "p4who", "type": "text", "min": 2, "label": "Role or initials (no full names)"}, {"id": "p4curve", "type": "select", "half": true, "label": "Where they sit on the adoption curve", "options": ["Innovator", "Opinion leader", "Early adopter", "Late adopter", "Laggard or resister"]}, {"id": "p4stage", "type": "select", "half": true, "label": "Stage they are in now", "options": ["Not yet aware", "Aware", "Interested", "Evaluating", "Trying", "Adopted"]}, {"id": "p4conn", "type": "select", "half": true, "label": "How connected they are", "options": ["Hub: connected to many people across groups", "Average connections", "Few connections"]}, {"id": "p4power", "type": "select", "half": true, "label": "Their power over the change", "options": ["High", "Low"]}, {"id": "p4int", "type": "select", "half": true, "label": "Their interest in the change", "options": ["High", "Low"]}]}, {"title": "Part 1: Person 5", "fields": [{"id": "p5who", "type": "text", "min": 2, "label": "Role or initials (no full names)"}, {"id": "p5curve", "type": "select", "half": true, "label": "Where they sit on the adoption curve", "options": ["Innovator", "Opinion leader", "Early adopter", "Late adopter", "Laggard or resister"]}, {"id": "p5stage", "type": "select", "half": true, "label": "Stage they are in now", "options": ["Not yet aware", "Aware", "Interested", "Evaluating", "Trying", "Adopted"]}, {"id": "p5conn", "type": "select", "half": true, "label": "How connected they are", "options": ["Hub: connected to many people across groups", "Average connections", "Few connections"]}, {"id": "p5power", "type": "select", "half": true, "label": "Their power over the change", "options": ["High", "Low"]}, {"id": "p5int", "type": "select", "half": true, "label": "Their interest in the change", "options": ["High", "Low"]}]}, {"title": "Part 1: Person 6", "fields": [{"id": "p6who", "type": "text", "min": 2, "label": "Role or initials (no full names)"}, {"id": "p6curve", "type": "select", "half": true, "label": "Where they sit on the adoption curve", "options": ["Innovator", "Opinion leader", "Early adopter", "Late adopter", "Laggard or resister"]}, {"id": "p6stage", "type": "select", "half": true, "label": "Stage they are in now", "options": ["Not yet aware", "Aware", "Interested", "Evaluating", "Trying", "Adopted"]}, {"id": "p6conn", "type": "select", "half": true, "label": "How connected they are", "options": ["Hub: connected to many people across groups", "Average connections", "Few connections"]}, {"id": "p6power", "type": "select", "half": true, "label": "Their power over the change", "options": ["High", "Low"]}, {"id": "p6int", "type": "select", "half": true, "label": "Their interest in the change", "options": ["High", "Low"]}]}, {"title": "Part 2: Your first moves", "fields": [{"id": "first2", "type": "area", "min": 100, "label": "Whom would you approach first, and why?", "hint": "Name the first two people from your list above and say what makes them the right starting point."}, {"id": "resister", "type": "text", "min": 2, "label": "Your strongest resister (role or initials)"}, {"id": "step1", "type": "area", "min": 40, "label": "Concession ladder, step 1: the big ask you would make of this resister"}, {"id": "step2", "type": "area", "min": 40, "label": "Step 2: the smaller ask you would fall back to if they refuse"}, {"id": "step3", "type": "area", "min": 40, "label": "Step 3: the small trial you would settle for"}, {"id": "case", "type": "select", "label": "To this audience, which case would you make?", "options": ["The opportunity", "The loss if nothing changes"]}, {"id": "casewhy", "type": "area", "min": 60, "label": "Why that case, and what would it sound like in one or two sentences?"}, {"id": "identity", "type": "area", "min": 60, "label": "Name one person for whom this change threatens their sense of who they are, and say how."}]}, {"title": "Part 3: Your simulation run, re-read", "sub": "Look back at what you did in the simulation.", "shownFromEarlier": (e => "Your first ask: " + (e.ask1||"").trim() + "\nIf refused: " + (e.ask2||"").trim()), "fields": [{"id": "used", "type": "area", "min": 80, "label": "Which ideas from the videos did you already use in the simulation, even without the names?"}, {"id": "wish", "type": "area", "min": 60, "label": "Which one do you wish you had used, and where would it have changed what happened?"}, {"id": "newask", "type": "area", "min": 80, "label": "Your Pre-Play Plan first ask (shown above, if this browser has it): what would you change about it now, and why?"}]}], "doneTitle": "Your Change Map is ready.", "doneText": "Copy everything below and paste it as your submission for <strong>Change Map</strong> in Canvas.", "summary": (a => {
+  let hubs=0, early=0, powRes=0, close=0, adopted=0, n=0;
+  for (let i=1;i<=6;i++){
+    if(!(a["p"+i+"who"]||"").trim()) continue; n++;
+    if((a["p"+i+"conn"]||"").indexOf("Hub")===0) hubs++;
+    const c=a["p"+i+"curve"]||"";
+    if(c==="Innovator"||c==="Opinion leader"||c==="Early adopter") early++;
+    if(a["p"+i+"power"]==="High" && (c==="Late adopter"||c==="Laggard or resister")) powRes++;
+    if(a["p"+i+"power"]==="High" && a["p"+i+"int"]==="High") close++;
+    if(a["p"+i+"stage"]==="Adopted") adopted++;
+  }
+  return ["People mapped: "+n, "Hubs: "+hubs, "Innovators, opinion leaders or early adopters: "+early, "High power and late adopter or resister: "+powRes, "High power and high interest: "+close, "Already adopted: "+adopted];
+})};
+const STORE = CFG.storageKey;
+let ans = {};
+try { ans = JSON.parse(localStorage.getItem(STORE) || '{}') || {}; } catch (e) { ans = {}; }
+function save() { try { localStorage.setItem(STORE, JSON.stringify(ans)); } catch (e) {} }
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// Earlier answers from the Pre-Play Plan, if this browser has them
+let earlier = null;
+if (CFG.reads) { try { earlier = JSON.parse(localStorage.getItem(CFG.reads) || 'null'); } catch (e) { earlier = null; } }
+
+function fieldsAll() { const out = []; CFG.sections.forEach(s => s.fields.forEach(f => out.push(f))); return out; }
+function visible(f) { return !f.onlyIf || f.onlyIf(earlier); }
+function done(f) {
+  if (!visible(f)) return true;
+  const v = (ans[f.id] || '').trim();
+  if (f.type === 'select') return v !== '';
+  return v.length >= (f.min || 1);
+}
+function allDone() { return fieldsAll().every(done); }
+function missing() { return fieldsAll().filter(f => !done(f)).length; }
+
+function render() {
+  const card = document.getElementById('card'); card.innerHTML = '';
+  card.appendChild(el('h1', '', CFG.title));
+  const intro = el('div', 'intro'); intro.innerHTML = CFG.intro; card.appendChild(intro);
+  CFG.sections.forEach(s => {
+    const sec = el('div', 'section');
+    sec.appendChild(el('h2', '', s.title));
+    if (s.sub) sec.appendChild(el('p', 'sub', s.sub));
+    if (s.shownFromEarlier && earlier) {
+      const box = el('div', 'shown-box'); box.textContent = s.shownFromEarlier(earlier); sec.appendChild(box);
+    }
+    const group = []; // pair fields in two columns where flagged
+    let row = null;
+    s.fields.forEach(f => {
+      if (!visible(f)) return;
+      const wrap = el('div');
+      wrap.appendChild(el('label', 'fl', f.label)).setAttribute('for', f.id);
+      if (f.hint) wrap.appendChild(el('p', 'hint', f.hint));
+      let inp;
+      if (f.type === 'select') {
+        inp = el('select'); inp.id = f.id;
+        const o0 = el('option', '', 'Choose one'); o0.value = ''; inp.appendChild(o0);
+        f.options.forEach(o => { const op = el('option'); op.value = o; op.textContent = o; inp.appendChild(op); });
+        inp.value = ans[f.id] || '';
+        inp.addEventListener('change', () => { ans[f.id] = inp.value; save(); refresh(); });
+      } else if (f.type === 'text') {
+        inp = el('input'); inp.type = 'text'; inp.id = f.id; inp.value = ans[f.id] || '';
+        inp.addEventListener('input', () => { ans[f.id] = inp.value; save(); refresh(); });
+      } else {
+        inp = el('textarea'); inp.id = f.id; inp.value = ans[f.id] || ''; inp.placeholder = 'Start typing...';
+        inp.addEventListener('input', () => { ans[f.id] = inp.value; save(); refresh(); });
+      }
+      wrap.appendChild(inp);
+      if (f.type === 'area') { const c = el('div', 'counter'); c.id = 'c_' + f.id; wrap.appendChild(c); }
+      if (f.half) {
+        if (!row) { row = el('div', 'row2'); sec.appendChild(row); }
+        row.appendChild(wrap);
+        if (row.children.length === 2) row = null;
+      } else { row = null; sec.appendChild(wrap); }
+    });
+    card.appendChild(sec);
+  });
+  const nav = el('div', 'nav');
+  const btn = el('button', 'btn btn-main', 'Compile my ' + CFG.short + ' &rarr;'); btn.id = 'go'; btn.disabled = true;
+  const need = el('span', 'need'); need.id = 'need';
+  nav.appendChild(btn); nav.appendChild(need); card.appendChild(nav);
+  btn.addEventListener('click', renderOutput);
+  refresh();
+}
+function refresh() {
+  fieldsAll().forEach(f => {
+    if (f.type !== 'area' || !visible(f)) return;
+    const c = document.getElementById('c_' + f.id); if (!c) return;
+    const n = (ans[f.id] || '').trim().length, ok = n >= (f.min || 1);
+    c.textContent = n + ' / ' + f.min + ' characters minimum'; c.className = 'counter' + (ok ? ' met' : '');
+  });
+  const m = missing();
+  const go = document.getElementById('go'); if (go) go.disabled = m > 0;
+  const nd = document.getElementById('need'); if (nd) nd.textContent = m > 0 ? m + ' item' + (m === 1 ? '' : 's') + ' still to complete' : 'Ready to compile';
+}
+function compile() {
+  const L = [CFG.header, ''];
+  CFG.sections.forEach(s => {
+    L.push('=== ' + s.title.toUpperCase() + ' ===');
+    if (s.shownFromEarlier && earlier) { L.push('(From your Pre-Play Plan)'); L.push(s.shownFromEarlier(earlier)); L.push(''); }
+    s.fields.forEach(f => {
+      if (!visible(f)) return;
+      L.push(f.label); L.push((ans[f.id] || '').trim()); L.push('');
+    });
+  });
+  if (CFG.summary) { L.push('=== SUMMARY (calculated from your answers) ==='); CFG.summary(ans).forEach(x => L.push(x)); L.push(''); }
+  return L.join('\n').trim();
+}
+function renderOutput() {
+  const text = compile();
+  const card = document.getElementById('card');
+  card.innerHTML = '<h1>' + CFG.doneTitle + '</h1><div class="intro"><p>' + CFG.doneText + '</p></div>' +
+    '<div class="copy-row"><button class="btn btn-gold" id="cp">Copy everything</button><button class="btn btn-dl" id="dl">Download a copy</button><span class="confirm" id="cf">Copied &mdash; now paste it into Canvas</span></div>' +
+    '<textarea class="out" id="out" readonly></textarea>' +
+    '<div class="nav"><button class="btn btn-ghost" id="back">Go back and edit</button></div>';
+  document.getElementById('out').value = text;
+  document.getElementById('cp').addEventListener('click', async () => {
+    const b = document.getElementById('out'); let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch (e) { try { b.focus(); b.select(); document.execCommand('copy'); ok = true; } catch (e2) {} }
+    if (ok) { const c = document.getElementById('cf'); c.classList.add('shown'); setTimeout(() => c.classList.remove('shown'), 3000); } else { b.focus(); b.select(); }
+  });
+  document.getElementById('dl').addEventListener('click', () => {
+    const blob = new Blob([text], { type: 'text/plain' }), url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = CFG.file; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  });
+  document.getElementById('back').addEventListener('click', render);
+  window.scrollTo(0, 0);
+}
+render();
+</script>
+</body>
+</html>
