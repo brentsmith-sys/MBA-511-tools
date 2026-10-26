@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Name That Change — MBA@Rice 511</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#00205B; --navy-tint:#EEF0F6; --gold:#A88B3D; --gold-tint:#FBF6EA; --grey:#58595B; --light:#F7F7F9; --border:#DEDFE5; --good:#2E7D5B; --good-tint:#EAF5EF; --bad:#B0392F; --bad-tint:#FBEEEC; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px 16px 40px; background:var(--light); font-family:'EB Garamond',Garamond,Baskerville,'Times New Roman',serif; color:#232326; font-size:19px; line-height:1.55; }
+  h1,h2,h3,button,.label { font-family:Cambria,Georgia,'Times New Roman',serif; }
+  .wrap { max-width:700px; margin:0 auto; }
+  .topbar { display:flex; justify-content:space-between; align-items:baseline; border-bottom:3px solid var(--gold); padding-bottom:10px; margin-bottom:18px; }
+  .brand { font-weight:700; font-size:13px; letter-spacing:1.5px; color:var(--gold); text-transform:uppercase; }
+  .progress { font-size:14px; color:var(--grey); font-family:Cambria,Georgia,serif; }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; padding:28px 30px 26px; box-shadow:0 2px 10px rgba(0,32,91,.06); }
+  h1 { font-size:24px; color:var(--navy); margin:0 0 10px; }
+  .vignette { background:var(--navy-tint); border-radius:8px; padding:16px 18px; margin:0 0 18px; }
+  .vignette .label { font-size:12px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--navy); margin:0 0 6px; display:block; }
+  .q { font-family:Cambria,Georgia,serif; font-weight:700; color:var(--navy); font-size:17px; margin:0 0 10px; }
+  .grid { display:grid; grid-template-columns:90px 1fr 1fr; gap:8px; align-items:stretch; margin-bottom:6px; }
+  .colhead, .rowhead { font-family:Cambria,Georgia,serif; font-size:13px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--grey); display:flex; align-items:center; justify-content:center; text-align:center; }
+  .cell { padding:14px 10px; border:1px solid var(--border); border-radius:8px; background:#fff; font-family:Cambria,Georgia,serif; font-weight:700; font-size:16px; cursor:pointer; text-align:center; line-height:1.3; }
+  .cell small { display:block; font-weight:400; font-size:13px; color:var(--grey); margin-top:3px; }
+  .cell:hover:not(:disabled) { border-color:var(--navy); }
+  .cell:disabled { cursor:default; }
+  .cell.right { border-color:var(--good); background:var(--good-tint); color:var(--good); }
+  .cell.wrong { border-color:var(--bad); background:var(--bad-tint); color:var(--bad); }
+  .cell.reveal { border-color:var(--good); background:var(--good-tint); color:var(--good); }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px; }
+  .fb { display:none; margin-top:16px; padding:16px 18px; border-radius:8px; }
+  .fb.open { display:block; }
+  .fb.ok { background:var(--good-tint); border:1px solid #C9E5D6; }
+  .fb.no { background:var(--bad-tint); border:1px solid #E3B8B1; }
+  .fb .label { font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:6px; }
+  .fb.ok .label { color:var(--good); } .fb.no .label { color:var(--bad); }
+  .fb p { margin:0 0 8px; } .fb p:last-child { margin:0; }
+  .nav { display:flex; justify-content:flex-end; margin-top:20px; }
+  .btn { background:var(--navy); color:#fff; border:none; border-radius:6px; font-weight:700; font-size:16px; padding:12px 26px; cursor:pointer; }
+  .btn.ghost { background:#fff; color:var(--navy); border:1px solid var(--navy); }
+  .score { font-size:44px; font-weight:700; color:var(--navy); font-family:Cambria,Georgia,serif; margin:6px 0; }
+  .foot { text-align:center; color:var(--grey); font-size:13.5px; margin-top:22px; font-family:Cambria,Georgia,serif; }
+  ul.recap { padding-left:20px; margin:12px 0 0; } ul.recap li { margin-bottom:8px; }
+  @media (max-width:560px) { body { font-size:17px; padding:16px 10px 32px; } .card { padding:20px 16px; } .grid { grid-template-columns:1fr 1fr; } .grid .corner, .grid .rowhead { display:none; } .cell small { display:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><span class="brand">Name That Change · Session 5</span><span class="progress" id="progress"></span></div>
+  <div class="card" id="card"></div>
+  <div class="foot">Practice only. This page collects no data and nothing here is submitted.</div>
+</div>
+<script>
+// type: row (0 incremental, 1 strategic) x col (0 anticipated, 1 reactive)
+const NAMES = [["Tuning", "Incremental and reactive"], ["Reorientation", "Recreation"]];
+const ROWS = ["Incremental", "Strategic"], COLS = ["Anticipated", "Reactive"];
+const ITEMS = [
+ {
+  who: "An oil and gas company",
+  text: "Oil prices fall to almost $29 a barrel. Leadership decides the company will concentrate on North American onshore resource plays and rebuilds its capabilities, culture and organization around that strategy.",
+  type: [1, 1],
+  why: "The strategy changed, which makes it strategic, and the company was reacting to the price collapse, which makes it reactive. The course calls that combination a recreation. It is easier to start than a reorientation but has the highest mortality rate, because you are reacting and have little time to manage the change.",
+  aim: null
+ },
+ {
+  who: "A hospital system",
+  text: "Its quality team projects that shift handoffs will strain as patient volume grows. Well before anything goes wrong, the system adds a short standard checklist to its existing handoff process.",
+  type: [0, 0],
+  why: "A small adjustment to an existing process, made ahead of any problem. That is tuning: usually not very disruptive and not very difficult, because the consequences for employees are modest.",
+  aim: null
+ },
+ {
+  who: "A regional bank",
+  text: "Two competitors now open accounts the same day. To keep up, the bank copies the practice in its branches. Its business model stays exactly as it was.",
+  type: [0, 1],
+  why: "The change is a tweak, not a change in strategy, so it is incremental, and it is a response to what competitors did, so it is reactive.",
+  aim: null,
+  note: "The course describes this type but gives it no name, so it appears here by its description."
+ },
+ {
+  who: "A consumer electronics maker",
+  text: "Early signs suggest its main product category will become a commodity within about five years. While the company is still profitable, leadership begins moving it toward software services, redesigning its structure, incentives and skills so the new strategy has what it needs.",
+  type: [1, 0],
+  why: "A change in strategy, made before a crisis forces it. That is a reorientation. It is the hardest type to carry out, because the event that justifies it is still in the future, so you must build the case with a company that does not yet feel the need.",
+  aim: { q: "What is this change mainly trying to build?", opts: ["Economic value, such as cost cutting", "Organizational capability"], right: 1, why: "It builds the skills, structure and incentives for a new strategy, which is the capability aim. It pays off over the long term and is not a cost-cutting move." }
+ },
+ {
+  who: "A manufacturer",
+  text: "Demand drops sharply. Within two months the company cuts 15 percent of staff across every function. Its strategy and products stay the same.",
+  type: [0, 1],
+  why: "Strategy does not change, so the change is incremental, and it responds to a sudden drop in demand, so it is reactive.",
+  aim: { q: "What is this change mainly trying to build?", opts: ["Economic value, such as cost cutting", "Organizational capability"], right: 0, why: "Rapid cost cutting is the economic value aim. Layoffs rarely improve long-term returns outside a real need to downsize." },
+  note: "The course describes this type but gives it no name, so it appears here by its description."
+ }
+];
+let i = 0, score = 0, aimScore = 0, aimTotal = 0;
+const card = document.getElementById('card'), prog = document.getElementById('progress');
+
+function start() {
+  prog.textContent = '';
+  card.innerHTML = '<h1>Name That Change</h1>' +
+    '<p>Five organizations, each making a change. For each one, decide which of four types it is:</p>' +
+    '<ul class="recap"><li>Is the change <strong>incremental</strong> (a tweak to what the organization does) or <strong>strategic</strong> (a change in strategy)?</li>' +
+    '<li>Is it <strong>anticipated</strong>, or a <strong>reaction</strong> to something already happening?</li></ul>' +
+    '<p style="margin-top:14px">For two of them you will also say whether the aim is economic value or organizational capability. You see the answer right after each choice. This takes about eight minutes.</p>' +
+    '<div class="nav"><button class="btn" id="go">Start &rarr;</button></div>';
+  document.getElementById('go').onclick = show;
+}
+
+function show() {
+  const it = ITEMS[i];
+  prog.textContent = (i + 1) + ' of ' + ITEMS.length;
+  let g = '<div class="grid"><span class="corner"></span><span class="colhead">' + COLS[0] + '</span><span class="colhead">' + COLS[1] + '</span>';
+  for (let r = 0; r < 2; r++) {
+    g += '<span class="rowhead">' + ROWS[r] + '</span>';
+    for (let c = 0; c < 2; c++) {
+      const label = (r === 0 && c === 1) ? 'Incremental and reactive' : NAMES[r][c];
+      g += '<button class="cell" data-r="' + r + '" data-c="' + c + '">' + label + '<small>' + ROWS[r].toLowerCase() + ', ' + COLS[c].toLowerCase() + '</small></button>';
+    }
+  }
+  g += '</div>';
+  card.innerHTML = '<div class="vignette"><span class="label">' + it.who + '</span>' + it.text + '</div>' +
+    '<p class="q">Which type of change is this?</p>' + g +
+    '<div id="aimBox"></div><div class="fb" id="fb"></div><div class="nav" id="nav"></div>';
+  card.querySelectorAll('.cell').forEach(b => b.onclick = () => pickType(b));
+}
+
+function pickType(btn) {
+  const it = ITEMS[i], r = +btn.dataset.r, c = +btn.dataset.c;
+  const right = (r === it.type[0] && c === it.type[1]);
+  card.querySelectorAll('.cell').forEach(b => {
+    b.disabled = true;
+    if (+b.dataset.r === it.type[0] && +b.dataset.c === it.type[1]) b.classList.add(right ? 'right' : 'reveal');
+  });
+  if (!right) btn.classList.add('wrong');
+  if (right) score++;
+  if (it.aim) { askAim(right); } else { finish(right, null); }
+}
+
+function askAim(typeRight) {
+  const a = ITEMS[i].aim;
+  const box = document.getElementById('aimBox');
+  box.innerHTML = '<p class="q" style="margin-top:18px">' + a.q + '</p><div class="two">' +
+    a.opts.map((o, k) => '<button class="cell" data-k="' + k + '">' + o + '</button>').join('') + '</div>';
+  box.querySelectorAll('.cell').forEach(b => b.onclick = () => {
+    const k = +b.dataset.k, ok = (k === a.right);
+    box.querySelectorAll('.cell').forEach(x => { x.disabled = true; if (+x.dataset.k === a.right) x.classList.add(ok ? 'right' : 'reveal'); });
+    if (!ok) b.classList.add('wrong');
+    aimTotal++; if (ok) aimScore++;
+    finish(typeRight, ok);
+  });
+}
+
+function finish(typeRight, aimRight) {
+  const it = ITEMS[i], fb = document.getElementById('fb');
+  const allRight = typeRight && (aimRight === null || aimRight);
+  fb.className = 'fb open ' + (allRight ? 'ok' : 'no');
+  let h = '<span class="label">' + (allRight ? 'That\'s right' : 'Not quite') + '</span><p>' + it.why + '</p>';
+  if (it.aim) h += '<p>' + it.aim.why + '</p>';
+  if (it.note) h += '<p><em>' + it.note + '</em></p>';
+  fb.innerHTML = h;
+  const last = (i === ITEMS.length - 1);
+  document.getElementById('nav').innerHTML = '<button class="btn" id="nx">' + (last ? 'See your result' : 'Next') + ' &rarr;</button>';
+  document.getElementById('nx').onclick = () => { if (last) result(); else { i++; show(); } };
+}
+
+function result() {
+  prog.textContent = 'Done';
+  card.innerHTML = '<h1>Your result</h1><div class="score">' + score + ' of ' + ITEMS.length + '</div>' +
+    '<p>types identified correctly' + (aimTotal ? ', and ' + aimScore + ' of ' + aimTotal + ' aims.' : '.') + '</p>' +
+    '<ul class="recap">' +
+    '<li><strong>Reorientation</strong> is the hardest to carry out, because you must convince people to change before anything forces them to.</li>' +
+    '<li><strong>Recreation</strong> has the highest mortality rate, because you are reacting and rarely have enough time to manage it.</li>' +
+    '<li>You will use this classification again when you look back at your simulation run in the Change Map.</li></ul>' +
+    '<div class="nav"><button class="btn ghost" id="again">Try again</button></div>';
+  document.getElementById('again').onclick = () => { i = 0; score = 0; aimScore = 0; aimTotal = 0; start(); };
+}
+start();
+</script>
+</body>
+</html>
